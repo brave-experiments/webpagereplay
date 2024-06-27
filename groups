@@ -1,7 +1,5 @@
 # UUID                                  	Group Name
 #
 7ac92b39c018ca18bbfe535744b6a19f7489999c	project-webpagereplay-committers
-cria:project-speedometer-admins         	cria/project-speedometer-admins
-cria:project-speedometer-committers     	cria/project-speedometer-committers
 global:Change-Owner                     	Change Owner
 mdb:chrome-git-admins                   	mdb/chrome-git-admins
