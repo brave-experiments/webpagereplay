@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b6134fe_5b47583b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1132654
+      },
+      "writtenOn": "2024-07-17T14:45:46Z",
+      "side": 1,
+      "message": "PTAL (I\u0027m not sure the gerrit permissions are set up correctly but this might work)\n\nThe plan is to then do a follow-up CL to DEPS-roll this into catapult.",
+      "revId": "915e51b3d2f69afbb277f2ead3e9cdcd6ea6f87f",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
