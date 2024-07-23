@@ -33,6 +33,24 @@
       "message": "Thanks for starting this, I was going to see if we could somehow port over the history as well from web_page_replay_go. I re-opened the request you had made to see if that is feasible first.",
       "revId": "915e51b3d2f69afbb277f2ead3e9cdcd6ea6f87f",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8394438e_357fc75c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1132654
+      },
+      "writtenOn": "2024-07-23T09:45:19Z",
+      "side": 1,
+      "message": "Ah yes I had that as lower prio idea as well...\n\nIf I get direct push access we can walk the wpr folder and manually import the commits.",
+      "parentUuid": "33a37c1f_dd67f83a",
+      "revId": "915e51b3d2f69afbb277f2ead3e9cdcd6ea6f87f",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
