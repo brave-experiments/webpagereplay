@@ -34,6 +34,24 @@
       "parentUuid": "5661762b_3519ce14",
       "revId": "eff03f656903fdb1b68a92dd4e03105fd5fa68ae",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1caa1982_183aa3a3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3355336
+      },
+      "writtenOn": "2024-07-24T20:33:31Z",
+      "side": 1,
+      "message": "Huh, I can\u0027t submit this because I\u0027m not a committer.  I\u0027ll apply the change via the UI",
+      "parentUuid": "284c0f67_4c2a0b74",
+      "revId": "eff03f656903fdb1b68a92dd4e03105fd5fa68ae",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
