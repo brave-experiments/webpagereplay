@@ -1,0 +1,108 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ba56bad4_307df17d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1344211
+      },
+      "writtenOn": "2024-10-09T22:15:04Z",
+      "side": 1,
+      "message": "Thanks, this looks like an interesting solution to this problem!\n\n2 questions about this from the calling code:\n1) Often for some websites, a session token for logged in/authorized is stored in the browser from a login page, and subsequent calls to \u0027logged in\u0027 pages check that that token exists or it won\u0027t present the \u0027logged in\u0027 pages. Will we run into that issue here if we try to `replay` at the \u0027logged in\u0027 page without storing that token via the login page?\n\n2) Another concern is site assets that are downloaded locally (and thus not called again in the subsequent pages). If those are loaded at the login page, and then those assets are wiped during the \"Clear\" from the archive, they are no longer available on `replay`. We may need to have either: (a) Tell the browser to clear images and cache after the \"Clear\" command so that it redownloads necessary assets on subsequent page loads during the record, or (b) Maybe a more surgical removal of the specific login page urls would keep the assets in the archive?",
+      "revId": "40a21a3bd09f31b2498e19e8b7abfdc877d76aaf",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "751c759e_b8fc1bda",
+        "filename": "src/webpagereplay/proxy_test.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 1344211
+      },
+      "writtenOn": "2024-10-09T22:15:04Z",
+      "side": 1,
+      "message": "Alt - Maybe just me but I had trouble following this. This does less change to the test case unchanged if !testClear?\n```suggestion\n\tif testClear {\n\t        recordResponses(preClearURLs)\n\t\trecordArchive.Clear()\n\t}\n\trecordResponses(urls)\n```",
+      "range": {
+        "startLine": 213,
+        "startChar": 0,
+        "endLine": 222,
+        "endChar": 0
+      },
+      "revId": "40a21a3bd09f31b2498e19e8b7abfdc877d76aaf",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd69c13e_0d4e875f",
+        "filename": "src/webpagereplay/proxy_test.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 1344211
+      },
+      "writtenOn": "2024-10-09T22:15:04Z",
+      "side": 1,
+      "message": "If we do above, then this would just remain:\n```suggestion\n\tfor _, u :\u003d range urls {\n```",
+      "range": {
+        "startLine": 244,
+        "startChar": 19,
+        "endLine": 244,
+        "endChar": 31
+      },
+      "revId": "40a21a3bd09f31b2498e19e8b7abfdc877d76aaf",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4fb14b75_726ac2ea",
+        "filename": "src/webpagereplay/proxy_test.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 1344211
+      },
+      "writtenOn": "2024-10-09T22:15:04Z",
+      "side": 1,
+      "message": "nit: period at end.",
+      "range": {
+        "startLine": 254,
+        "startChar": 0,
+        "endLine": 254,
+        "endChar": 68
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "09567014_bf82a19a",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/webpagereplay/proxy_test.go",
+              "range": {
+                "startLine": 254,
+                "startChar": 0,
+                "endLine": 255,
+                "endChar": 0
+              },
+              "replacement": "\t\t// Check that all URLs before calling Clear are not in the archive.\n"
+            }
+          ]
+        }
+      ],
+      "revId": "40a21a3bd09f31b2498e19e8b7abfdc877d76aaf",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
