@@ -41,6 +41,30 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "667bf792_94f6979f",
+        "filename": "src/webpagereplay/proxy_test.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 1132654
+      },
+      "writtenOn": "2024-10-09T22:18:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "751c759e_b8fc1bda",
+      "range": {
+        "startLine": 213,
+        "startChar": 0,
+        "endLine": 222,
+        "endChar": 0
+      },
+      "revId": "40a21a3bd09f31b2498e19e8b7abfdc877d76aaf",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bd69c13e_0d4e875f",
@@ -54,6 +78,30 @@
       "writtenOn": "2024-10-09T22:15:04Z",
       "side": 1,
       "message": "If we do above, then this would just remain:\n```suggestion\n\tfor _, u :\u003d range urls {\n```",
+      "range": {
+        "startLine": 244,
+        "startChar": 19,
+        "endLine": 244,
+        "endChar": 31
+      },
+      "revId": "40a21a3bd09f31b2498e19e8b7abfdc877d76aaf",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0743a170_f3d2b56e",
+        "filename": "src/webpagereplay/proxy_test.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 1132654
+      },
+      "writtenOn": "2024-10-09T22:18:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bd69c13e_0d4e875f",
       "range": {
         "startLine": 244,
         "startChar": 19,
@@ -101,6 +149,30 @@
           ]
         }
       ],
+      "revId": "40a21a3bd09f31b2498e19e8b7abfdc877d76aaf",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e8e894f0_f3284e8e",
+        "filename": "src/webpagereplay/proxy_test.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 1132654
+      },
+      "writtenOn": "2024-10-09T22:18:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4fb14b75_726ac2ea",
+      "range": {
+        "startLine": 254,
+        "startChar": 0,
+        "endLine": 254,
+        "endChar": 68
+      },
       "revId": "40a21a3bd09f31b2498e19e8b7abfdc877d76aaf",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
