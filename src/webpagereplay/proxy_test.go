@@ -117,22 +117,25 @@ func TestDoNotSaveDeterministicJS(t *testing.T) {
 	}
 }
 
-func TestEndToEnd(t *testing.T) {
+func RunEndToEndTest(t *testing.T, testClear bool) {
 	archiveFile := filepath.Join(tmpdir, "TestEndToEnd.json")
 
 	// We will record responses from this server.
 	origin := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		switch req.URL.Path {
+		case "/img-pre-clear":
 		case "/img":
 			w.Header().Set("Cache-Control", "public, max-age=3600")
 			w.Header().Set("Content-Type", "image/webp")
 			w.WriteHeader(http.StatusOK)
 			fmt.Fprint(w, "fake image body")
+		case "/206-pre-clear":
 		case "/206":
 			w.Header().Set("Content-Type", "text/plain")
 			w.Header().Set("Content-Length", "4")
 			w.WriteHeader(http.StatusPartialContent)
 			fmt.Fprint(w, "body")
+		case "/post-pre-clear":
 		case "/post":
 			w.Header().Set("Cache-Control", "private")
 			w.Header().Set("Content-Type", "text/plain")
@@ -159,6 +162,11 @@ func TestEndToEnd(t *testing.T) {
 	}
 
 	// Send a bunch of URLs to the server and record the responses.
+	preClearURLs := []string{
+		origin.URL + "/img-pre-clear",
+		origin.URL + "/206-pre-clear",
+		origin.URL + "/post-pre-clear",
+	}
 	urls := []string{
 		origin.URL + "/img",
 		origin.URL + "/206",
@@ -192,13 +200,24 @@ func TestEndToEnd(t *testing.T) {
 		return &RecordedResponse{resp.StatusCode, resp.Header, string(body)}, nil
 	}
 	recorded := make(map[string]*RecordedResponse)
-	for _, u := range urls {
-		resp, err := recordResponse(u, recordTransport)
-		if err != nil {
-			t.Fatal(err)
+	recordResponses := func(urls []string) {
+		for _, u := range urls {
+			resp, err := recordResponse(u, recordTransport)
+			if err != nil {
+				t.Fatal(err)
+			}
+			recorded[u] = resp
 		}
-		recorded[u] = resp
 	}
+
+	recordResponses(preClearURLs)
+	recordedURLs := urls
+	if testClear {
+		recordArchive.Clear()
+	} else {
+		recordedURLs = append(preClearURLs, urls...)
+	}
+	recordResponses(urls)
 
 	// Shutdown and flush the archive.
 	recordServer.Close()
@@ -222,13 +241,25 @@ func TestEndToEnd(t *testing.T) {
 	}
 
 	// Re-send the same URLs and ensure we get the same response.
-	for _, u := range urls {
+	for _, u := range recordedURLs {
 		resp, err := recordResponse(u, replayTransport)
 		if err != nil {
 			t.Fatal(err)
 		}
 		if got, want := resp, recorded[u]; !reflect.DeepEqual(got, want) {
 			t.Errorf("response doesn't match for %v:\n%+v\n%+v", u, got, want)
+		}
+	}
+	if testClear {
+		// Check that all URLs before calling Clear are not in the archive
+		for _, u := range preClearURLs {
+			resp, err := recordResponse(u, replayTransport)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got, want := resp.Code, http.StatusNotFound; got != want {
+				t.Errorf("status code for %v: got: %v want: %v", u, got, want)
+			}
 		}
 	}
 	// Check that a URL not found in the archive returns 404.
@@ -239,6 +270,12 @@ func TestEndToEnd(t *testing.T) {
 	if got, want := resp.Code, http.StatusNotFound; got != want {
 		t.Errorf("status code for /not_found_in_archive: got: %v want: %v", got, want)
 	}
+}
+func TestEndToEnd(t *testing.T) {
+	RunEndToEndTest(t, false)
+}
+func TestEndToEndClear(t *testing.T) {
+	RunEndToEndTest(t, true)
 }
 
 func TestUpdateDates(t *testing.T) {
