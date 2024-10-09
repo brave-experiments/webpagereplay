@@ -185,6 +185,12 @@ func (proxy *recordingProxy) ServeHTTP(w http.ResponseWriter, req *http.Request)
 		os.Exit(0)
 		return
 	}
+	if req.URL.Path == "/web-page-replay-command-clear" {
+		log.Printf("Received /web-page-replay-command-clear")
+		log.Printf("Clearing previously recorded requests.")
+		proxy.a.Clear()
+		return
+	}
 	fixupRequestURL(req, proxy.scheme)
 	logf := makeLogger(req, false)
 	// https://github.com/golang/go/issues/16036. Server requests always
