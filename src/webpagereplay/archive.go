@@ -441,8 +441,8 @@ func (a *Archive) Merge(other *Archive) error {
 	err := other.ForEach(func(req *http.Request, resp *http.Response) error {
 		foundReq, _, notFoundErr := a.FindRequest(req)
 		if notFoundErr == ErrNotFound ||
-				req.URL.String() != foundReq.URL.String() ||
-				!reflect.DeepEqual(req.Header, foundReq.Header) {
+			req.URL.String() != foundReq.URL.String() ||
+			!reflect.DeepEqual(req.Header, foundReq.Header) {
 			if err := a.addArchivedRequest(req, resp, AddModeAppend); err != nil {
 				return err
 			}
@@ -541,6 +541,15 @@ func OpenWritableArchive(path string) (*WritableArchive, error) {
 		return nil, fmt.Errorf("could not open %s: %v", path, err)
 	}
 	return &WritableArchive{Archive: newArchive(), f: f}, nil
+}
+
+func (a *WritableArchive) Clear() {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	for k := range a.Requests {
+		delete(a.Requests, k)
+	}
+	a.CurrentSessionId = 0
 }
 
 // RecordRequest records a request/response pair in the archive.
