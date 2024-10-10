@@ -1,0 +1,2 @@
+# Ignore binaries if/when they are added in chromium checkout.
+/cipd/
