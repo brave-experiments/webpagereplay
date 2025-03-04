@@ -56,27 +56,6 @@ func getRootCerts(roots []tls.Certificate) ([]*x509.Certificate, error) {
 	return root_certs, nil
 }
 
-// Mints a dummy server cert when the real one is not recorded.
-func MintDummyCertificate(serverName string, rootCert *x509.Certificate, rootKey crypto.PrivateKey) ([]byte, string, error) {
-	template := rootCert
-	if ip := net.ParseIP(serverName); ip != nil {
-		template.IPAddresses = []net.IP{ip}
-	} else {
-		template.DNSNames = []string{serverName}
-	}
-	var buf [20]byte
-	if _, err := io.ReadFull(rand.Reader, buf[:]); err != nil {
-		return nil, "", fmt.Errorf("create cert failed: %v", err)
-	}
-	template.SerialNumber.SetBytes(buf[:])
-	template.Issuer = template.Subject
-	derBytes, err := x509.CreateCertificate(rand.Reader, template, template, template.PublicKey, rootKey)
-	if err != nil {
-		return nil, "", fmt.Errorf("create cert failed: %v", err)
-	}
-	return derBytes, "", err
-}
-
 // Returns DER encoded server cert.
 func MintServerCert(serverName string, rootCert *x509.Certificate, rootKey crypto.PrivateKey) ([]byte, string, error) {
 	dialer := &net.Dialer{
@@ -145,7 +124,7 @@ func (tp *tlsProxy) getReplayConfigForClient(clientHello *tls.ClientHelloInfo) (
 	if err != nil || derBytes == nil {
 		if _, ok := tp.dummy_certs_map[h]; !ok {
 			for i := 0; i < len(tp.root_certs); i++ {
-				derBytes, negotiatedProtocol, err = MintDummyCertificate(h, tp.root_certs[i], tp.roots[i].PrivateKey)
+				derBytes, negotiatedProtocol, err = tp.root_certs[i].Raw, "", nil
 				if err != nil {
 					return nil, err
 				}
