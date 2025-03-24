@@ -16,6 +16,24 @@
       "message": "This attempts to mitigate CVE-2024-45338 in https://chromium.googlesource.com/webpagereplay.git.  However in the previous fix for https://chromium-review.googlesource.com/c/catapult/+/6309326 which is for wpgo in catapult, a new CVE was created https://issues.chromium.org/issues/404179134 for golang.org/x/net version 0.33.0 and suggested fix is to move to 0.36.0, so I am directly going from 0.23.0 to 0.36.0.\n\nAlso, can someone explain to what the difference is between wprogo in https://chormium.googlesource.webpagereplay.git and the version in https://chromium.googlesource.com/catapult.  \n\nThanks.",
       "revId": "20dcbdbb3fc22998f6a09ffff8147beef6276a80",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "10ac3718_b407ce9d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1344211
+      },
+      "writtenOn": "2025-03-24T19:59:12Z",
+      "side": 1,
+      "message": "The intention is to move all changes and development to https://chromium.googlesource.webpagereplay.git and have that mirrored on to a (readonly) catapult version, it has just not been a speedy process to get that finished. I will be working on getting the versions true-d up and that process created.",
+      "parentUuid": "e58c6d20_0d73fe93",
+      "revId": "20dcbdbb3fc22998f6a09ffff8147beef6276a80",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
