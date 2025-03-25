@@ -16,6 +16,23 @@
       "message": "PTAL",
       "revId": "0f92f2b94ab5ec22c00b0ad439d91adba66b3281",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e61591f_00cac60f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3470363
+      },
+      "writtenOn": "2025-03-25T19:19:16Z",
+      "side": 1,
+      "message": "Thanks! Sorry I missed the trailing 0 on the go version.  Another question as I\u0027m not that familiar with how this all works but how does one generate the go.sum file?",
+      "revId": "0f92f2b94ab5ec22c00b0ad439d91adba66b3281",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
