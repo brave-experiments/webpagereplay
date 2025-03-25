@@ -33,6 +33,24 @@
       "message": "Thanks! Sorry I missed the trailing 0 on the go version.  Another question as I\u0027m not that familiar with how this all works but how does one generate the go.sum file?",
       "revId": "0f92f2b94ab5ec22c00b0ad439d91adba66b3281",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd9ef8d3_40abfe99",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1344211
+      },
+      "writtenOn": "2025-03-25T21:23:53Z",
+      "side": 1,
+      "message": "`go.sum` should update for you any time you run `go build src/wpr.go` or `go run src/wpr.go`. When I tried these commmands on a fresh checkout, I got a message telling me:\n```\nsrc/wpr.go:24:2: missing go.sum entry for module providing package golang.org/x/net/http2; to add:\n\tgo mod download golang.org/x/net\n```\nand then the same for `.../x/text`, and then go asking me to run `go mod tidy` which added the trailing 0 on the version (that has changed in standardization I guess).\n\nWhen we build out CQ for this repo, I\u0027m hoping we can add some checks to make sure these things are part of a PRESUBMIT.",
+      "parentUuid": "1e61591f_00cac60f",
+      "revId": "0f92f2b94ab5ec22c00b0ad439d91adba66b3281",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
