@@ -16,6 +16,23 @@
       "message": "This should be a direct port of https://chromium-review.googlesource.com/c/catapult/+/6196253 as we move to an independent repo for WPR.",
       "revId": "01ae546ef6465a1be8ec948c4c7f7bfbf3d07fc3",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc422e2b_262ad035",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1344211
+      },
+      "writtenOn": "2025-03-25T18:17:59Z",
+      "side": 1,
+      "message": "This should be a direct port of https://chromium-review.googlesource.com/c/catapult/+/6196253 as we move to an independent repo for WPR.",
+      "revId": "01ae546ef6465a1be8ec948c4c7f7bfbf3d07fc3",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
