@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d2974b2c_0298d955",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1344211
+      },
+      "writtenOn": "2025-03-25T18:16:37Z",
+      "side": 1,
+      "message": "This should be a direct port of https://chromium-review.googlesource.com/c/catapult/+/6243015 as we move to an independent repo for WPR.",
+      "revId": "d538f668752ba092a871bbe6817fb4996f006ae8",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
