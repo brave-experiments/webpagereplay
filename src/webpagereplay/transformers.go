@@ -400,9 +400,10 @@ func (si *scriptInjector) Transform(_ *http.Request, resp *http.Response) {
 		return
 	}
 
-	transformResponseBody(resp, func(body []byte) []byte {
+	err := transformResponseBody(resp, func(body []byte) []byte {
 		// Don't inject if the script has already been injected.
 		if bytes.Contains(body, si.script) {
+			log.Printf("ScriptInjector(%s): already injected", resp.Request.URL)
 			return body
 		}
 
@@ -445,8 +446,13 @@ func (si *scriptInjector) Transform(_ *http.Request, resp *http.Response) {
 		// content-security-policy directive to allow the injected script to
 		// execute.
 		transformCSPHeader(resp.Header, si.sha256)
+
+		log.Printf("ScriptInjector(%s): succesfully injected", resp.Request.URL)
 		return buffer.Bytes()
 	})
+	if err != nil {
+		log.Printf("Error while injecting script: %v", err)
+	}
 }
 
 // NewRuleBasedTransformer creates a transformer that is controlled by a rules

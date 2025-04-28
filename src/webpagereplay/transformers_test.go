@@ -31,6 +31,7 @@ func TestReplaceTimeStamp(t *testing.T) {
 	resp := http.Response{
 		StatusCode: 200,
 		Header:     responseHeader,
+		Request:    &req,
 		Body:       ioutil.NopCloser(bytes.NewReader([]byte("<html></html>")))}
 	transformer.Transform(&req, &resp)
 	body, err := ioutil.ReadAll(resp.Body)
@@ -57,6 +58,7 @@ func TestInjectScript(t *testing.T) {
 	resp := http.Response{
 		StatusCode: 200,
 		Header:     responseHeader,
+		Request:    &req,
 		Body: ioutil.NopCloser(bytes.NewReader([]byte("<html><head><script>" +
 			"document.write('<head></head>');</script></head></html>")))}
 	transformer.Transform(&req, &resp)
@@ -83,6 +85,7 @@ func TestNoTagFound(t *testing.T) {
 	resp := http.Response{
 		StatusCode: 200,
 		Header:     responseHeader,
+		Request:    &req,
 		Body: ioutil.NopCloser(bytes.NewReader(
 			[]byte("no tag random content")))}
 	resp.Request = &req
@@ -117,6 +120,7 @@ func TestInjectScriptToGzipResponse(t *testing.T) {
 	resp := http.Response{
 		StatusCode: 200,
 		Header:     responseHeader,
+		Request:    &req,
 		Body:       ioutil.NopCloser(bytes.NewReader(gzippedBody.Bytes()))}
 	transformer.Transform(&req, &resp)
 	var reader io.ReadCloser
@@ -178,7 +182,8 @@ func TestInjectScriptToResponse(t *testing.T) {
 				tc.input}}
 		resp := http.Response{
 			StatusCode: 200,
-			Header:		 responseHeader,
+			Header:     responseHeader,
+			Request:    &req,
 			Body: ioutil.NopCloser(bytes.NewReader([]byte("<html><head><script>" +
 				"document.write('<head></head>');</script></head></html>")))}
 		transformer.Transform(&req, &resp)
@@ -206,6 +211,7 @@ func TestInjectScriptToResponseWithCspHash(t *testing.T) {
 	resp := http.Response{
 		StatusCode: 200,
 		Header:     responseHeader,
+		Request:    &req,
 		Body: ioutil.NopCloser(bytes.NewReader([]byte("<html><head><script>" +
 			"document.write('<head></head>');</script></head></html>")))}
 	transformer.Transform(&req, &resp)
