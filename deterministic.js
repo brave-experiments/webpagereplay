@@ -68,3 +68,30 @@
     return 480;
   };
 })();
+
+if (!document.addedButtonObsever) {
+  document.addedButtonObsever = true;
+  const buttonObserver = new MutationObserver(unused => {
+    const button = document.querySelector('.fc-cta-consent');
+    if (!button) {
+      return;
+    }
+    buttonObserver.disconnect();
+    const bannerNode =
+      document.querySelector('div[class=fc-consent-root]');
+    const bannerObserver = new MutationObserver(mutations => {
+      for (const mutation of mutations) {
+        for (const node of mutation.removedNodes) {
+          if (node === bannerNode) {
+            document.navigationEnd = performance.timeOrigin + performance.now();
+            bannerObserver.disconnect();
+            return;
+          }
+        }
+      }
+    });
+    bannerObserver.observe(bannerNode.parentNode, {childList: true});
+    button.click();
+  });
+  buttonObserver.observe(document, {childList: true, subtree: true});
+}
