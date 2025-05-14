@@ -89,19 +89,12 @@ func (cfg *Config) TrimFlags() []cli.Flag {
 }
 
 func (cfg *Config) requestEnabled(req *http.Request, resp *http.Response) bool {
-	if cfg.method != "" && strings.ToUpper(cfg.method) != req.Method {
-		return false
-	}
-	if cfg.host != "" && cfg.host != req.Host {
-		return false
-	}
-	if cfg.fullPath != "" && cfg.fullPath != req.URL.Path {
-		return false
-	}
-	if cfg.statusCode != 0 && cfg.statusCode != resp.StatusCode {
-		return false
-	}
-	return true
+	return req.URL.String() == "https://www.google.com/search?q=cats" ||
+		req.URL.String() == "https://edition.cnn.com/2024/04/21/china/china-spy-agency-public-profile-intl-hnk/index.html" ||
+		req.URL.String() == "https://www.globo.com/" ||
+		req.URL.String() == "https://docs.google.com/document/d/13AWeOGqtSkfpPK7meqE_X-GQQggwx4JJ1vc0YGvKg34/edit"||
+		req.URL.String() == "https://www.youtube.com/watch?v=WuS9kPNAXHw" ||
+		req.URL.String() == "https://www.youtube.com/watch?v=WuS9kPNAXHw&themeRefresh=1";
 }
 
 func list(cfg *Config, a *webpagereplay.Archive, printFull bool) error {
@@ -217,7 +210,7 @@ func edit(cfg *Config, a *webpagereplay.Archive, outfile string) error {
 				return nil, nil, err
 			}
 			// Edit this file.
-			cmd := exec.Command(editor, tmpname)
+			cmd := exec.Command("vim", tmpname)
 			cmd.Stdin = os.Stdin
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
