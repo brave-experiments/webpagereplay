@@ -30,38 +30,43 @@ type Config struct {
 	decodeResponseBody, skipExisting, overwriteExisting, invertMatch bool
 }
 
-func (cfg *Config) DefaultFlags() []cli.Flag {
+func (cfg *Config) RequestFilterFlags() []cli.Flag {
 	return []cli.Flag{
 		&cli.StringFlag{
 			Name:        "command",
 			Value:       "",
-			Usage:       "Only show URLs matching this HTTP method.",
+			Usage:       "Only include URLs matching this HTTP method.",
 			Destination: &cfg.method,
 		},
 		&cli.StringFlag{
 			Name:        "host",
 			Value:       "",
-			Usage:       "Only show URLs matching this host.",
+			Usage:       "Only include URLs matching this host.",
 			Destination: &cfg.host,
 		},
 		&cli.StringFlag{
 			Name:        "full_path",
 			Value:       "",
-			Usage:       "Only show URLs matching this full path.",
+			Usage:       "Only include URLs matching this full path.",
 			Destination: &cfg.fullPath,
 		},
 		&cli.IntFlag{
 			Name:        "status_code",
 			Value:       0,
-			Usage:       "Only show URLs matching this response status code.",
+			Usage:       "Only include URLs matching this response status code.",
 			Destination: &cfg.statusCode,
 		},
+	}
+}
+
+func (cfg *Config) DefaultFlags() []cli.Flag {
+	return append([]cli.Flag{
 		&cli.BoolFlag{
 			Name:        "decode_response_body",
 			Usage:       "Decode/encode response body according to Content-Encoding header.",
 			Destination: &cfg.decodeResponseBody,
 		},
-	}
+	}, cfg.RequestFilterFlags()...)
 }
 
 func (cfg *Config) AddFlags() []cli.Flag {
@@ -324,7 +329,9 @@ func inject(cfg *Config, a *webpagereplay.Archive, outfile string, scriptFile st
 	}
 
 	err = a.ForEach(func(req *http.Request, resp *http.Response) error {
-			si.Transform(req, resp)
+			if cfg.requestEnabled(req, resp) {
+				si.Transform(req, resp)
+			}
 			a.AddArchivedRequest(req, resp, webpagereplay.AddModeOverwriteExisting)
 			return nil
 	})
@@ -463,8 +470,9 @@ func main() {
 		},
 		&cli.Command{
 			Name:      "inject",
-			Usage:     "Inject a script into all responses of an archive",
+			Usage:     "Inject a script into the selected responses of an archive",
 			ArgsUsage: "input_archive output_archive script",
+			Flags:     cfg.RequestFilterFlags(),
 			Before:    checkArgs("inject", 3),
 			Action: func(c *cli.Context) error {
 				return inject(cfg, loadArchiveOrDie(c, 0), c.Args().Get(1), c.Args().Get(2))
