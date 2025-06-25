@@ -82,7 +82,7 @@ func (r *ConvertorConfig) recordServerCert(scheme string, serverName string, arc
 	}
 	derBytes, negotiatedProtocol, err = MintServerCert(serverName, r.x509Cert, r.tlsCert.PrivateKey)
 	if err != nil {
-		derBytes, negotiatedProtocol, err = MintDummyCertificate(serverName, r.x509Cert, r.tlsCert.PrivateKey)
+		derBytes, negotiatedProtocol, err = r.x509Cert.Raw, "", nil
 		if err != nil {
 			return err
 		}
