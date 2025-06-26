@@ -181,24 +181,24 @@ func CompressBody(ae string, uncompressed []byte) ([]byte, string, error) {
 // header or if the CSP header does not have a script-src directive,
 // getCSPScriptSrcDirectiveFromHeaders returns an empty string.
 func getCSPScriptSrcDirectiveFromHeaders(header http.Header) string {
-	csp := header.Get("Content-Security-Policy")
-	if csp == "" {
-		return ""
-	}
-
-	directives := strings.Split(csp, ";")
-	default_directive := ""
-	for _, directive := range directives {
-		directive = strings.TrimSpace(directive)
-		if strings.HasPrefix(directive, "script-src") {
-			return directive
-		}
-		if strings.HasPrefix(directive, "default-src") {
-			default_directive = directive
+	// Look for script-src first, then  default-src.
+	for _, csp := range header.Values("Content-Security-Policy") {
+		for _, directive := range strings.Split(csp, ";") {
+			directive = strings.TrimSpace(directive)
+			if strings.HasPrefix(directive, "script-src") {
+				return directive
+			}
 		}
 	}
-
-	return default_directive
+	for _, csp := range header.Values("Content-Security-Policy") {
+		for _, directive := range strings.Split(csp, ";") {
+			directive = strings.TrimSpace(directive)
+			if strings.HasPrefix(directive, "default-src") {
+				return directive
+			}
+		}
+	}
+	return ""
 }
 
 // getScriptSrcNonceTokenFromCSPHeader returns the nonce token from a
@@ -254,10 +254,10 @@ func getUpdatedSingleCSPHeader(csp string, injectedScriptSha256 string) string {
 	for index, directive := range directives {
 		directive = strings.TrimSpace(directive)
 		if strings.HasPrefix(directive, "script-src") ||
-		   strings.HasPrefix(directive, "default-src") {
+			strings.HasPrefix(directive, "default-src") {
 			updateIndex = index
 			if strings.HasPrefix(directive, "script-src") {
-			  break
+				break
 			}
 		}
 	}
@@ -364,7 +364,7 @@ func NewScriptInjectorFromFile(
 }
 
 var (
-	doctypeRE             = regexp.MustCompile(
+	doctypeRE = regexp.MustCompile(
 		`(?is)^.*?(<!--.*-->)?.*?<!doctype html>`)
 	htmlRE = regexp.MustCompile(
 		`(?is)^.*?(<!--.*-->)?.*?<html.*?>`)
@@ -389,7 +389,7 @@ func (si *scriptInjector) getScriptWithNonce(nonce string) []byte {
 	var buffer bytes.Buffer
 	buffer.Write([]byte("<script"))
 	if nonce != "" {
-		buffer.Write([]byte(" nonce=\""+nonce+"\""))
+		buffer.Write([]byte(" nonce=\"" + nonce + "\""))
 	}
 	buffer.Write([]byte(">"))
 	buffer.Write(si.script)
@@ -439,8 +439,7 @@ func (si *scriptInjector) Transform(_ *http.Request, resp *http.Response) {
 		// token to injected scripts. Please see http://crbug.com/904534 for a
 		// detailed case study.
 		nonce := ""
-		if directive := getCSPScriptSrcDirectiveFromHeaders(resp.Header);
-			directive != "" {
+		if directive := getCSPScriptSrcDirectiveFromHeaders(resp.Header); directive != "" {
 			nonce = getNonceTokenFromCSPHeaderScriptSrc(directive)
 		}
 
