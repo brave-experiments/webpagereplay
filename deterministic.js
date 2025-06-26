@@ -68,3 +68,5 @@
     return 480;
   };
 })();
+
+// here we can inject a script for the page.

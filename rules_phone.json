@@ -1,0 +1,26 @@
+[
+  {
+    "URL":"https://edition.cnn.com/2024/04/21/china/china-spy-agency-public-profile-intl-hnk/index.html",
+    "InjectedScript":"../crossbench/config/benchmark/loadline2/cnn_instrumentation.js"
+  },
+  {
+    "URL":"https://www.amazon.co.uk/NIVEA-Suncream-Spray-Protect-Moisture/dp/B001B0OJXM",
+    "InjectedScript":"../crossbench/config/benchmark/loadline2/amazon_instrumentation.js"
+  },
+  {
+    "URL":"https://en.m.wikipedia.org/wiki/Taylor_Swift",
+    "InjectedScript":"../crossbench/config/benchmark/loadline2/wiki_instrumentation.js"
+  },
+  {
+    "URL":"https://www.globo.com/",
+    "InjectedScript":"../crossbench/config/benchmark/loadline2/globo_instrumentation.js"
+  },
+  {
+    "URL":"https://www.google.com/search?q=cats",
+    "InjectedScript":"../crossbench/config/benchmark/loadline2/google_search_phone_instrumentation.js"
+  },
+  {
+    "URL":".*",
+    "InjectedScript":"deterministic.js"
+  }
+]
