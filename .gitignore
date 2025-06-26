@@ -1,2 +1,7 @@
 # Ignore binaries if/when they are added in chromium checkout.
 /cipd/
+cert/
+archive_phone.wprgo
+archive_tablet.wprgo
+.DS_STORE
+wpr

@@ -1,0 +1,26 @@
+[
+  {
+    "URL":"https://edition.cnn.com/2024/04/21/china/china-spy-agency-public-profile-intl-hnk/index.html",
+    "InjectedScript":"../crossbench/config/benchmark/loadline2/cnn_instrumentation.js"
+  },
+  {
+    "URL":"https://www.amazon.co.uk/NIVEA-Suncream-Spray-Protect-Moisture/dp/B001B0OJXM",
+    "InjectedScript":"../crossbench/config/benchmark/loadline2/amazon_instrumentation.js"
+  },
+  {
+    "URL":"https://docs.google.com/document/d/13AWeOGqtSkfpPK7meqE_X-GQQggwx4JJ1vc0YGvKg34/edit",
+    "InjectedScript":"../crossbench/config/benchmark/loadline2/google_docs_instrumentation.js"
+  },
+  {
+    "URL":"https://www.youtube.com/watch?v=WuS9kPNAXHw&themeRefresh=1",
+    "InjectedScript":"../crossbench/config/benchmark/loadline2/youtube_instrumentation.js"
+  },
+  {
+    "URL":"https://www.google.com/search?q=cats",
+    "InjectedScript":"../crossbench/config/benchmark/loadline2/google_search_tablet_instrumentation.js"
+  },
+  {
+    "URL":".*",
+    "InjectedScript":"deterministic.js"
+  }
+]
