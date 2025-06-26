@@ -181,24 +181,24 @@ func CompressBody(ae string, uncompressed []byte) ([]byte, string, error) {
 // header or if the CSP header does not have a script-src directive,
 // getCSPScriptSrcDirectiveFromHeaders returns an empty string.
 func getCSPScriptSrcDirectiveFromHeaders(header http.Header) string {
-	csp := header.Get("Content-Security-Policy")
-	if csp == "" {
-		return ""
-	}
-
-	directives := strings.Split(csp, ";")
-	default_directive := ""
-	for _, directive := range directives {
-		directive = strings.TrimSpace(directive)
-		if strings.HasPrefix(directive, "script-src") {
-			return directive
-		}
-		if strings.HasPrefix(directive, "default-src") {
-			default_directive = directive
+	// Look for script-src first, then  default-src.
+	for _, csp := range header.Values("Content-Security-Policy") {
+		for _, directive := range strings.Split(csp, ";") {
+			directive = strings.TrimSpace(directive)
+			if strings.HasPrefix(directive, "script-src") {
+				return directive
+			}
 		}
 	}
-
-	return default_directive
+	for _, csp := range header.Values("Content-Security-Policy") {
+		for _, directive := range strings.Split(csp, ";") {
+			directive = strings.TrimSpace(directive)
+			if strings.HasPrefix(directive, "default-src") {
+				return directive
+			}
+		}
+	}
+	return ""
 }
 
 // getScriptSrcNonceTokenFromCSPHeader returns the nonce token from a
