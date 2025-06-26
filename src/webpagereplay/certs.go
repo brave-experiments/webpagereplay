@@ -16,6 +16,8 @@ import (
 	"time"
 )
 
+var allSupportedNextProtos = []string{"h2", "http/1.1", "h3"}
+
 // Returns a TLS configuration that serves a recorded server leaf cert signed by
 // root CA.
 func ReplayTLSConfig(roots []tls.Certificate, a *Archive) (*tls.Config, error) {
@@ -23,7 +25,7 @@ func ReplayTLSConfig(roots []tls.Certificate, a *Archive) (*tls.Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("bad local certs: %v", err)
 	}
-	tp := &tlsProxy{roots, root_certs, a, nil, sync.Mutex{}, make(map[string][]byte)}
+	tp := &tlsProxy{roots, root_certs, a, nil, sync.Mutex{}}
 	return &tls.Config{
 		GetConfigForClient: tp.getReplayConfigForClient,
 	}, nil
@@ -36,7 +38,7 @@ func RecordTLSConfig(roots []tls.Certificate, w *WritableArchive) (*tls.Config, 
 	if err != nil {
 		return nil, fmt.Errorf("bad local certs: %v", err)
 	}
-	tp := &tlsProxy{roots, root_certs, nil, w, sync.Mutex{}, nil}
+	tp := &tlsProxy{roots, root_certs, nil, w, sync.Mutex{}}
 	return &tls.Config{
 		GetConfigForClient: tp.getRecordConfigForClient,
 	}, nil
@@ -56,27 +58,6 @@ func getRootCerts(roots []tls.Certificate) ([]*x509.Certificate, error) {
 	return root_certs, nil
 }
 
-// Mints a dummy server cert when the real one is not recorded.
-func MintDummyCertificate(serverName string, rootCert *x509.Certificate, rootKey crypto.PrivateKey) ([]byte, string, error) {
-	template := rootCert
-	if ip := net.ParseIP(serverName); ip != nil {
-		template.IPAddresses = []net.IP{ip}
-	} else {
-		template.DNSNames = []string{serverName}
-	}
-	var buf [20]byte
-	if _, err := io.ReadFull(rand.Reader, buf[:]); err != nil {
-		return nil, "", fmt.Errorf("create cert failed: %v", err)
-	}
-	template.SerialNumber.SetBytes(buf[:])
-	template.Issuer = template.Subject
-	derBytes, err := x509.CreateCertificate(rand.Reader, template, template, template.PublicKey, rootKey)
-	if err != nil {
-		return nil, "", fmt.Errorf("create cert failed: %v", err)
-	}
-	return derBytes, "", err
-}
-
 // Returns DER encoded server cert.
 func MintServerCert(serverName string, rootCert *x509.Certificate, rootKey crypto.PrivateKey) ([]byte, string, error) {
 	dialer := &net.Dialer{
@@ -85,7 +66,7 @@ func MintServerCert(serverName string, rootCert *x509.Certificate, rootKey crypt
 		DualStack: true,
 	}
 	conn, err := tls.DialWithDialer(dialer, "tcp", fmt.Sprintf("%s:443", serverName), &tls.Config{
-		NextProtos:         []string{"h2", "http/1.1"},
+		NextProtos:         allSupportedNextProtos,
 		InsecureSkipVerify: true,
 	})
 	if err != nil {
@@ -122,7 +103,6 @@ type tlsProxy struct {
 	archive          *Archive
 	writable_archive *WritableArchive
 	mu               sync.Mutex
-	dummy_certs_map  map[string][]byte
 }
 
 // TODO: For now, this just returns a self-signed cert using the given ServerName.
@@ -139,43 +119,23 @@ func (tp *tlsProxy) getReplayConfigForClient(clientHello *tls.ClientHelloInfo) (
 		}, nil
 	}
 
-	derBytes, negotiatedProtocol, err := tp.archive.FindHostTlsConfig(h)
 	tp.mu.Lock()
 	defer tp.mu.Unlock()
-	if err != nil || derBytes == nil {
-		if _, ok := tp.dummy_certs_map[h]; !ok {
-			for i := 0; i < len(tp.root_certs); i++ {
-				derBytes, negotiatedProtocol, err = MintDummyCertificate(h, tp.root_certs[i], tp.roots[i].PrivateKey)
-				if err != nil {
-					return nil, err
-				}
-				tp.dummy_certs_map[h] = append(tp.dummy_certs_map[h], derBytes...)
-			}
-		}
-		derBytes = tp.dummy_certs_map[h]
+	if len(tp.root_certs) > 1 {
+		panic("more than one certificate")
 	}
-
-	certBytes := parseDerBytes(derBytes)
-
-	certificates := []tls.Certificate{}
-	for i := 0; i < len(certBytes); i++ {
-		certificates = append(certificates, tls.Certificate{
-			Certificate: [][]byte{certBytes[i]},
-			PrivateKey:  tp.roots[i].PrivateKey,
-		})
+	certificates := []tls.Certificate{
+		 tls.Certificate{
+			Certificate: parseDerBytes(tp.root_certs[0].Raw),
+			PrivateKey:  tp.roots[0].PrivateKey,
+		},
 	}
 	return &tls.Config{
 		Certificates: certificates,
-		NextProtos:   buildNextProtos(negotiatedProtocol),
+		NextProtos:   allSupportedNextProtos,
 	}, nil
 }
 
-func buildNextProtos(negotiatedProtocol string) []string {
-	if negotiatedProtocol == "h2" {
-		return []string{"h2", "http/1.1"}
-	}
-	return []string{"http/1.1"}
-}
 
 // Extract ASN.1 DER encoded certificates from byte array.
 // ASN.1 DER encoding is a tag, length, value encoding system for each element.
@@ -221,7 +181,7 @@ func (tp *tlsProxy) getRecordConfigForClient(clientHello *tls.ClientHelloInfo) (
 		}
 		return &tls.Config{
 			Certificates: certificates,
-			NextProtos:   buildNextProtos(negotiatedProtocol),
+			NextProtos:   allSupportedNextProtos,
 		}, nil
 	}
 
@@ -241,6 +201,6 @@ func (tp *tlsProxy) getRecordConfigForClient(clientHello *tls.ClientHelloInfo) (
 
 	return &tls.Config{
 		Certificates: certificates,
-		NextProtos:   buildNextProtos(negotiatedProtocol),
+		NextProtos:   allSupportedNextProtos,
 	}, nil
 }
