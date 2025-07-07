@@ -494,6 +494,13 @@ func (r *ReplayCommand) Run(c *cli.Context) error {
 		log.Printf("Loaded replay rules from %s", r.rulesFile)
 	}
 
+	archive.ForEach(func(req *http.Request, resp *http.Response) error {
+		for _, t := range r.common.transformers {
+			t.Transform(req, resp)
+		}
+		return nil
+	})
+
 	httpHandler := webpagereplay.NewReplayingProxy(archive, "http", r.common.transformers, r.quietMode, r.common.paramToIgnoreInURLPath)
 	httpsHandler := webpagereplay.NewReplayingProxy(archive, "https", r.common.transformers, r.quietMode, r.common.paramToIgnoreInURLPath)
 	tlsconfig, err := webpagereplay.ReplayTLSConfig(r.common.root_certs, archive)
