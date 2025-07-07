@@ -178,11 +178,6 @@ func (proxy *replayingProxy) ServeHTTP(w http.ResponseWriter, req *http.Request)
 	// Update dates in response header.
 	updateDates(storedResp.Header, time.Now())
 
-	// Transform.
-	for _, t := range proxy.transformers {
-		t.Transform(req, storedResp)
-	}
-
 	// Forward the response.
 	logf("serving %v response", storedResp.StatusCode)
 	for k, v := range storedResp.Header {
