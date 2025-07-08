@@ -534,8 +534,8 @@ func (r *TransformerRule) compile() error {
 		}
 		r.urlRE = re
 	}
-	if len(r.ExtraHeaders) == 0 && len(r.Push) == 0 {
-		return fmt.Errorf("rule has no affect: %q", raw)
+	if len(r.ExtraHeaders) == 0 && len(r.Push) == 0 && len(r.InjectedScript) == 0 {
+		return fmt.Errorf("rule has no effect: %q", raw)
 	}
 	for _, p := range r.Push {
 		if p.URL == "" {
