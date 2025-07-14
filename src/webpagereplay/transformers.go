@@ -18,6 +18,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -475,9 +476,14 @@ func NewRuleBasedTransformer(filename string) (ResponseTransformer, error) {
 	if err := json.Unmarshal(raw, &rules); err != nil {
 		return nil, fmt.Errorf("json unmarshal failed: %v", err)
 	}
+	rulesDir := filepath.Dir(filename)
 	for _, r := range rules {
 		if err := r.compile(); err != nil {
 			return nil, err
+		}
+
+		if r.InjectedScript != "" && !filepath.IsAbs(r.InjectedScript) {
+			r.InjectedScript = filepath.Join(rulesDir, r.InjectedScript)
 		}
 	}
 	return &ruleBasedTransformer{rules}, nil
