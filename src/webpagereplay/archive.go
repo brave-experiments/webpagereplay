@@ -156,6 +156,9 @@ func OpenArchive(path string) (*Archive, error) {
 }
 
 // ForEach applies f to all requests in the archive.
+// Although `req` and `resp` are pointers, mutating them won't actually change
+// the contents of the archive. If you need to mutate, create a new archive and
+// add to it.
 func (a *Archive) ForEach(f func(req *http.Request, resp *http.Response) error) error {
 	for _, urlmap := range a.Requests {
 		for urlString, requests := range urlmap {

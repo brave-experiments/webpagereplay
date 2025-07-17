@@ -494,6 +494,9 @@ func (r *ReplayCommand) Run(c *cli.Context) error {
 		log.Printf("Loaded replay rules from %s", r.rulesFile)
 	}
 
+	// When recording, transformations happen at request time, because that's the
+	// only way. But here, when replaying, transformations happen ahead of
+	// requests, for performance reasons.
 	transformedArchive := webpagereplay.NewArchive()
 	err = archive.ForEach(func(req *http.Request, resp *http.Response) error {
 		for _, t := range r.common.transformers {
@@ -502,13 +505,14 @@ func (r *ReplayCommand) Run(c *cli.Context) error {
 		return transformedArchive.AddArchivedRequest(req, resp, webpagereplay.AddModeAppend)
 	})
 	if err != nil {
-		fmt.Println(os.Stderr, "Error applying transformations")
-		os.Exit(1)
+		fmt.Println(os.Stderr, "Error while creating transformed archive, using original one")
+	} else {
+		archive = &transformedArchive
 	}
 
-	httpHandler := webpagereplay.NewReplayingProxy(&transformedArchive, "http", r.quietMode, r.common.paramToIgnoreInURLPath)
-	httpsHandler := webpagereplay.NewReplayingProxy(&transformedArchive, "https", r.quietMode, r.common.paramToIgnoreInURLPath)
-	tlsconfig, err := webpagereplay.ReplayTLSConfig(r.common.root_certs, &transformedArchive)
+	httpHandler := webpagereplay.NewReplayingProxy(archive, "http", r.quietMode, r.common.paramToIgnoreInURLPath)
+	httpsHandler := webpagereplay.NewReplayingProxy(archive, "https", r.quietMode, r.common.paramToIgnoreInURLPath)
+	tlsconfig, err := webpagereplay.ReplayTLSConfig(r.common.root_certs, archive)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error creating TLSConfig: %v", err)
 		os.Exit(1)
