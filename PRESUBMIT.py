@@ -9,51 +9,18 @@ for more details about the presubmit API built into depot_tools.
 """
 
 import os
-import tempfile
-import shutil
 
+PRESUBMIT_VERSION = '2.0.0'
 USE_PYTHON3 = True
 
-def _RunArgs(args, input_api, cwd):
-  p = input_api.subprocess.Popen(args, stdout=input_api.subprocess.PIPE,
-                                 stderr=input_api.subprocess.STDOUT,
-                                 cwd=cwd)
-  out, _ = p.communicate()
-  return (out, p.returncode)
 
-
-def _CommonChecks(input_api, output_api):
-  """Performs common checks."""
-  results = []
-  if input_api.subprocess.call(
-          "go  version",
-          shell=True,
-          stdout=input_api.subprocess.PIPE,
-          stderr=input_api.subprocess.PIPE) != 0:
-    results.append(output_api.PresubmitPromptOrNotify(
-        'go binary is not found. Make sure to run unit tests if you change any '
-        'Go files.'))
-    return results
-
-  # Run go test ./webpagereplay
-  cwd = os.path.join(input_api.PresubmitLocalPath(), 'src')
-  cmd = ['go', 'test', './webpagereplay']
-  out, return_code = _RunArgs(cmd, input_api, cwd)
-  if return_code:
-    results.append(output_api.PresubmitError(
-        'webpagereplay tests failed.', long_text=out))
-  print(out)
-
-  return results
-
-
-def CheckChangeOnUpload(input_api, output_api):
-  report = []
-  report.extend(_CommonChecks(input_api, output_api))
-  return report
-
-
-def CheckChangeOnCommit(input_api, output_api):
-  report = []
-  report.extend(_CommonChecks(input_api, output_api))
-  return report
+def CheckGoTests(input_api, output_api):
+  cmd_name = 'WebPageReplay go tests'
+  if input_api.verbose:
+    print(f'Running {cmd_name}')
+  test_cmd = input_api.Command(
+      name=cmd_name,
+      cmd=['go', 'test', './webpagereplay'],
+      kwargs={'cwd': os.path.join(input_api.PresubmitLocalPath(), 'src')},
+      message=output_api.PresubmitError)
+  return input_api.RunTests([test_cmd])
