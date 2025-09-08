@@ -22,6 +22,8 @@ import (
 	"github.com/catapult-project/catapult/web_page_replay_go/src/webpagereplay"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/net/http2"
+
+	"net/http/pprof"
 )
 
 const longUsage = `
@@ -335,6 +337,27 @@ func startServers(tlsconfig *tls.Config, httpHandler, httpsHandler http.Handler,
 
 	servers := []*Server{}
 
+	// Create a new ServeMux for the pprof endpoints
+	pprofMux := http.NewServeMux()
+
+	// Register pprof handlers to the new mux
+	pprofMux.HandleFunc("/debug/pprof/", pprof.Index)
+	pprofMux.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+	pprofMux.HandleFunc("/debug/pprof/profile", pprof.Profile)
+	pprofMux.HandleFunc("/debug/pprof/heap", pprof.Handler("heap").ServeHTTP)
+	pprofMux.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+	pprofMux.HandleFunc("/debug/pprof/trace", pprof.Trace)
+
+	servers = append(servers, &Server{
+		Scheme: "http",
+		Host:   common.host,
+		Port:   9999,
+		Server: &http.Server{
+			Addr:    fmt.Sprintf("%v:%v", common.host, 9999),
+			Handler: pprofMux,
+		},
+	})
+
 	if common.httpPort > -1 {
 		servers = append(servers, &Server{
 			Scheme: "http",
@@ -498,13 +521,13 @@ func (r *ReplayCommand) Run(c *cli.Context) error {
 	// the only way. But here, when replaying, transformations are applied ahead
 	// of requests, for performance reasons.
 	transformedArchive := webpagereplay.Archive{
-		Requests: make(map[string]map[string][]*webpagereplay.ArchivedRequest),
-		Certs: archive.Certs,
-		NegotiatedProtocol: archive.NegotiatedProtocol,
-		DeterministicTimeSeedMs: archive.DeterministicTimeSeedMs,
+		Requests:                             make(map[string]map[string][]*webpagereplay.ArchivedRequest),
+		Certs:                                archive.Certs,
+		NegotiatedProtocol:                   archive.NegotiatedProtocol,
+		DeterministicTimeSeedMs:              archive.DeterministicTimeSeedMs,
 		ServeResponseInChronologicalSequence: archive.ServeResponseInChronologicalSequence,
-		CurrentSessionId: archive.CurrentSessionId,
-		DisableFuzzyURLMatching: archive.DisableFuzzyURLMatching,
+		CurrentSessionId:                     archive.CurrentSessionId,
+		DisableFuzzyURLMatching:              archive.DisableFuzzyURLMatching,
 	}
 	err = archive.ForEach(func(req *http.Request, resp *http.Response) error {
 		for _, t := range r.common.transformers {
