@@ -31,7 +31,7 @@ git clone https://chromium.googlesource.com/webpagereplay
   parameters.
 
   ```shell
-  cd path/to/web_page_replay_go
+  cd path/to/webpagereplay
   go run src/wpr.go record --http_port=8080 --https_port=8081 /tmp/archive.wprgo
   ```
   ...
@@ -52,7 +52,7 @@ git clone https://chromium.googlesource.com/webpagereplay
 
   Start wpr in replay mode.
   ```shell
-  cd path/to/web_page_replay_go
+  cd path/to/webpagereplay
   go run src/wpr.go replay --http_port=8080 --https_port=8081 /tmp/archive.wprgo
   ```
 
@@ -98,14 +98,14 @@ supported on Linux and Android.
 Installing the test CA. Specify a `--android_device_id` if you'd like to install
 the root CA on an android device.
 ```shell
-cd path/to/web_page_replay_go
+cd path/to/webpagereplay
 go run src/wpr.go installroot
 ```
 Uninstall the test CA. Specify a `--android_device_id` if you'd like to remove
 the root CA from an android device.
 
 ```shell
-cd path/to/web_page_replay_go
+cd path/to/webpagereplay
 go run src/wpr.go removeroot
 ```
 
@@ -115,7 +115,7 @@ go run src/wpr.go removeroot
 
 * Terminal 1:
 ```shell
-cd path/to/web_page_replay_go
+cd path/to/webpagereplay
 go run src/wpr.go replay --https_port=8081 --https_to_http_port=8082 \
   /tmp/archive.wprgo
 ```
@@ -138,7 +138,7 @@ path (`--full-path`).
 E.g.
 
 ```shell
-cd path/to/web_page_replay_go
+cd path/to/webpagereplay
 go run src/httparchive.go ls /tmp/archive.wprgo --host=example.com --full-path=/index.html
 ```
 
@@ -152,7 +152,7 @@ create a third, or trim request response pairs by host (`--host`) or path
 E.g.
 
 ```shell
-cd path/to/web_page_replay_go
+cd path/to/webpagereplay
 go run src/httparchive.go trim /tmp/archive.wprgo --host=example.com  /tmp/trimmed.wprgo
 ```
 
@@ -160,7 +160,7 @@ go run src/httparchive.go trim /tmp/archive.wprgo --host=example.com  /tmp/trimm
 Run all tests in a specific file. Use '-v' flag to show results.
 Note: proxy_test requires more includes than just proxy.go.
 ```shell
-cd path/to/web_page_replay_go/src/webpagereplay
+cd path/to/webpagereplay/src/webpagereplay
 go test archive_test.go archive.go
 go test transformers_test.go transformers.go
 go test proxy_test.go proxy.go transformers.go archive.go
@@ -168,12 +168,12 @@ go test proxy_test.go proxy.go transformers.go archive.go
 
 Run all tests in `webpagereplay` module.
 ```shell
-cd path/to/web_page_replay_go/src/webpagereplay
+cd path/to/webpagereplay/src/webpagereplay
 go test -run ''
 ```
 Or
 ```shell
-cd path/to/web_page_replay_go
+cd path/to/webpagereplay
 go test -v go.chromium.org/webpagereplay/src/webpagereplay
 ```
 

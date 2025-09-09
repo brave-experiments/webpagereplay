@@ -20,7 +20,7 @@ import (
 	"time"
 
 	"github.com/urfave/cli/v2"
-	"go.chromium.org/webpagereplay"
+	"go.chromium.org/webpagereplay/src/webpagereplay"
 	"golang.org/x/net/http2"
 )
 
