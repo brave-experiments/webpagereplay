@@ -18,8 +18,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/catapult-project/catapult/web_page_replay_go/src/webpagereplay"
 	"github.com/urfave/cli/v2"
+	"go.chromium.org/webpagereplay"
 )
 
 const usage = "%s [ls|cat|edit|merge|add|addAll|trim|inject] [options] archive_file [output_file] [url]"
