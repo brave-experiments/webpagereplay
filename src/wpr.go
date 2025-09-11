@@ -494,6 +494,8 @@ func (r *ReplayCommand) Run(c *cli.Context) error {
 		log.Printf("Loaded replay rules from %s", r.rulesFile)
 	}
 
+	r.common.transformers = append(r.common.transformers, &webpagereplay.ScriptAsyncRemover{});
+
 	// When recording, transformations are applied at request time, because that's
 	// the only way. But here, when replaying, transformations are applied ahead
 	// of requests, for performance reasons.

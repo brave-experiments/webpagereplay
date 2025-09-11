@@ -15,6 +15,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"golang.org/x/net/html"
 	"log"
 	"net/http"
 	"net/url"
@@ -388,6 +389,94 @@ var (
 	headRE = regexp.MustCompile(
 		`(?is)^.*?(<!--.*-->)?.*?<head.*?>`)
 )
+
+type ScriptAsyncRemover struct {
+}
+
+func (remover *ScriptAsyncRemover) Transform(_ *http.Request, resp *http.Response) {
+// Skip non-HTML non-200 responses.
+	if !strings.HasPrefix(
+		strings.ToLower(resp.Header.Get("Content-Type")), "text/html") {
+		return
+	}
+	if resp.StatusCode != http.StatusOK {
+		return
+	}
+
+	transformResponseBody(resp, removeAsyncAttributes);
+}
+
+func removeAsyncAttributes(htmlBytes []byte) ([]byte) {
+	doc, err := html.Parse(bytes.NewReader(htmlBytes))
+	if err != nil {
+		panic("error reading")
+	}
+
+	var f func(*html.Node)
+	f = func(n *html.Node) {
+		if n.Type == html.ElementNode {
+			var attrs []html.Attribute
+			for _, attr := range n.Attr {
+				if attr.Key != "async" {
+					attrs = append(attrs, attr)
+				}
+			}
+			n.Attr = attrs
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			f(c)
+		}
+	}
+	f(doc)
+
+	var buf bytes.Buffer
+	if err := html.Render(&buf, doc); err != nil {
+		panic("error rendering")
+	}
+
+	// html.Render adds <html><head></head><body> tags if they are missing.
+	// This part extracts just the content inside the <body> if the original
+	// input was a fragment.
+	body, err := findBody(bytes.NewReader(buf.Bytes()))
+	if err != nil || body == nil {
+		return buf.Bytes()
+	}
+
+	value, err := io.ReadAll(body)
+	if err != nil {
+		panic("error reading 2")
+	}
+	return value
+}
+
+func findBody(r io.Reader) (io.Reader, error) {
+	z := html.NewTokenizer(r)
+	for {
+		tt := z.Next()
+		switch tt {
+		case html.ErrorToken:
+			if z.Err() == io.EOF {
+				return nil, nil // Body not found
+			}
+			return nil, z.Err()
+		case html.StartTagToken:
+			tn, _ := z.TagName()
+			if string(tn) == "body" {
+				var buf bytes.Buffer
+				for {
+					tt = z.Next()
+					if tt == html.EndTagToken {
+						tn, _ := z.TagName()
+						if string(tn) == "body" {
+							return &buf, nil
+						}
+					}
+					buf.Write(z.Raw())
+				}
+			}
+		}
+	}
+}
 
 type scriptInjector struct {
 	script []byte
