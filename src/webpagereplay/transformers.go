@@ -15,6 +15,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"golang.org/x/net/html"
 	"log"
 	"net/http"
 	"net/url"
@@ -388,6 +389,51 @@ var (
 	headRE = regexp.MustCompile(
 		`(?is)^.*?(<!--.*-->)?.*?<head.*?>`)
 )
+
+type ScriptAsyncRemover struct {
+}
+
+func (remover *ScriptAsyncRemover) Transform(_ *http.Request, resp *http.Response) {
+// Skip non-HTML non-200 responses.
+	if !strings.HasPrefix(
+		strings.ToLower(resp.Header.Get("Content-Type")), "text/html") {
+		return
+	}
+	if resp.StatusCode != http.StatusOK {
+		return
+	}
+
+	transformResponseBody(resp, removeAsyncAttributes);
+}
+
+func removeAsyncAttributes(htmlBytes []byte) ([]byte) {
+	document, err := html.Parse(bytes.NewReader(htmlBytes))
+	if err != nil {
+		panic("error reading")
+	}
+
+	var removeFunc func(*html.Node)
+	removeFunc = func(node *html.Node) {
+		if node.Type == html.ElementNode && node.Data == "script" {
+			var attributes []html.Attribute
+			for _, attribute := range node.Attr {
+				if attribute.Key != "async" {
+					attributes = append(attributes, attribute)
+				}
+			}
+			node.Attr = attributes
+		}
+		for child := node.FirstChild; child != nil; child = child.NextSibling {
+			removeFunc(child)
+		}
+	}
+	removeFunc(document)
+	var serializedDocument bytes.Buffer
+	if err := html.Render(&serializedDocument, document); err != nil {
+		panic("failed to render")
+	}
+	return serializedDocument.Bytes()
+}
 
 type scriptInjector struct {
 	script []byte
