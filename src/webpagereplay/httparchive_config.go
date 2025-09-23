@@ -13,6 +13,7 @@ type HttpArchiveConfig struct {
 	Method, Host, FullPath                                           string
 	StatusCode                                                       int
 	DecodeResponseBody, SkipExisting, OverwriteExisting, InvertMatch bool
+	AllowDuplicates																									 bool
 }
 
 func (cfg *HttpArchiveConfig) RequestFilterFlags() []cli.Flag {
@@ -77,4 +78,14 @@ func (cfg *HttpArchiveConfig) TrimFlags() []cli.Flag {
 			Destination: &cfg.InvertMatch,
 		},
 	}, cfg.DefaultFlags()...)
+}
+
+func (cfg *HttpArchiveConfig) MergeFlags() []cli.Flag {
+	return []cli.Flag{
+		&cli.BoolFlag{
+			Name:  "allow-duplicates",
+			Usage: "Add all requests even if they already exist in the base archive.",
+			Destination: &cfg.AllowDuplicates,
+		},
+	}
 }
