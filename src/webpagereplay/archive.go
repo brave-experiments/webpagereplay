@@ -444,8 +444,8 @@ func (a *Archive) Merge(other *Archive) error {
 	err := other.ForEach(func(req *http.Request, resp *http.Response) error {
 		foundReq, _, notFoundErr := a.FindRequest(req)
 		if notFoundErr == ErrNotFound ||
-				req.URL.String() != foundReq.URL.String() ||
-				!reflect.DeepEqual(req.Header, foundReq.Header) {
+			req.URL.String() != foundReq.URL.String() ||
+			!reflect.DeepEqual(req.Header, foundReq.Header) {
 			if err := a.AddArchivedRequest(req, resp, AddModeAppend); err != nil {
 				return err
 			}
