@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "c0125e72_e917e4f8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1328067
+      },
+      "writtenOn": "2025-09-23T09:54:49Z",
+      "side": 1,
+      "message": "It does work in a sense, just the name is not very relevant IMO. It\u0027s not about chronological order of requests at all.\n\nWhen WPR finds multiple matches for a request, by default it will always respond with the best (first) match, whenever it receives this request. With this flag, it will respond with the first match the first time it sees this request, the second match the second time etc.\n\nSo if we want to serve different responses to the same request, it makes sense to add both responses to the archive, and provide the --serve-response-in-chronological-sequence flag (which we already do).",
+      "parentUuid": "1cada193_1a5420b0",
+      "revId": "e8894e95b100d8be01e8c05623e6a0000254a564",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "16673a59_74fc9080",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 1
@@ -52,6 +70,24 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "21aec3b1_84770804",
+        "filename": "src/httparchive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1328067
+      },
+      "writtenOn": "2025-09-23T09:54:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a35d3616_a0ff532e",
+      "revId": "e8894e95b100d8be01e8c05623e6a0000254a564",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "18a7217e_3389c5b0",
@@ -65,6 +101,24 @@
       "writtenOn": "2025-09-22T16:25:53Z",
       "side": 1,
       "message": "Please take this as a parameter instead, gives the user more freedom\nhttps://source.chromium.org/chromium/chromium/src/+/main:third_party/webpagereplay/src/webpagereplay/archive.go;l\u003d371-375;drc\u003d77a306d6ce62d22b7d05055c977e8534e29284c3",
+      "revId": "e8894e95b100d8be01e8c05623e6a0000254a564",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "486bd354_a62bdd50",
+        "filename": "src/webpagereplay/httparchive_config.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1328067
+      },
+      "writtenOn": "2025-09-23T09:54:49Z",
+      "side": 1,
+      "message": "Do you mean implementing all 3 modes: append, skip, and overwrite? Is there a use case for that?\n\nAlso, how do you think they should work in relation to request headers? Right now, the Add() method only compares urls, while Merge() also looks at headers.",
+      "parentUuid": "18a7217e_3389c5b0",
       "revId": "e8894e95b100d8be01e8c05623e6a0000254a564",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
