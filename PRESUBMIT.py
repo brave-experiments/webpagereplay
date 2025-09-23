@@ -1,7 +1,6 @@
 # Copyright 2017 The Chromium Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
-
 """Presubmit script for changes affecting webpagereplay.
 
 See http://dev.chromium.org/developers/how-tos/depottools/presubmit-scripts
@@ -25,7 +24,8 @@ def CheckBuildpWpr(input_api, output_api):
         message=output_api.PresubmitError)
     return input_api.RunTests([test_cmd])
 
-def CheckBuildpHttpArchive(input_api, output_api):
+
+def CheckBuildHttpArchive(input_api, output_api):
     cmd_name = 'Test httparchive builds'
     if input_api.verbose:
         print(f'Running {cmd_name}')
@@ -35,6 +35,7 @@ def CheckBuildpHttpArchive(input_api, output_api):
         kwargs={'cwd': input_api.PresubmitLocalPath()},
         message=output_api.PresubmitError)
     return input_api.RunTests([test_cmd])
+
 
 def CheckGoTests(input_api, output_api):
     cmd_name = 'WebPageReplay go tests'
@@ -53,7 +54,7 @@ def CheckPrebuiltBinaryUpdated(input_api, output_api):
     if (not any(f.endswith('binary_dependencies.json') for f in files)
             and any(f.endswith('.go') for f in files)):
         return [
-            output_api.PresubmitPromptWarning(
+            output_api.PresubmitError(
                 'You changed go files, but didn\'t run scripts/'
                 'upload_new_binaries.py')
         ]
