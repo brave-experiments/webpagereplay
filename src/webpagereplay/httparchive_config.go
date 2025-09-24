@@ -8,7 +8,6 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-
 type HttpArchiveConfig struct {
 	Method, Host, FullPath                                           string
 	StatusCode                                                       int

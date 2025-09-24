@@ -498,13 +498,13 @@ func (r *ReplayCommand) Run(c *cli.Context) error {
 	// the only way. But here, when replaying, transformations are applied ahead
 	// of requests, for performance reasons.
 	transformedArchive := webpagereplay.Archive{
-		Requests: make(map[string]map[string][]*webpagereplay.ArchivedRequest),
-		Certs: archive.Certs,
-		NegotiatedProtocol: archive.NegotiatedProtocol,
-		DeterministicTimeSeedMs: archive.DeterministicTimeSeedMs,
+		Requests:                             make(map[string]map[string][]*webpagereplay.ArchivedRequest),
+		Certs:                                archive.Certs,
+		NegotiatedProtocol:                   archive.NegotiatedProtocol,
+		DeterministicTimeSeedMs:              archive.DeterministicTimeSeedMs,
 		ServeResponseInChronologicalSequence: archive.ServeResponseInChronologicalSequence,
-		CurrentSessionId: archive.CurrentSessionId,
-		DisableFuzzyURLMatching: archive.DisableFuzzyURLMatching,
+		CurrentSessionId:                     archive.CurrentSessionId,
+		DisableFuzzyURLMatching:              archive.DisableFuzzyURLMatching,
 	}
 	err = archive.ForEach(func(req *http.Request, resp *http.Response) error {
 		for _, t := range r.common.transformers {
