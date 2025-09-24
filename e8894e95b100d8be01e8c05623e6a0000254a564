@@ -121,6 +121,24 @@
       "parentUuid": "18a7217e_3389c5b0",
       "revId": "e8894e95b100d8be01e8c05623e6a0000254a564",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "feee0cd0_c23a700b",
+        "filename": "src/webpagereplay/httparchive_config.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2025-09-24T17:07:50Z",
+      "side": 1,
+      "message": "Yes. My concern is --allow-duplicates doesn\u0027t tell me how the duplicates are handled. We could rename the flag to clarify it uses the particular handling you chose, but it\u0027d be even better to let the user choose, as long as it\u0027s easy to implement. The way I\u0027m picturing it, we\u0027d have a --duplicate-request-handling flag that can be \"skip\"(default)/\"append\"/\"overwrite\" and then translates the add mode parameter [here](https://source.chromium.org/chromium/chromium/src/+/main:third_party/webpagereplay/src/webpagereplay/archive.go;l\u003d449;drc\u003d8fe3b630b4c80e9c299a3d81518509a9633e612e)\n\n\u003e It does work in a sense, just the name is not very relevant IMO. It\u0027s not about chronological order of requests at all.\n\nHm, that sounds really bad... if that\u0027s not what the flag is doing we should either rename it or remove it entirely. I\u0027m not familiar with the implementation, I skimmed the [code](https://source.chromium.org/chromium/chromium/src/+/main:third_party/webpagereplay/src/webpagereplay/archive.go;l\u003d300-367;drc\u003d8fe3b630b4c80e9c299a3d81518509a9633e612e) and it seems to support what you said. Did we actually test the flag in the past? Maybe it happens to work because of some obscure assumption?\n\nThe above also makes me dislike the \"append\" mode. As in, you could merge with append mode, but what can you expect at replay time then?\n\n\u003e Also, how do you think they should work in relation to request headers? Right now, the Add() method only compares urls, while Merge() also looks at headers.\n\nHonestly, I think I need to read a the implementation a bit more to have an opinion on this.",
+      "parentUuid": "486bd354_a62bdd50",
+      "revId": "e8894e95b100d8be01e8c05623e6a0000254a564",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
