@@ -259,11 +259,11 @@ func inject(cfg *webpagereplay.HttpArchiveConfig, a *webpagereplay.Archive, outf
 	}
 
 	err = a.ForEach(func(req *http.Request, resp *http.Response) error {
-			if requestEnabled(cfg, req, resp) {
-				si.Transform(req, resp)
-			}
-			a.AddArchivedRequest(req, resp, webpagereplay.AddModeOverwriteExisting)
-			return nil
+		if requestEnabled(cfg, req, resp) {
+			si.Transform(req, resp)
+		}
+		a.AddArchivedRequest(req, resp, webpagereplay.AddModeOverwriteExisting)
+		return nil
 	})
 	if err != nil {
 		return fmt.Errorf("Error editing archive: %v", err)

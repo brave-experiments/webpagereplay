@@ -327,13 +327,13 @@ func TestMergeDifferentHeaders(t *testing.T) {
 	_ = a.Merge(&b)
 	if len(a.Requests[host][url]) != 2 {
 		t.Fatalf("Expected 2 requests in archive a, found %d",
-		         len(a.Requests[host][url]))
+			len(a.Requests[host][url]))
 	}
 
 	_ = b.Merge(&a)
 	if len(b.Requests[host][url]) != 2 {
 		t.Fatalf("Expected 2 requests in archive b, found %d",
-		         len(b.Requests[host][url]))
+			len(b.Requests[host][url]))
 	}
 }
 
