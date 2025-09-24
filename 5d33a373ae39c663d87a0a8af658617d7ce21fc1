@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cb18f2de_84124b52",
+        "filename": "DEPS",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1328067
+      },
+      "writtenOn": "2025-09-24T09:27:50Z",
+      "side": 1,
+      "message": "This file is empty. Is this intentional?",
+      "revId": "5d33a373ae39c663d87a0a8af658617d7ce21fc1",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
