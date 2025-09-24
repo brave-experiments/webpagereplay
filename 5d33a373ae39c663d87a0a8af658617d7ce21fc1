@@ -16,6 +16,24 @@
       "message": "This file is empty. Is this intentional?",
       "revId": "5d33a373ae39c663d87a0a8af658617d7ce21fc1",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "50ab8f58_20257f06",
+        "filename": "DEPS",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2025-09-24T10:13:59Z",
+      "side": 1,
+      "message": "It is. If the file doesn\u0027t exist I get \"fatal: DEPS does not exist\" from the \"Pan project checks\". I verified that even an empty file works for `gclient sync` (if webpagereplay is checked out standalone, otherwise the file isn\u0027t even read)\nI added a comment to the file now to prevent anyone from attempting to delete it",
+      "parentUuid": "cb18f2de_84124b52",
+      "revId": "5d33a373ae39c663d87a0a8af658617d7ce21fc1",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
