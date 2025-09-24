@@ -139,6 +139,24 @@
       "parentUuid": "486bd354_a62bdd50",
       "revId": "e8894e95b100d8be01e8c05623e6a0000254a564",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c82ccbc5_3c114da5",
+        "filename": "src/webpagereplay/httparchive_config.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2025-09-24T17:09:37Z",
+      "side": 1,
+      "message": "edit: \"and then translates *to* the add mode parameter\"",
+      "parentUuid": "feee0cd0_c23a700b",
+      "revId": "e8894e95b100d8be01e8c05623e6a0000254a564",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
