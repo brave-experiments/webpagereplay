@@ -438,12 +438,12 @@ func (a *Archive) Edit(edit func(req *http.Request, resp *http.Response) (*http.
 }
 
 // Merge adds all the request of the provided archive to the receiver.
-func (a *Archive) Merge(other *Archive) error {
+func (a *Archive) Merge(other *Archive, keepDuplicates bool) error {
 	var numAddedRequests = 0
 	var numSkippedRequests = 0
 	err := other.ForEach(func(req *http.Request, resp *http.Response) error {
 		foundReq, _, notFoundErr := a.FindRequest(req)
-		if notFoundErr == ErrNotFound ||
+		if keepDuplicates || notFoundErr == ErrNotFound ||
 			req.URL.String() != foundReq.URL.String() ||
 			!reflect.DeepEqual(req.Header, foundReq.Header) {
 			if err := a.AddArchivedRequest(req, resp, AddModeAppend); err != nil {

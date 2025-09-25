@@ -198,8 +198,8 @@ func writeArchive(archive *webpagereplay.Archive, outfile string) error {
 	return nil
 }
 
-func merge(cfg *webpagereplay.HttpArchiveConfig, archive *webpagereplay.Archive, input *webpagereplay.Archive, outfile string) error {
-	if err := archive.Merge(input); err != nil {
+func merge(cfg *webpagereplay.HttpArchiveConfig, archive *webpagereplay.Archive, input *webpagereplay.Archive, outfile string, keepDuplicates bool) error {
+	if err := archive.Merge(input, keepDuplicates); err != nil {
 		return fmt.Errorf("Merge archives failed: %v", err)
 	}
 
@@ -358,9 +358,10 @@ func main() {
 			Name:      "merge",
 			Usage:     "Merge the requests/responses of two archives",
 			ArgsUsage: "base_archive input_archive output_archive",
+			Flags:     cfg.MergeFlags(),
 			Before:    checkArgs("merge", 3),
 			Action: func(c *cli.Context) error {
-				return merge(cfg, loadArchiveOrDie(c, 0), loadArchiveOrDie(c, 1), c.Args().Get(2))
+				return merge(cfg, loadArchiveOrDie(c, 0), loadArchiveOrDie(c, 1), c.Args().Get(2), c.Bool("keep-duplicates"))
 			},
 		},
 		&cli.Command{
