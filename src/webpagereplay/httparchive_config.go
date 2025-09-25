@@ -12,6 +12,7 @@ type HttpArchiveConfig struct {
 	Method, Host, FullPath                                           string
 	StatusCode                                                       int
 	DecodeResponseBody, SkipExisting, OverwriteExisting, InvertMatch bool
+	KeepDuplicates                                                   bool
 }
 
 func (cfg *HttpArchiveConfig) RequestFilterFlags() []cli.Flag {
@@ -76,4 +77,17 @@ func (cfg *HttpArchiveConfig) TrimFlags() []cli.Flag {
 			Destination: &cfg.InvertMatch,
 		},
 	}, cfg.DefaultFlags()...)
+}
+
+func (cfg *HttpArchiveConfig) MergeFlags() []cli.Flag {
+	return []cli.Flag{
+		&cli.BoolFlag{
+			Name: "keep-duplicates",
+			Usage: "By default, if the archives specify different responses for the same request, " +
+				"the response from the first archive will be kept. If this flag is set, both responses " +
+				"will be kept, which can be useful if the merged archive is replayed with " +
+				"--serve_response_in_chronological_sequence (iterates through the duplicated responses).",
+			Destination: &cfg.KeepDuplicates,
+		},
+	}
 }
