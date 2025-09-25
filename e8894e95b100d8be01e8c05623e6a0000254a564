@@ -175,6 +175,24 @@
       "parentUuid": "c82ccbc5_3c114da5",
       "revId": "e8894e95b100d8be01e8c05623e6a0000254a564",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "50965850_c3c3e1cc",
+        "filename": "src/webpagereplay/httparchive_config.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2025-09-25T11:33:51Z",
+      "side": 1,
+      "message": "\u003e IMO, this is redundant, because you can already control which requests to keep by changing the order of cli arguments\n\nHa, that\u0027s good a point. Let\u0027s document as follows then\n\nUsage: By default, if the archives specify different responses for the same request, the response from the first archive will be kept. If this flag is set, both responses will be kept, which can be useful if the merged archive is replayed with --serve_response_in_chronological_sequence (iterates through the duplicated responses).\n\n\u003e This makes wpr cycle through the responses: return 1st response the 1st time, 2nd response the 2nd time, then 1st response again and so on.\n\nMy point is, IIUC what you said about the implementation of --serve_response_in_chronological_sequence, the response from the 2nd archive could be served first. Because it all depends on which response is considered the [best match](https://source.chromium.org/chromium/chromium/src/+/main:third_party/webpagereplay/src/webpagereplay/archive.go;l\u003d319;drc\u003d8fe3b630b4c80e9c299a3d81518509a9633e612e) upon the first request, the logic doesn\u0027t care about ordering. So it\u0027s rather difficult to predict the resulting archive when you merge with --allow-duplicates.",
+      "parentUuid": "62233099_dda8eab2",
+      "revId": "e8894e95b100d8be01e8c05623e6a0000254a564",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
