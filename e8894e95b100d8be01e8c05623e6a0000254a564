@@ -193,6 +193,24 @@
       "parentUuid": "62233099_dda8eab2",
       "revId": "e8894e95b100d8be01e8c05623e6a0000254a564",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a32f77e9_4def685d",
+        "filename": "src/webpagereplay/httparchive_config.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1328067
+      },
+      "writtenOn": "2025-09-25T12:03:13Z",
+      "side": 1,
+      "message": "I renamed the flag and updated the usage description.\n\n\u003e the response from the 2nd archive could be served first.\n\nYeah, this is true unfortunately. In our case luckily, the requests are completely identical, so it always serves first the one that goes first in the archive. So it works for now. But I agree this can be brittle in the general case.\n\nIf this breaks at some point, I think we\u0027ll have to split the archive into one per page, and add support for that in crossbench.",
+      "parentUuid": "50965850_c3c3e1cc",
+      "revId": "e8894e95b100d8be01e8c05623e6a0000254a564",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
