@@ -157,6 +157,24 @@
       "parentUuid": "feee0cd0_c23a700b",
       "revId": "e8894e95b100d8be01e8c05623e6a0000254a564",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "62233099_dda8eab2",
+        "filename": "src/webpagereplay/httparchive_config.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1328067
+      },
+      "writtenOn": "2025-09-25T10:01:46Z",
+      "side": 1,
+      "message": "\u003e We could rename the flag to clarify it uses the particular handling you chose\n\nI think --allow-duplicates is pretty clear that it appends duplicate requests to the archive. Maybe --keep-duplicates is even better? I\u0027m open to suggestions.\n\n\u003e The way I\u0027m picturing it, we\u0027d have a --duplicate-request-handling flag that can be \"skip\"(default)/\"append\"/\"overwrite\"\n\nIMO, this is redundant, because you can already control which requests to keep by changing the order of cli arguments. That is, `merge archive1 archive2` will give priority to requests in archive1, while `merge archive2 archive1` will give priority to requests in archive2. I don\u0027t think supporting different modes will make it more intuitive.\n\n\u003e if that\u0027s not what the flag is doing we should either rename it or remove it entirely.\n\nRenaming flag SGTM. Again, suggestions welcome. We\u0027ll have to be careful not to break existing flag users (crossbench/telemetry/what else?) though. Maybe adding an alias is more safe.\n\n\u003e As in, you could merge with append mode, but what can you expect at replay time then?\n\nIt can be useful when we want the same request to return different results within one recording (as is the case in loadline2-tablet: google search and youtube send the same request and expect different responses). In this case we merge those two archives with append mode (so that both responses are in the archive), and replay with the --serve-response-in-chronological-sequence flag. This makes wpr cycle through the responses: return 1st response the 1st time, 2nd response the 2nd time, then 1st response again and so on.",
+      "parentUuid": "c82ccbc5_3c114da5",
+      "revId": "e8894e95b100d8be01e8c05623e6a0000254a564",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
