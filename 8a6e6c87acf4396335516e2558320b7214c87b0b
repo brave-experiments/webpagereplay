@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "52823971_a89b27a5",
+        "filename": "README.chromium",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2025-10-07T08:06:30Z",
+      "side": 1,
+      "message": "Is it correct? I see no mention of BSD below. Also my understanding is this README.chromium should actually live in the parent repositories\nhttps://source.chromium.org/chromium/chromium/src/+/main:third_party/webpagereplay/LICENSE;l\u003d1;drc\u003d58ec1a40c45b54f49b075d5c8e45ebb524eaeee8",
+      "revId": "8a6e6c87acf4396335516e2558320b7214c87b0b",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
