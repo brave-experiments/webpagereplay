@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "febab660_a24f5a63",
+        "filename": "README.chromium",
+        "patchSetId": 2
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2025-10-08T12:39:11Z",
+      "side": 1,
+      "message": "It\u0027s not manual, we have autollers for webpagereplay-\u003echromium and webpagereplay-\u003ecrossbench\n\nThis is why I think README.chromium should live in the chromium repo. In the end it all depends on what the parent repo set up to roll the child repo. Notice how v8 has its own README.v8 files which are different from README.chromium ones\nhttps://source.chromium.org/chromium/chromium/src/+/main:v8/third_party/inspector_protocol/README.v8\n\nhttps://source.chromium.org/chromium/chromium/src/+/main:third_party/inspector_protocol/README.chromium",
+      "revId": "1df5632fd5c2c9c294589a1530e2fc72ed3eed80",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
