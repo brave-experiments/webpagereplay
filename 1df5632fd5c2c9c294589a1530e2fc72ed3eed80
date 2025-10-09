@@ -34,6 +34,24 @@
       "parentUuid": "febab660_a24f5a63",
       "revId": "1df5632fd5c2c9c294589a1530e2fc72ed3eed80",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "deb622ef_3b6c891d",
+        "filename": "README.chromium",
+        "patchSetId": 2
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 3388142
+      },
+      "writtenOn": "2025-10-09T05:32:08Z",
+      "side": 1,
+      "message": "It needs a README.chromium if it\u0027s a dependency that needs to be credited in the SBOM. Setting the url to \u0027This is the canonical public repository\u0027 identifies this as a dependency maintained by chromium committers. I agree it can be confusing to navigate this, but we are working on standardizing the process and expectations in a system that has grown \u0027organically\u0027 for many years and has many, many edge cases.",
+      "parentUuid": "e7c5dcd1_3b1cabec",
+      "revId": "1df5632fd5c2c9c294589a1530e2fc72ed3eed80",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
