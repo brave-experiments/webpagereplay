@@ -86,6 +86,7 @@ type ReplayCommand struct {
 	serveResponseInChronologicalSequence bool
 	quietMode                            bool
 	disableFuzzyURLMatching              bool
+	useCADerivation                      bool
 }
 
 type RootCACommand struct {
@@ -265,6 +266,11 @@ func (r *ReplayCommand) Flags() []cli.Flag {
 			Name:        "disable_fuzzy_url_matching",
 			Usage:       "When doing playback, require URLs to match exactly.",
 			Destination: &r.disableFuzzyURLMatching,
+		},
+		&cli.BoolFlag{
+			Name:        "use_ca_derivation",
+			Usage:       "TODO",
+			Destination: &r.useCADerivation,
 		},
 		&cli.BoolFlag{
 			Name: "quiet_mode",
@@ -520,7 +526,7 @@ func (r *ReplayCommand) Run(c *cli.Context) error {
 
 	httpHandler := webpagereplay.NewReplayingProxy(archive, "http", r.quietMode, r.common.paramToIgnoreInURLPath)
 	httpsHandler := webpagereplay.NewReplayingProxy(archive, "https", r.quietMode, r.common.paramToIgnoreInURLPath)
-	tlsconfig, err := webpagereplay.ReplayTLSConfig(r.common.root_certs, archive)
+	tlsconfig, err := webpagereplay.ReplayTLSConfig(r.common.root_certs, archive, r.useCADerivation)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error creating TLSConfig: %v", err)
 		os.Exit(1)

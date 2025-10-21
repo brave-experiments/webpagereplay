@@ -9,8 +9,10 @@ import (
 	"crypto/rand"
 	"crypto/tls"
 	"crypto/x509"
+	"crypto/x509/pkix"
 	"fmt"
 	"io"
+	"math/big"
 	"net"
 	"sync"
 	"time"
@@ -18,12 +20,12 @@ import (
 
 // Returns a TLS configuration that serves a recorded server leaf cert signed by
 // root CA.
-func ReplayTLSConfig(roots []tls.Certificate, a *Archive) (*tls.Config, error) {
+func ReplayTLSConfig(roots []tls.Certificate, a *Archive, useCADerivation bool) (*tls.Config, error) {
 	root_certs, err := getRootCerts(roots)
 	if err != nil {
 		return nil, fmt.Errorf("bad local certs: %v", err)
 	}
-	tp := &tlsProxy{roots, root_certs, a, nil, sync.Mutex{}, make(map[string][]byte)}
+	tp := &tlsProxy{roots, root_certs, a, nil, sync.Mutex{}, make(map[string][]byte), useCADerivation}
 	return &tls.Config{
 		GetConfigForClient: tp.getReplayConfigForClient,
 	}, nil
@@ -36,7 +38,7 @@ func RecordTLSConfig(roots []tls.Certificate, w *WritableArchive) (*tls.Config, 
 	if err != nil {
 		return nil, fmt.Errorf("bad local certs: %v", err)
 	}
-	tp := &tlsProxy{roots, root_certs, nil, w, sync.Mutex{}, nil}
+	tp := &tlsProxy{roots, root_certs, nil, w, sync.Mutex{}, nil, false}
 	return &tls.Config{
 		GetConfigForClient: tp.getRecordConfigForClient,
 	}, nil
@@ -75,6 +77,40 @@ func MintDummyCertificate(serverName string, rootCert *x509.Certificate, rootKey
 		return nil, "", fmt.Errorf("create cert failed: %v", err)
 	}
 	return derBytes, "", err
+}
+
+// MintDummyCertificate creates a certificate that reuses the CA's key pair.
+func MintDummyCertificateFromCA(serverName string, rootCert *x509.Certificate, rootKey crypto.PrivateKey) ([]byte, string, error) {
+	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
+	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
+	if err != nil {
+		return nil, "", fmt.Errorf("failed to generate serial number: %v", err)
+	}
+
+	template := x509.Certificate{
+		SerialNumber: serialNumber,
+		Subject: pkix.Name{
+			CommonName: serverName,
+		},
+		NotBefore:             time.Now(),
+		NotAfter:              time.Now().Add(365 * 24 * time.Hour),
+		KeyUsage:              x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+		IsCA:                  false,
+		BasicConstraintsValid: true,
+	}
+	if ip := net.ParseIP(serverName); ip != nil {
+		template.IPAddresses = []net.IP{ip}
+	} else {
+		template.DNSNames = []string{serverName}
+	}
+	template.Issuer = rootCert.Subject
+	derBytes, err := x509.CreateCertificate(rand.Reader, &template, rootCert, rootCert.PublicKey, rootKey)
+	if err != nil {
+		return nil, "", fmt.Errorf("create certificate failed: %v", err)
+	}
+
+	return derBytes, "", nil
 }
 
 // Returns DER encoded server cert.
@@ -117,12 +153,13 @@ func MintServerCert(serverName string, rootCert *x509.Certificate, rootKey crypt
 }
 
 type tlsProxy struct {
-	roots            []tls.Certificate
-	root_certs       []*x509.Certificate
-	archive          *Archive
-	writable_archive *WritableArchive
-	mu               sync.Mutex
-	dummy_certs_map  map[string][]byte
+	roots             []tls.Certificate
+	root_certs        []*x509.Certificate
+	archive           *Archive
+	writable_archive  *WritableArchive
+	mu                sync.Mutex
+	dummy_certs_map   map[string][]byte
+	use_ca_derivation bool
 }
 
 // TODO: For now, this just returns a self-signed cert using the given ServerName.
@@ -145,7 +182,11 @@ func (tp *tlsProxy) getReplayConfigForClient(clientHello *tls.ClientHelloInfo) (
 	if err != nil || derBytes == nil {
 		if _, ok := tp.dummy_certs_map[h]; !ok {
 			for i := 0; i < len(tp.root_certs); i++ {
-				derBytes, negotiatedProtocol, err = MintDummyCertificate(h, tp.root_certs[i], tp.roots[i].PrivateKey)
+				if tp.use_ca_derivation {
+					derBytes, negotiatedProtocol, err = MintDummyCertificateFromCA(h, tp.root_certs[i], tp.roots[i].PrivateKey)
+				} else {
+					derBytes, negotiatedProtocol, err = MintDummyCertificate(h, tp.root_certs[i], tp.roots[i].PrivateKey)
+				}
 				if err != nil {
 					return nil, err
 				}
@@ -159,15 +200,21 @@ func (tp *tlsProxy) getReplayConfigForClient(clientHello *tls.ClientHelloInfo) (
 
 	certificates := []tls.Certificate{}
 	for i := 0; i < len(certBytes); i++ {
-		certificates = append(certificates, tls.Certificate{
-			Certificate: [][]byte{certBytes[i]},
-			PrivateKey:  tp.roots[i].PrivateKey,
-		})
+		certificate := tls.Certificate{
+			PrivateKey: tp.roots[i].PrivateKey,
+		}
+		if tp.use_ca_derivation {
+			certificate.Certificate = [][]byte{certBytes[i], tp.root_certs[i].Raw}
+		} else {
+			certificate.Certificate = [][]byte{certBytes[i]}
+		}
+		certificates = append(certificates, certificate)
 	}
-	return &tls.Config{
+	config := &tls.Config{
 		Certificates: certificates,
 		NextProtos:   buildNextProtos(negotiatedProtocol),
-	}, nil
+	}
+	return config, nil
 }
 
 func buildNextProtos(negotiatedProtocol string) []string {
