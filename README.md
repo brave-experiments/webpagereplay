@@ -43,7 +43,7 @@ git clone https://chromium.googlesource.com/webpagereplay
   ```shell
   google-chrome-beta --user-data-dir=$foo \
    --host-resolver-rules="MAP *:80 127.0.0.1:8080,MAP *:443 127.0.0.1:8081,EXCLUDE localhost"
-   --ignore-certificate-errors-spki-list=PhrPvGIaAMmd29hj8BCZOq096yj7uMpRNHpn5PDxI6I=,2HcXCSKKJS0lEXLQEWhpHUfGuojiU0tiT5gOF9LP6IQ=
+   --ignore-certificate-errors-spki-list=Z/opLeDiNVaMsvRwmE1mJbx8aVLz6bPgHhRlBX4nhUU=,ER7PSzqexNS74p5s4gpPhnX3dbcHT513dcGibXP5AUw=
   ```
   ... wait for record servers to start
 
@@ -60,7 +60,7 @@ git clone https://chromium.googlesource.com/webpagereplay
   ```shell
   google-chrome-beta --user-data-dir=$bar \
    --host-resolver-rules="MAP *:80 127.0.0.1:8080,MAP *:443 127.0.0.1:8081,EXCLUDE localhost"
-   --ignore-certificate-errors-spki-list=PhrPvGIaAMmd29hj8BCZOq096yj7uMpRNHpn5PDxI6I=,2HcXCSKKJS0lEXLQEWhpHUfGuojiU0tiT5gOF9LP6IQ=
+   --ignore-certificate-errors-spki-list=Z/opLeDiNVaMsvRwmE1mJbx8aVLz6bPgHhRlBX4nhUU=,ER7PSzqexNS74p5s4gpPhnX3dbcHT513dcGibXP5AUw=
   ```
   ... wait for replay servers to start
 
@@ -81,7 +81,7 @@ adb reverse tcp:8081 tcp:8081
 
 ```shell
 build/android/adb_chrome_public_command_line --host-resolver-rules="MAP *:80 127.0.0.1:8080,MAP *:443 127.0.0.1:8081,EXCLUDE localhost" \
-  --ignore-certificate-errors-spki-list=PhrPvGIaAMmd29hj8BCZOq096yj7uMpRNHpn5PDxI6I=,2HcXCSKKJS0lEXLQEWhpHUfGuojiU0tiT5gOF9LP6IQ=
+  --ignore-certificate-errors-spki-list=Z/opLeDiNVaMsvRwmE1mJbx8aVLz6bPgHhRlBX4nhUU=,ER7PSzqexNS74p5s4gpPhnX3dbcHT513dcGibXP5AUw=
 ```
 
 * Run wpr.go as usual on the linux machine
@@ -124,7 +124,7 @@ go run src/wpr.go replay --https_port=8081 --https_to_http_port=8082 \
 ```shell
 google-chrome-beta --user-data-dir=$foo \
   --host-resolver-rules="MAP *:443 127.0.0.1:8081,EXCLUDE localhost" \
-  --ignore-certificate-errors-spki-list=PhrPvGIaAMmd29hj8BCZOq096yj7uMpRNHpn5PDxI6I=,2HcXCSKKJS0lEXLQEWhpHUfGuojiU0tiT5gOF9LP6IQ= \
+  --ignore-certificate-errors-spki-list=Z/opLeDiNVaMsvRwmE1mJbx8aVLz6bPgHhRlBX4nhUU=,ER7PSzqexNS74p5s4gpPhnX3dbcHT513dcGibXP5AUw= \
   --proxy-server=http=https://127.0.0.1:8082 \
   --trusted-spdy-proxy=127.0.0.1:8082
 ```

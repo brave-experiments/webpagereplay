@@ -69,6 +69,18 @@ def CheckPrebuiltBinaryUpdated(input_api, output_api):
     return []
 
 
+def CheckPublicHashesUpdated(input_api, output_api):
+    files = input_api.UnixLocalPaths()
+    if (not any(f.endswith('wpr_public_hash.txt') for f in files)
+            and any(f.endswith('.pem') for f in files)):
+        return [
+            output_api.PresubmitError(
+                'You changed certificate files, but not wpr_public_hash.txt')
+        ]
+
+    return []
+
+
 def CheckPanProjectChecks(input_api, output_api):
     # The code-owners plugin is not enabled on the webpagereplay gerrit host, so
     # owners_check is set to false to avoid a failure. Note that owners-approval
