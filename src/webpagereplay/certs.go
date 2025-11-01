@@ -28,12 +28,12 @@ func SetValidLeafCertificateDuration(certificate *x509.Certificate) {
 
 // Returns a TLS configuration that serves a recorded server leaf cert signed by
 // root CA.
-func ReplayTLSConfig(roots []tls.Certificate, a *Archive) (*tls.Config, error) {
+func ReplayTLSConfig(roots []tls.Certificate, a *Archive, ignoreArchiveCertificates bool) (*tls.Config, error) {
 	root_certs, err := getRootCerts(roots)
 	if err != nil {
 		return nil, fmt.Errorf("bad local certs: %v", err)
 	}
-	tp := &tlsProxy{roots, root_certs, a, nil, sync.Mutex{}, make(map[string][]byte)}
+	tp := &tlsProxy{roots, root_certs, a, nil, sync.Mutex{}, make(map[string][]byte), ignoreArchiveCertificates}
 	return &tls.Config{
 		GetConfigForClient: tp.getReplayConfigForClient,
 	}, nil
@@ -46,7 +46,7 @@ func RecordTLSConfig(roots []tls.Certificate, w *WritableArchive) (*tls.Config, 
 	if err != nil {
 		return nil, fmt.Errorf("bad local certs: %v", err)
 	}
-	tp := &tlsProxy{roots, root_certs, nil, w, sync.Mutex{}, nil}
+	tp := &tlsProxy{roots, root_certs, nil, w, sync.Mutex{}, nil, false}
 	return &tls.Config{
 		GetConfigForClient: tp.getRecordConfigForClient,
 	}, nil
@@ -125,12 +125,13 @@ func MintServerCert(serverName string, rootCert *x509.Certificate, rootKey crypt
 }
 
 type tlsProxy struct {
-	roots            []tls.Certificate
-	root_certs       []*x509.Certificate
-	archive          *Archive
-	writable_archive *WritableArchive
-	mu               sync.Mutex
-	dummy_certs_map  map[string][]byte
+	roots                       []tls.Certificate
+	root_certs                  []*x509.Certificate
+	archive                     *Archive
+	writable_archive            *WritableArchive
+	mu                          sync.Mutex
+	dummy_certs_map             map[string][]byte
+	ignore_archive_certificates bool
 }
 
 // TODO: For now, this just returns a self-signed cert using the given ServerName.
@@ -150,7 +151,9 @@ func (tp *tlsProxy) getReplayConfigForClient(clientHello *tls.ClientHelloInfo) (
 	derBytes, negotiatedProtocol, err := tp.archive.FindHostTlsConfig(h)
 	tp.mu.Lock()
 	defer tp.mu.Unlock()
-	if err != nil || derBytes == nil {
+	// Note that when tp.ignore_archive_certificates is true, negotiatedProtocol
+	// is still read above. That's intentional, the 2 are orthogonal.
+	if err != nil || derBytes == nil || tp.ignore_archive_certificates {
 		if _, ok := tp.dummy_certs_map[h]; !ok {
 			for i := 0; i < len(tp.root_certs); i++ {
 				derBytes, negotiatedProtocol, err = MintDummyCertificate(h, tp.root_certs[i], tp.roots[i].PrivateKey)
