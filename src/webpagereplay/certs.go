@@ -9,12 +9,22 @@ import (
 	"crypto/rand"
 	"crypto/tls"
 	"crypto/x509"
+	"crypto/x509/pkix"
 	"fmt"
 	"io"
 	"net"
 	"sync"
 	"time"
 )
+
+// Certificates cannot be valid for more than ~1 year in most platforms.
+// https://support.apple.com/en-gb/102028
+func SetValidLeafCertificateDuration(certificate *x509.Certificate) {
+	now := time.Now()
+	// Slightly before now, in case clocks are off.
+	certificate.NotBefore = now.Add(-24 * time.Hour)
+	certificate.NotAfter = certificate.NotBefore.Add(12 * 30 * 24 * time.Hour)
+}
 
 // Returns a TLS configuration that serves a recorded server leaf cert signed by
 // root CA.
@@ -58,19 +68,21 @@ func getRootCerts(roots []tls.Certificate) ([]*x509.Certificate, error) {
 
 // Mints a dummy server cert when the real one is not recorded.
 func MintDummyCertificate(serverName string, rootCert *x509.Certificate, rootKey crypto.PrivateKey) ([]byte, string, error) {
-	template := rootCert
+	template := x509.Certificate{
+		Issuer: rootCert.Subject,
+		Subject: pkix.Name{
+			CommonName: serverName,
+		},
+		KeyUsage:    x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
+		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+	}
+	SetValidLeafCertificateDuration(&template)
 	if ip := net.ParseIP(serverName); ip != nil {
 		template.IPAddresses = []net.IP{ip}
 	} else {
 		template.DNSNames = []string{serverName}
 	}
-	var buf [20]byte
-	if _, err := io.ReadFull(rand.Reader, buf[:]); err != nil {
-		return nil, "", fmt.Errorf("create cert failed: %v", err)
-	}
-	template.SerialNumber.SetBytes(buf[:])
-	template.Issuer = template.Subject
-	derBytes, err := x509.CreateCertificate(rand.Reader, template, template, template.PublicKey, rootKey)
+	derBytes, err := x509.CreateCertificate(rand.Reader, &template, rootCert, rootCert.PublicKey, rootKey)
 	if err != nil {
 		return nil, "", fmt.Errorf("create cert failed: %v", err)
 	}
@@ -95,12 +107,8 @@ func MintServerCert(serverName string, rootCert *x509.Certificate, rootKey crypt
 	conn.Handshake()
 	template := conn.ConnectionState().PeerCertificates[0]
 
-	dt := time.Now()
-
 	template.Subject.CommonName = serverName
-	template.NotBefore = dt.Add(-24 * time.Hour)
-	// Certs cannot be valid for longer than 12 mths.
-	template.NotAfter = dt.Add(12 * 30 * 24 * time.Hour)
+	SetValidLeafCertificateDuration(template)
 	template.SignatureAlgorithm = rootCert.SignatureAlgorithm
 	var buf [20]byte
 	if _, err := io.ReadFull(rand.Reader, buf[:]); err != nil {
