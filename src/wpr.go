@@ -325,6 +325,45 @@ func (ln tcpKeepAliveListener) Accept() (c net.Conn, err error) {
 	return tc, nil
 }
 
+// statusRecorder is a custom http.ResponseWriter that captures the status
+// code written by the handler.
+type statusRecorder struct {
+	http.ResponseWriter
+	status int
+}
+
+// WriteHeader captures the status code and calls the original WriteHeader.
+func (r *statusRecorder) WriteHeader(statusCode int) {
+	r.status = statusCode
+	r.ResponseWriter.WriteHeader(statusCode)
+}
+
+// loggingMiddleware wraps an http.Handler to log request timings and status.
+func loggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+
+		// Create the custom response writer, defaulting to 200 OK
+		recorder := &statusRecorder{
+			ResponseWriter: w,
+			status:         http.StatusOK,
+		}
+
+		// Call the next handler in the chain with our custom writer
+		next.ServeHTTP(recorder, r)
+
+		// Log the request details after it has been handled
+		duration := time.Since(start)
+		log.Printf(
+			"Request: %s %s, Status: %d, Duration: %v",
+			r.Method,
+			r.URL.String(),
+			recorder.status,
+			duration,
+		)
+	})
+}
+
 func startServers(tlsconfig *tls.Config, httpHandler, httpsHandler http.Handler, common *CommonConfig) {
 	type Server struct {
 		Scheme string
@@ -444,8 +483,10 @@ func (r *RecordCommand) Run(c *cli.Context) error {
 		log.Printf("NOTIMPLEMENTED: Experimental Timed Chunk recording support")
 		os.Exit(1)
 	}
-	httpHandler := webpagereplay.NewRecordingProxy(archive, "http", r.common.transformers, r.common.paramToIgnoreInURLPath)
-	httpsHandler := webpagereplay.NewRecordingProxy(archive, "https", r.common.transformers, r.common.paramToIgnoreInURLPath)
+
+	httpHandler := loggingMiddleware(webpagereplay.NewRecordingProxy(archive, "http", r.common.transformers, r.common.paramToIgnoreInURLPath))
+	httpsHandler := loggingMiddleware(webpagereplay.NewRecordingProxy(archive, "https", r.common.transformers, r.common.paramToIgnoreInURLPath))
+
 	tlsconfig, err := webpagereplay.RecordTLSConfig(r.common.root_certs, archive)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error creating TLSConfig: %v", err)
@@ -518,8 +559,9 @@ func (r *ReplayCommand) Run(c *cli.Context) error {
 		archive = &transformedArchive
 	}
 
-	httpHandler := webpagereplay.NewReplayingProxy(archive, "http", r.quietMode, r.common.paramToIgnoreInURLPath)
-	httpsHandler := webpagereplay.NewReplayingProxy(archive, "https", r.quietMode, r.common.paramToIgnoreInURLPath)
+	httpHandler := loggingMiddleware(webpagereplay.NewReplayingProxy(archive, "http", r.quietMode, r.common.paramToIgnoreInURLPath))
+	httpsHandler := loggingMiddleware(webpagereplay.NewReplayingProxy(archive, "https", r.quietMode, r.common.paramToIgnoreInURLPath))
+
 	tlsconfig, err := webpagereplay.ReplayTLSConfig(r.common.root_certs, archive)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error creating TLSConfig: %v", err)
@@ -544,6 +586,7 @@ func (r *RootCACommand) Remove(c *cli.Context) error {
 }
 
 func main() {
+	log.SetFlags(log.LstdFlags | log.Lmicroseconds)
 	progName := filepath.Base(os.Args[0])
 
 	var record RecordCommand
