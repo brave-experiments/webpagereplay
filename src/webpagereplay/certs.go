@@ -9,8 +9,8 @@ import (
 	"crypto/rand"
 	"crypto/tls"
 	"crypto/x509"
+	"crypto/x509/pkix"
 	"fmt"
-	"io"
 	"net"
 	"sync"
 	"time"
@@ -56,29 +56,34 @@ func getRootCerts(roots []tls.Certificate) ([]*x509.Certificate, error) {
 	return root_certs, nil
 }
 
-// Mints a dummy server cert when the real one is not recorded.
-func MintDummyCertificate(serverName string, rootCert *x509.Certificate, rootKey crypto.PrivateKey) ([]byte, string, error) {
-	template := rootCert
+// Returns DER encoded server cert.
+func MintCertificate(serverName string, rootCert *x509.Certificate, rootKey crypto.PrivateKey) ([]byte, error) {
+	// Slightly before now, in case clocks are off.
+	notBefore := time.Now().Add(-24 * time.Hour)
+	template := x509.Certificate{
+		Issuer: rootCert.Subject,
+		Subject: pkix.Name{
+			CommonName: serverName,
+		},
+		KeyUsage:    x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
+		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+		NotBefore:   notBefore,
+		// Certificates cannot be valid for more than ~1 year in most platforms.
+		NotAfter: notBefore.Add(12 * 30 * 24 * time.Hour),
+	}
 	if ip := net.ParseIP(serverName); ip != nil {
 		template.IPAddresses = []net.IP{ip}
 	} else {
 		template.DNSNames = []string{serverName}
 	}
-	var buf [20]byte
-	if _, err := io.ReadFull(rand.Reader, buf[:]); err != nil {
-		return nil, "", fmt.Errorf("create cert failed: %v", err)
-	}
-	template.SerialNumber.SetBytes(buf[:])
-	template.Issuer = template.Subject
-	derBytes, err := x509.CreateCertificate(rand.Reader, template, template, template.PublicKey, rootKey)
+	derBytes, err := x509.CreateCertificate(rand.Reader, &template, rootCert, rootCert.PublicKey, rootKey)
 	if err != nil {
-		return nil, "", fmt.Errorf("create cert failed: %v", err)
+		return nil, fmt.Errorf("create cert failed: %v", err)
 	}
-	return derBytes, "", err
+	return derBytes, err
 }
 
-// Returns DER encoded server cert.
-func MintServerCert(serverName string, rootCert *x509.Certificate, rootKey crypto.PrivateKey) ([]byte, string, error) {
+func TryNegotiateWPRSupportedProtocol(serverName string) (string, error) {
 	dialer := &net.Dialer{
 		Timeout:   30 * time.Second,
 		KeepAlive: 30 * time.Second,
@@ -89,31 +94,14 @@ func MintServerCert(serverName string, rootCert *x509.Certificate, rootKey crypt
 		InsecureSkipVerify: true,
 	})
 	if err != nil {
-		return nil, "", fmt.Errorf("Couldn't reach host %s: %v", serverName, err)
+		return "", fmt.Errorf("Couldn't reach host %s: %v", serverName, err)
 	}
 	defer conn.Close()
 	conn.Handshake()
-	template := conn.ConnectionState().PeerCertificates[0]
-
-	dt := time.Now()
-
-	template.Subject.CommonName = serverName
-	template.NotBefore = dt.Add(-24 * time.Hour)
-	// Certs cannot be valid for longer than 12 mths.
-	template.NotAfter = dt.Add(12 * 30 * 24 * time.Hour)
-	template.SignatureAlgorithm = rootCert.SignatureAlgorithm
-	var buf [20]byte
-	if _, err := io.ReadFull(rand.Reader, buf[:]); err != nil {
-		return nil, "", err
-	}
-	template.SerialNumber.SetBytes(buf[:])
-	template.Issuer = rootCert.Subject
-	template.KeyUsage = x509.KeyUsageCertSign | x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature | x509.KeyUsageCRLSign
-	template.ExtKeyUsage = []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth}
-
-	negotiatedProtocol := conn.ConnectionState().NegotiatedProtocol
-	derBytes, err := x509.CreateCertificate(rand.Reader, template, rootCert, rootCert.PublicKey, rootKey)
-	return derBytes, negotiatedProtocol, err
+	// From go docs: "if the peer doesn't support ALPN, the connection will
+	// succeed and ConnectionState.NegotiatedProtocol will be empty". In that
+	// case, the connection will be http/1.1.
+	return conn.ConnectionState().NegotiatedProtocol, nil
 }
 
 type tlsProxy struct {
@@ -145,7 +133,8 @@ func (tp *tlsProxy) getReplayConfigForClient(clientHello *tls.ClientHelloInfo) (
 	if err != nil || derBytes == nil {
 		if _, ok := tp.dummy_certs_map[h]; !ok {
 			for i := 0; i < len(tp.root_certs); i++ {
-				derBytes, negotiatedProtocol, err = MintDummyCertificate(h, tp.root_certs[i], tp.roots[i].PrivateKey)
+				derBytes, err = MintCertificate(h, tp.root_certs[i], tp.roots[i].PrivateKey)
+				negotiatedProtocol = ""
 				if err != nil {
 					return nil, err
 				}
@@ -225,9 +214,14 @@ func (tp *tlsProxy) getRecordConfigForClient(clientHello *tls.ClientHelloInfo) (
 		}, nil
 	}
 
+	negotiatedProtocol, err = TryNegotiateWPRSupportedProtocol(h)
+	if err != nil {
+		return nil, fmt.Errorf("failed to negotiated supported http protocol: %v", err)
+	}
+
 	totalDerBytes := []byte{}
 	for i := 0; i < len(tp.roots); i++ {
-		derBytes, negotiatedProtocol, err = MintServerCert(h, tp.root_certs[i], tp.roots[i].PrivateKey)
+		derBytes, err = MintCertificate(h, tp.root_certs[i], tp.roots[i].PrivateKey)
 		if err != nil {
 			return nil, fmt.Errorf("create cert failed: %v", err)
 		}
