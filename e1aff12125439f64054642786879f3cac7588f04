@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7544da19_19b5f7d6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 18
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2025-11-03T19:59:07Z",
+      "side": 1,
+      "message": "I\u0027m going to increase scope here, removing you for now",
+      "revId": "e1aff12125439f64054642786879f3cac7588f04",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
