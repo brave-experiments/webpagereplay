@@ -18,12 +18,12 @@ import (
 
 // Returns a TLS configuration that serves a recorded server leaf cert signed by
 // root CA.
-func ReplayTLSConfig(roots []tls.Certificate, a *Archive) (*tls.Config, error) {
+func ReplayTLSConfig(roots []tls.Certificate, a *Archive, useArchiveCertificates bool) (*tls.Config, error) {
 	root_certs, err := getRootCerts(roots)
 	if err != nil {
 		return nil, fmt.Errorf("bad local certs: %v", err)
 	}
-	tp := &tlsProxy{roots, root_certs, a, nil, sync.Mutex{}, make(map[string][]byte)}
+	tp := &tlsProxy{roots, root_certs, a, nil, sync.Mutex{}, make(map[string][]byte), useArchiveCertificates}
 	return &tls.Config{
 		GetConfigForClient: tp.getReplayConfigForClient,
 	}, nil
@@ -31,12 +31,12 @@ func ReplayTLSConfig(roots []tls.Certificate, a *Archive) (*tls.Config, error) {
 
 // Returns a TLS configuration that serves a server leaf cert fetched over the
 // network on demand.
-func RecordTLSConfig(roots []tls.Certificate, w *WritableArchive) (*tls.Config, error) {
+func RecordTLSConfig(roots []tls.Certificate, w *WritableArchive, useArchiveCertificates bool) (*tls.Config, error) {
 	root_certs, err := getRootCerts(roots)
 	if err != nil {
 		return nil, fmt.Errorf("bad local certs: %v", err)
 	}
-	tp := &tlsProxy{roots, root_certs, nil, w, sync.Mutex{}, nil}
+	tp := &tlsProxy{roots, root_certs, nil, w, sync.Mutex{}, nil, useArchiveCertificates}
 	return &tls.Config{
 		GetConfigForClient: tp.getRecordConfigForClient,
 	}, nil
@@ -105,12 +105,13 @@ func TryNegotiateWPRSupportedProtocol(serverName string) (string, error) {
 }
 
 type tlsProxy struct {
-	roots            []tls.Certificate
-	root_certs       []*x509.Certificate
-	archive          *Archive
-	writable_archive *WritableArchive
-	mu               sync.Mutex
-	dummy_certs_map  map[string][]byte
+	roots                    []tls.Certificate
+	root_certs               []*x509.Certificate
+	archive                  *Archive
+	writable_archive         *WritableArchive
+	mu                       sync.Mutex
+	dummy_certs_map          map[string][]byte
+	use_archive_certificates bool
 }
 
 // TODO: For now, this just returns a self-signed cert using the given ServerName.
@@ -127,14 +128,21 @@ func (tp *tlsProxy) getReplayConfigForClient(clientHello *tls.ClientHelloInfo) (
 		}, nil
 	}
 
-	derBytes, negotiatedProtocol, err := tp.archive.FindHostTlsConfig(h)
+	negotiatedProtocol, err := tp.archive.FindHostNegotiatedProtocol(h)
+	if err != nil {
+		// This code predates me, it seems dangerous. My understanding is sending
+		// a stored HTTP2 response to a client via HTTP1 won't work. Might be better
+		// to panic, or better yet, derive the protocol from the stored requests.
+		negotiatedProtocol = ""
+	}
+
+	derBytes, err := tp.archive.FindHostCertificate(h)
 	tp.mu.Lock()
 	defer tp.mu.Unlock()
-	if err != nil || derBytes == nil {
+	if err != nil || derBytes == nil || !tp.use_archive_certificates {
 		if _, ok := tp.dummy_certs_map[h]; !ok {
 			for i := 0; i < len(tp.root_certs); i++ {
 				derBytes, err = MintCertificate(h, tp.root_certs[i], tp.roots[i].PrivateKey)
-				negotiatedProtocol = ""
 				if err != nil {
 					return nil, err
 				}
@@ -159,6 +167,9 @@ func (tp *tlsProxy) getReplayConfigForClient(clientHello *tls.ClientHelloInfo) (
 	}, nil
 }
 
+// This code predates me, it seems dangerous. My understanding is that sending a
+// stored response with the wrong protocol won't work. Sending
+// {negotiatedProtocol} as nextProtos might be best.
 func buildNextProtos(negotiatedProtocol string) []string {
 	if negotiatedProtocol == "h2" {
 		return []string{"h2", "http/1.1"}
@@ -198,9 +209,17 @@ func (tp *tlsProxy) getRecordConfigForClient(clientHello *tls.ClientHelloInfo) (
 		}, nil
 	}
 
+	negotiatedProtocol, err := tp.writable_archive.Archive.FindHostNegotiatedProtocol(h)
+	if err != nil {
+		negotiatedProtocol, err = TryNegotiateWPRSupportedProtocol(h)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to negotiate supported http protocol: %v", err)
+	}
+
 	certificates := []tls.Certificate{}
-	derBytes, negotiatedProtocol, err := tp.writable_archive.Archive.FindHostTlsConfig(h)
-	if err == nil && derBytes != nil {
+	derBytes, err := tp.writable_archive.Archive.FindHostCertificate(h)
+	if err == nil && derBytes != nil && tp.use_archive_certificates {
 		certBytes := parseDerBytes(derBytes)
 		for i := 0; i < len(certBytes); i++ {
 			certificates = append(certificates, tls.Certificate{
@@ -214,11 +233,6 @@ func (tp *tlsProxy) getRecordConfigForClient(clientHello *tls.ClientHelloInfo) (
 		}, nil
 	}
 
-	negotiatedProtocol, err = TryNegotiateWPRSupportedProtocol(h)
-	if err != nil {
-		return nil, fmt.Errorf("failed to negotiated supported http protocol: %v", err)
-	}
-
 	totalDerBytes := []byte{}
 	for i := 0; i < len(tp.roots); i++ {
 		derBytes, err = MintCertificate(h, tp.root_certs[i], tp.roots[i].PrivateKey)
@@ -230,8 +244,10 @@ func (tp *tlsProxy) getRecordConfigForClient(clientHello *tls.ClientHelloInfo) (
 			PrivateKey:  tp.roots[i].PrivateKey})
 		totalDerBytes = append(totalDerBytes, derBytes...)
 	}
-
-	tp.writable_archive.RecordTlsConfig(h, totalDerBytes, negotiatedProtocol)
+	if tp.use_archive_certificates {
+		tp.writable_archive.RecordHostCertificate(h, totalDerBytes)
+	}
+	tp.writable_archive.RecordHostNegotiatedProtocol(h, negotiatedProtocol)
 
 	return &tls.Config{
 		Certificates: certificates,
