@@ -178,18 +178,22 @@ func (a *Archive) ForEach(f func(req *http.Request, resp *http.Response) error) 
 	return nil
 }
 
-// Returns the der encoded cert and negotiated protocol.
-func (a *Archive) FindHostTlsConfig(host string) ([]byte, string, error) {
+// Returns the der encoded cert.
+func (a *Archive) FindHostCertificate(host string) ([]byte, error) {
 	if cert, ok := a.Certs[host]; ok {
-		return cert, a.findHostNegotiatedProtocol(host), nil
+		return cert, nil
 	}
-	return nil, "", ErrNotFound
+	return nil, ErrNotFound
 }
 
-func (a *Archive) findHostNegotiatedProtocol(host string) string {
+// Note: theoretically the protocol used by the server could be inferred by
+// looking at requests/responses in the archive. So it seems silly to have a
+// dedicated field in the archive.
+func (a *Archive) FindHostNegotiatedProtocol(host string) string {
 	if negotiatedProtocol, ok := a.NegotiatedProtocol[host]; ok {
 		return negotiatedProtocol
 	}
+	// This is dangerous.
 	return "http/1.1"
 }
 
