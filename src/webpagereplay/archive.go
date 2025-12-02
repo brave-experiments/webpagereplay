@@ -555,7 +555,6 @@ func (a *WritableArchive) RecordRequest(req *http.Request, resp *http.Response) 
 	return a.AddArchivedRequest(req, resp, AddModeAppend)
 }
 
-// Must only be called if FindHostCertificate() returned ErrNotFound.
 func (a *WritableArchive) RecordHostCertificate(host string, der_bytes []byte) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -564,12 +563,11 @@ func (a *WritableArchive) RecordHostCertificate(host string, der_bytes []byte) {
 	}
 	_, ok := a.Certs[host]
 	if ok {
-		panic("must not record a host certificate when there's an existing one")
+		return
 	}
 	a.Certs[host] = der_bytes
 }
 
-// Must only be called if FindHostNegotiatedProtocol() returned ErrNotFound.
 func (a *WritableArchive) RecordHostNegotiatedProtocol(host string, negotiatedProtocol string) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -578,7 +576,7 @@ func (a *WritableArchive) RecordHostNegotiatedProtocol(host string, negotiatedPr
 	}
 	_, ok := a.NegotiatedProtocol[host]
 	if ok {
-		panic("must not record a protocol when there's an existing one")
+		return
 	}
 	a.NegotiatedProtocol[host] = negotiatedProtocol
 }
