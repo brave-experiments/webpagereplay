@@ -3,6 +3,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "69002245_f153f0c0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2025-12-03T00:53:33Z",
+      "side": 1,
+      "message": "It\u0027s not a race condition.\n```\nFix panic in RecordHost{Certificate,NegotiatedProtocol}\n\nThese must only be called if the the corresponding lookup methods\nreturn ErrNotFound, but that precondition was not being honored.\n```",
+      "revId": "94296339cfb8cc624c0b9f9b48bab0b46b55779c",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "466006ed_3edd2c4b",
         "filename": "src/webpagereplay/archive.go",
         "patchSetId": 2
