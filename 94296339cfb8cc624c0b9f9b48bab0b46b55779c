@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "466006ed_3edd2c4b",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2025-12-03T00:49:57Z",
+      "side": 1,
+      "message": "Let\u0027s make the change on the calling side\n\nAfter the line below, add `hasArchiveNegotiatedProtocol :\u003d err \u003d\u003d nil`\nhttps://source.chromium.org/chromium/chromium/src/+/main:third_party/webpagereplay/src/webpagereplay/certs.go;l\u003d212;drc\u003d052833a44dd2f538b85936092bad545b6062e193\n\nAfter the line below, add `hasArchiveCertificate :\u003d err \u003d\u003d nil`\nhttps://source.chromium.org/chromium/chromium/src/+/main:third_party/webpagereplay/src/webpagereplay/certs.go;l\u003d221;drc\u003d052833a44dd2f538b85936092bad545b6062e193\n\nThen condition the RecordHostNegotiatedProtocol() call to ! hasArchiveNegotiatedProtocol and the RecordHostCertificate() call to ! hasArchiveCertificate",
+      "revId": "94296339cfb8cc624c0b9f9b48bab0b46b55779c",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
