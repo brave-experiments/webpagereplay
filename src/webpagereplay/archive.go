@@ -121,6 +121,7 @@ type Archive struct {
 	// If an incoming URL doesn't exactly match an entry in the archive,
 	// skip fuzzy matching and return nothing.
 	DisableFuzzyURLMatching bool
+	NewField                bool
 }
 
 // LINT.ThenChange()
