@@ -121,6 +121,7 @@ type Archive struct {
 	// If an incoming URL doesn't exactly match an entry in the archive,
 	// skip fuzzy matching and return nothing.
 	DisableFuzzyURLMatching bool
+	NewField                bool
 }
 
 // LINT.ThenChange(archive.go:archive_clone)
@@ -217,6 +218,7 @@ func (a *Archive) cloneFieldsExceptRequests() Archive {
 		CurrentSessionId:                     a.CurrentSessionId,
 		DisableFuzzyURLMatching:              a.DisableFuzzyURLMatching,
 	}
+	new change
 }
 
 // LINT.ThenChange(archive.go:archive_struct)
