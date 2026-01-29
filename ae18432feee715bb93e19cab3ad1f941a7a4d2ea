@@ -16,6 +16,46 @@
       "message": "PTAL!",
       "revId": "ae18432feee715bb93e19cab3ad1f941a7a4d2ea",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "98df9036_11e028e1",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-01-29T12:51:24Z",
+      "side": 1,
+      "message": "Let\u0027s use IFTTT to keep this in sync with cloneFieldsExceptRequest()\n\nhttps://source.chromium.org/chromium/chromium/src/+/main:components/sync/base/data_type.h;l\u003d224;drc\u003df5386e1d78baffbf78e99aba30af179d70550c6d\nhttps://source.chromium.org/chromium/chromium/src/+/main:components/sync/base/data_type.h;l\u003d306;drc\u003df5386e1d78baffbf78e99aba30af179d70550c6d\n\nIn this case, the blocks are in the same file, so you can probably simplify the syntax a bit, check https://g3doc.corp.google.com/wireless/android/busytown/ayeaye/analyzers/ifthisthenanalyzer/README.md?cl\u003dhead",
+      "revId": "ae18432feee715bb93e19cab3ad1f941a7a4d2ea",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e5876b25_e35f8cfd",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-01-29T12:51:24Z",
+      "side": 1,
+      "message": "cloneFieldsExceptRequest",
+      "range": {
+        "startLine": 206,
+        "startChar": 18,
+        "endLine": 206,
+        "endChar": 29
+      },
+      "revId": "ae18432feee715bb93e19cab3ad1f941a7a4d2ea",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
