@@ -202,6 +202,19 @@ func assertCompleteURL(url *url.URL) {
 	}
 }
 
+// Returns a new archive with all fields cloned, apart from requests.
+func (a *Archive) cloneFields() Archive {
+	return Archive{
+		Requests:                             make(map[string]map[string][]*ArchivedRequest),
+		Certs:                                a.Certs,
+		NegotiatedProtocol:                   a.NegotiatedProtocol,
+		DeterministicTimeSeedMs:              a.DeterministicTimeSeedMs,
+		ServeResponseInChronologicalSequence: a.ServeResponseInChronologicalSequence,
+		CurrentSessionId:                     a.CurrentSessionId,
+		DisableFuzzyURLMatching:              a.DisableFuzzyURLMatching,
+	}
+}
+
 // FindRequest searches for the given request in the archive.
 // Returns ErrNotFound if the request could not be found.
 //
@@ -418,7 +431,7 @@ func (a *Archive) StartNewReplaySession() {
 // edit the request. If f returns a nil pair, the request is deleted.
 // The edited archive is returned, leaving the current archive is unchanged.
 func (a *Archive) Edit(edit func(req *http.Request, resp *http.Response) (*http.Request, *http.Response, error)) (*Archive, error) {
-	clone := newArchive()
+	clone := a.cloneFields()
 	err := a.ForEach(func(oldReq *http.Request, oldResp *http.Response) error {
 		newReq, newResp, err := edit(oldReq, oldResp)
 		if err != nil {
@@ -466,7 +479,7 @@ func (a *Archive) Merge(other *Archive, keepDuplicates bool) error {
 // The trimmed archive is returned, leaving the current archive unchanged.
 func (a *Archive) Trim(trimMatch func(req *http.Request, resp *http.Response) (bool, error)) (*Archive, error) {
 	var numRemovedRequests = 0
-	clone := newArchive()
+	clone := a.cloneFields()
 	err := a.ForEach(func(req *http.Request, resp *http.Response) error {
 		trimReq, err := trimMatch(req, resp)
 		if err != nil {
