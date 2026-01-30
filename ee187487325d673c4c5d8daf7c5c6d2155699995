@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4b8f51ad_b3d0d305",
+        "filename": "deterministic.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-01-30T16:03:37Z",
+      "side": 1,
+      "message": "This doesn\u0027t prevent someone from changing the property later, does it?\n\nDon\u0027t you need something similar to this code from the previous CL?\n```\nObject.defineProperty(window, \"on\" + val, {\n        set: function(value) { return false; },\n        get: function() { return null; },\n        configurable: false\n    });\n```",
+      "revId": "ee187487325d673c4c5d8daf7c5c6d2155699995",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
