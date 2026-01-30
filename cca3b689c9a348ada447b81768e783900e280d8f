@@ -26,6 +26,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "d78c6334_c38c6adb",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-01-30T16:12:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b84cdb6f_d049ea38",
+      "range": {
+        "startLine": 9,
+        "startChar": 33,
+        "endLine": 9,
+        "endChar": 34
+      },
+      "revId": "cca3b689c9a348ada447b81768e783900e280d8f",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "996f98be_bd9af2d1",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 1
@@ -102,6 +126,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "98bf14f2_568f1822",
+        "filename": "deterministic.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-01-30T16:12:20Z",
+      "side": 1,
+      "message": "Indeed. (Thank you for the in-depth review.)",
+      "parentUuid": "d64e40c4_23ce892d",
+      "range": {
+        "startLine": 90,
+        "startChar": 9,
+        "endLine": 90,
+        "endChar": 25
+      },
+      "revId": "cca3b689c9a348ada447b81768e783900e280d8f",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "342d770f_6111271a",
         "filename": "deterministic.js",
         "patchSetId": 1
@@ -113,6 +161,24 @@
       "writtenOn": "2026-01-30T16:03:32Z",
       "side": 1,
       "message": "Looks like it always returns undefined anyway, but I like the code as is\nhttps://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#return_value",
+      "revId": "cca3b689c9a348ada447b81768e783900e280d8f",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3d8877f1_1d5dc440",
+        "filename": "deterministic.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-01-30T16:12:20Z",
+      "side": 1,
+      "message": "For the record, this was a conscious choice; it is more future-proof this way. (I am not sure how often Web APIs gain a return value, but such extensions are theoretically possible.)",
+      "parentUuid": "342d770f_6111271a",
       "revId": "cca3b689c9a348ada447b81768e783900e280d8f",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
