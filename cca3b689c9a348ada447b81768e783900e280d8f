@@ -1,6 +1,29 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "b84cdb6f_d049ea38",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-01-30T16:03:32Z",
+      "side": 1,
+      "message": "nit: typo",
+      "range": {
+        "startLine": 9,
+        "startChar": 33,
+        "endLine": 9,
+        "endChar": 34
+      },
+      "revId": "cca3b689c9a348ada447b81768e783900e280d8f",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "996f98be_bd9af2d1",
@@ -50,6 +73,46 @@
       "side": 1,
       "message": "Everything seems to have gone down smoothly. I note that you have tested both CLs together, so I don\u0027t think I need to launch a similar workload for the other CL right now. (Thanks.)",
       "parentUuid": "d156831f_1ff2a120",
+      "revId": "cca3b689c9a348ada447b81768e783900e280d8f",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d64e40c4_23ce892d",
+        "filename": "deterministic.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-01-30T16:03:32Z",
+      "side": 1,
+      "message": "I was wondering about removeEventListener, but \"Calling removeEventListener() with arguments that do not identify any currently registered event listener on the EventTarget has no effect.\". So it\u0027s safe\nhttps://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener",
+      "range": {
+        "startLine": 90,
+        "startChar": 9,
+        "endLine": 90,
+        "endChar": 25
+      },
+      "revId": "cca3b689c9a348ada447b81768e783900e280d8f",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "342d770f_6111271a",
+        "filename": "deterministic.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-01-30T16:03:32Z",
+      "side": 1,
+      "message": "Looks like it always returns undefined anyway, but I like the code as is\nhttps://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#return_value",
       "revId": "cca3b689c9a348ada447b81768e783900e280d8f",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
