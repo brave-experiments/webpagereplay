@@ -16,6 +16,24 @@
       "message": "This doesn\u0027t prevent someone from changing the property later, does it?\n\nDon\u0027t you need something similar to this code from the previous CL?\n```\nObject.defineProperty(window, \"on\" + val, {\n        set: function(value) { return false; },\n        get: function() { return null; },\n        configurable: false\n    });\n```",
       "revId": "ee187487325d673c4c5d8daf7c5c6d2155699995",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bec4f6cc_0185c787",
+        "filename": "deterministic.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-01-30T16:21:43Z",
+      "side": 1,
+      "message": "\u003e This doesn\u0027t prevent someone from changing the property later, does it?\n\nThat\u0027s by design; we should not break apps that try to set the property. They should still be able to set handlers; what we want is to keep the handlers no-op.\n\nWhen the app sets a new handler, that handler never gets invoked. Behind the scenes, the browser still examines the original object, finds no event handler there, ~et voilà~ and nothing happens.\n\nYou\u0027re welcome to test this. Run this code from DevTools and play with your connection; you\u0027ll see that \"online\" and \"offline\" fire, but the \"change\" event does not fire.\n```\n// navigator.connection and associated event.\n(function () {\n  class MockConnection extends EventTarget {\n    constructor() {\n      super();\n      this.effectiveType \u003d \u00274g\u0027;\n      this.rtt \u003d 100;\n      this.downlink \u003d 5;\n      this.saveData \u003d false;\n      this.onchange \u003d null;\n    }\n  }\n\n  Object.defineProperty(navigator, \"connection\", {\n    value: new MockConnection(),\n    configurable: true\n  });\n})();\n\nnavigator.connection.onchange \u003d () \u003d\u003e console.log(\"Some change.\");\nwindow.addEventListener(\"online\", () \u003d\u003e console.log(\"Online.\"));\nwindow.addEventListener(\"offline\", () \u003d\u003e console.log(\"Offline.\"));\n```",
+      "parentUuid": "4b8f51ad_b3d0d305",
+      "revId": "ee187487325d673c4c5d8daf7c5c6d2155699995",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
