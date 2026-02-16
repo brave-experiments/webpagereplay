@@ -95,22 +95,3 @@
         this, type, listener, optionsOrUseCapture);
   };
 })();
-
-// navigator.connection and associated event.
-(function () {
-  class MockConnection extends EventTarget {
-    constructor() {
-      super();
-      this.effectiveType = '4g';
-      this.rtt = 100;
-      this.downlink = 5;
-      this.saveData = false;
-      this.onchange = null;
-    }
-  }
-
-  Object.defineProperty(navigator, "connection", {
-    value: new MockConnection(),
-    configurable: true
-  });
-})();
