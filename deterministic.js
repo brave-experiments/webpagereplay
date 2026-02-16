@@ -4,7 +4,6 @@
 
 'use strict';
 
-// Math.random
 (function () {
   var random_seed = 0.462;
   Math.random = function() {
@@ -24,8 +23,6 @@
     };
   }
 })();
-
-// Date
 (function () {
   var date_count = 0;
   var date_count_threshold = 25;
@@ -65,33 +62,5 @@
     if (this.getTime() >= dst2010Start && this.getTime() < dst2010End)
       return 420;
     return 480;
-  };
-})();
-
-// navigator.onLine and associated events.
-(function () {
-  // Property
-  Object.defineProperty(navigator, "onLine", {
-    value: true,
-    configurable: true
-  });
-
-  // Event handler properties
-  ["online", "offline"].forEach(val => {
-    Object.defineProperty(window, "on" + val, {
-        set: function(value) { return false; },
-        get: function() { return null; },
-        configurable: false
-    });
-  });
-
-  // Event listeners
-  const originalAddEventListener = window.addEventListener;
-  window.addEventListener = function(type, listener, optionsOrUseCapture) {
-    if (type === "online" || type === "offline") {
-      return undefined;
-    }
-    return originalAddEventListener.call(
-        this, type, listener, optionsOrUseCapture);
   };
 })();
