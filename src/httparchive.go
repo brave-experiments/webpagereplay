@@ -89,11 +89,23 @@ func edit(cfg *webpagereplay.HttpArchiveConfig, a *webpagereplay.Archive, outfil
 	}
 
 	marshalForEdit := func(w io.Writer, req *http.Request, resp *http.Response) error {
+		// Since req.Body can be read only once, we will restore it after use to
+		// keep the req object in a valid state.
+		body, err := ioutil.ReadAll(req.Body)
+		if err != nil {
+			return err
+		}
+		req.Body.Close()
+		req.Body = ioutil.NopCloser(bytes.NewReader(body))
+
 		// WriteProxy writes absolute URI in the Start line including the
 		// scheme and host. It is necessary for unmarshaling later.
 		if err := req.WriteProxy(w); err != nil {
 			return err
 		}
+		// Restore the body for later use.
+		req.Body = ioutil.NopCloser(bytes.NewReader(body))
+
 		if cfg.DecodeResponseBody {
 			if err := webpagereplay.DecompressResponse(resp); err != nil {
 				return fmt.Errorf("couldn't decompress body: %v", err)
@@ -108,11 +120,21 @@ func edit(cfg *webpagereplay.HttpArchiveConfig, a *webpagereplay.Archive, outfil
 		if err != nil {
 			return nil, nil, fmt.Errorf("couldn't unmarshal request: %v", err)
 		}
+
+		// Ensure the request body is fully read if it exists, otherwise ReadResponse
+		// might start reading from the middle of the request body if it wasn't fully
+		// consumed by ReadRequest.
+		reqBody, err := ioutil.ReadAll(req.Body)
+		if err != nil {
+			return nil, nil, fmt.Errorf("couldn't consume request body: %v", err)
+		}
+		req.Body.Close()
+		// Reset the body to the read content so that ReadResponse sees the correct
+		// body size if it checks.
+		req.Body = ioutil.NopCloser(bytes.NewReader(reqBody))
+
 		resp, err := http.ReadResponse(br, req)
 		if err != nil {
-			if req.Body != nil {
-				req.Body.Close()
-			}
 			return nil, nil, fmt.Errorf("couldn't unmarshal response: %v", err)
 		}
 		if cfg.DecodeResponseBody {
