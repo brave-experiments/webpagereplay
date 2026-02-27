@@ -16,6 +16,24 @@
       "message": "LGTM % point about null req.Body discussed offline",
       "revId": "9086838ecd00758233be6e9eac7163199437cd93",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e72f5b1_280a4529",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1328067
+      },
+      "writtenOn": "2026-02-27T16:40:32Z",
+      "side": 1,
+      "message": "Removed the unnecessary check, as discussed.",
+      "parentUuid": "357ac83b_897c6438",
+      "revId": "9086838ecd00758233be6e9eac7163199437cd93",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
