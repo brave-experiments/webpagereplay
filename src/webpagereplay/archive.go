@@ -110,6 +110,9 @@ type Archive struct {
 	NegotiatedProtocol map[string]string
 	// The time seed that was used to initialize deterministic.js.
 	DeterministicTimeSeedMs int64
+	// The constant value that Math.random() returns, if specified and
+	// deterministic.js is injected.
+	ConstantMathRandomResult *float64
 	// When an incoming request matches multiple recorded responses, whether to
 	// serve the responses in the chronological sequence in which wpr_go
 	// recorded them.
@@ -214,6 +217,7 @@ func (a *Archive) cloneFieldsExceptRequests() Archive {
 		Certs:                                a.Certs,
 		NegotiatedProtocol:                   a.NegotiatedProtocol,
 		DeterministicTimeSeedMs:              a.DeterministicTimeSeedMs,
+		ConstantMathRandomResult:             a.ConstantMathRandomResult,
 		ServeResponseInChronologicalSequence: a.ServeResponseInChronologicalSequence,
 		CurrentSessionId:                     a.CurrentSessionId,
 		DisableFuzzyURLMatching:              a.DisableFuzzyURLMatching,

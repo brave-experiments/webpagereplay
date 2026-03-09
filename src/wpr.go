@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math"
 	"net"
 	"net/http"
 	"os"
@@ -64,6 +65,8 @@ type CommonConfig struct {
 	injectScripts                            string
 	paramToIgnoreInURLPath                   string
 	noArchiveCertificates                    bool
+	constantMathRandomResult                 float64
+	skipCertLoadingForTesting                bool
 
 	// Computed state.
 	rootCerts    []tls.Certificate
@@ -170,6 +173,16 @@ func (common *CommonConfig) Flags() []cli.Flag {
 				"will be generated on replay time, with caching by host.",
 			Destination: &common.noArchiveCertificates,
 		},
+		&cli.Float64Flag{
+			Name: "constant-math-random-result",
+			Usage: "A float between 0.0 (inclusive) and 1.0 (exclusive) to use as " +
+				"a constant Math.random() result. If not specified, a deterministic " +
+				"sequence is used. Note that when using this sequence, invocations " +
+				"from a given point in the code might still run into different " +
+				"values across runs because the calls to Math.random() might get " +
+				"reordered due to external factors.",
+			Destination: &common.constantMathRandomResult,
+		},
 	)
 }
 
@@ -192,9 +205,22 @@ func (common *CommonConfig) CheckArgs(c *cli.Context) error {
 		return errors.New("must specify at least one port flag")
 	}
 
+	if c.IsSet("constant-math-random-result") {
+		val := common.constantMathRandomResult
+		if math.IsNaN(val) || math.IsInf(val, 0) || val < 0.0 || val >= 1.0 {
+			return fmt.Errorf("Invalid value (%v) for the flag --%v. "+
+				"The permitted range  is [0, 1).",
+				val, "constant-math-random-result")
+		}
+	}
+
 	err := common.certConfig.CheckArgs(c)
 	if err != nil {
 		return err
+	}
+
+	if common.skipCertLoadingForTesting {
+		return nil
 	}
 
 	// Load certFiles.
@@ -215,12 +241,23 @@ func (common *CommonConfig) CheckArgs(c *cli.Context) error {
 	return nil
 }
 
-func (common *CommonConfig) ProcessInjectedScripts(timeSeedMs int64) error {
+func (common *CommonConfig) ProcessInjectedScripts(timeSeedMs int64,
+	constantMathRandomResult *float64) error {
 	if common.injectScripts != "" {
 		for _, scriptFile := range strings.Split(common.injectScripts, ",") {
 			log.Printf("Loading script from %v\n", scriptFile)
-			// Replace {{WPR_TIME_SEED_TIMESTAMP}} with the time seed.
-			replacements := map[string]string{"{{WPR_TIME_SEED_TIMESTAMP}}": strconv.FormatInt(timeSeedMs, 10)}
+			// - Replace {{WPR_TIME_SEED_TIMESTAMP}} with the time seed.
+			// - Replace {{WPR_CONSTANT_RANDOM_RESULT}} with the constant
+			// 	 Math.random() result.
+			randomResultStr := "null"
+			if constantMathRandomResult != nil {
+				randomResultStr = strconv.FormatFloat(
+					*constantMathRandomResult, 'f', -1, 64)
+			}
+			replacements := map[string]string{
+				"{{WPR_TIME_SEED_TIMESTAMP}}":    strconv.FormatInt(timeSeedMs, 10),
+				"{{WPR_CONSTANT_RANDOM_RESULT}}": randomResultStr,
+			}
 			si, err := webpagereplay.NewScriptInjectorFromFile(scriptFile, replacements)
 			if err != nil {
 				return fmt.Errorf("error opening script %s: %v", scriptFile, err)
@@ -447,11 +484,16 @@ func (r *RecordCommand) Run(c *cli.Context) error {
 	}()
 
 	timeSeedMs := time.Now().Unix() * 1000
-	if err := r.common.ProcessInjectedScripts(timeSeedMs); err != nil {
+	var constantMathRandomResult *float64
+	if c.IsSet("constant-math-random-result") {
+		constantMathRandomResult = &r.common.constantMathRandomResult
+	}
+	if err := r.common.ProcessInjectedScripts(timeSeedMs, constantMathRandomResult); err != nil {
 		log.Printf("Error processing injected scripts: %v", err)
 		os.Exit(1)
 	}
 	archive.DeterministicTimeSeedMs = timeSeedMs
+	archive.ConstantMathRandomResult = constantMathRandomResult
 
 	if r.enableExperimentalTimedChunk {
 		log.Printf("NOTIMPLEMENTED: Experimental Timed Chunk recording support")
@@ -492,7 +534,19 @@ func (r *ReplayCommand) Run(c *cli.Context) error {
 		// the seed.
 		timeSeedMs = time.Now().Unix() * 1000
 	}
-	if err := r.common.ProcessInjectedScripts(timeSeedMs); err != nil {
+
+	constantMathRandomResult := archive.ConstantMathRandomResult
+	if c.IsSet("constant-math-random-result") {
+		flagValue := &r.common.constantMathRandomResult
+		if archive.ConstantMathRandomResult != nil &&
+			*flagValue != *archive.ConstantMathRandomResult {
+			log.Printf("WARNING: constant-math-random-result flag (%v) differs "+
+				"from archive (%v).", *flagValue, *archive.ConstantMathRandomResult)
+		}
+		constantMathRandomResult = flagValue
+	}
+
+	if err := r.common.ProcessInjectedScripts(timeSeedMs, constantMathRandomResult); err != nil {
 		log.Printf("Error processing injected scripts: %v", err)
 		os.Exit(1)
 	}
@@ -526,7 +580,9 @@ func (r *ReplayCommand) Run(c *cli.Context) error {
 		return transformedArchive.AddArchivedRequest(req, resp, webpagereplay.AddModeAppend)
 	})
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Using original archive, error while creating transformed one: %v\n", err)
+		fmt.Fprintf(os.Stderr,
+			"Using original archive, error while creating transformed one: %v\n",
+			err)
 	} else {
 		archive = &transformedArchive
 	}

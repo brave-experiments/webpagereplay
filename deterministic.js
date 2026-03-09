@@ -6,13 +6,26 @@
 
 // Math.random
 (function () {
-  let random_seed = 0.462;
-  Math.random = function() {
-    // Some websites rely on random values being reasonably unique and break if
-    // random returns repeated values.
-    random_seed = (random_seed + 0.13297) % 1;
-    return random_seed;
-  };
+  // We hard-code a constant sequence of random numbers.
+  // * If WPR_CONSTANT_RANDOM_RESULT is non-null, the sequence consists purely
+  //   of repetitions of that value. This ensures that the same value sequences
+  //   are seen between recording and replay, *even* if the calls
+  //   to Math.random() are reordered (which happens often).
+  // * If WPR_CONSTANT_RANDOM_RESULT is null, the sequence is non-constant.
+  //   This breaks fewer sites' logic because it doesn't invalidate the implicit
+  //   assumption that Math.random() would rarely return any given value.
+  const constant_random_result = {{WPR_CONSTANT_RANDOM_RESULT}};
+  if (constant_random_result !== null) {
+    Math.random = function() {
+      return constant_random_result;
+    };
+  } else {
+    let random_seed = 0.462;
+    Math.random = function() {
+      random_seed = (random_seed + 0.13297) % 1;
+      return random_seed;
+    };
+  }
 })();
 
 // crypto.getRandomValues
