@@ -5,6 +5,7 @@
 package webpagereplay
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -463,6 +464,98 @@ func TestAdd(t *testing.T) {
 		t.Fatalf("Expected 1 requests in archive a")
 	}
 
+}
+
+func TestArchiveClone(t *testing.T) {
+	val := 0.123
+	original := Archive{
+		DeterministicTimeSeedMs:  12345,
+		ConstantMathRandomResult: &val,
+	}
+	clone := original.cloneFieldsExceptRequests()
+	if original.DeterministicTimeSeedMs != clone.DeterministicTimeSeedMs {
+		t.Errorf("DeterministicTimeSeedMs mismatch: got %v, want %v",
+			clone.DeterministicTimeSeedMs, original.DeterministicTimeSeedMs)
+	}
+
+	if clone.ConstantMathRandomResult == nil ||
+		*original.ConstantMathRandomResult != *clone.ConstantMathRandomResult {
+		t.Errorf("ConstantMathRandomResult mismatch: got %v, want %v",
+			clone.ConstantMathRandomResult, original.ConstantMathRandomResult)
+	}
+
+	original.ConstantMathRandomResult = nil
+	clone = original.cloneFieldsExceptRequests()
+	if clone.ConstantMathRandomResult != nil {
+		t.Errorf("ConstantMathRandomResult should be nil, got %v",
+			clone.ConstantMathRandomResult)
+	}
+}
+
+func TestArchiveJSON_DeterministicTimeSeedMs(t *testing.T) {
+	original := Archive{
+		DeterministicTimeSeedMs: 67890,
+		Requests:                make(map[string]map[string][]*ArchivedRequest),
+	}
+	data, err := json.Marshal(original)
+	if err != nil {
+		t.Fatalf("json.Marshal failed: %v", err)
+	}
+
+	var unmarshalled Archive
+	if err := json.Unmarshal(data, &unmarshalled); err != nil {
+		t.Fatalf("json.Unmarshal failed: %v", err)
+	}
+
+	if original.DeterministicTimeSeedMs != unmarshalled.DeterministicTimeSeedMs {
+		t.Errorf("DeterministicTimeSeedMs mismatch: got %v, want %v",
+			unmarshalled.DeterministicTimeSeedMs, original.DeterministicTimeSeedMs)
+	}
+}
+
+func TestArchiveJSON_WithConstantMathRandomResult(t *testing.T) {
+	val := 0.456
+	original := Archive{
+		ConstantMathRandomResult: &val,
+		Requests:                 make(map[string]map[string][]*ArchivedRequest),
+	}
+	data, err := json.Marshal(original)
+	if err != nil {
+		t.Fatalf("json.Marshal failed: %v", err)
+	}
+
+	var unmarshalled Archive
+	if err := json.Unmarshal(data, &unmarshalled); err != nil {
+		t.Fatalf("json.Unmarshal failed: %v", err)
+	}
+
+	if unmarshalled.ConstantMathRandomResult == nil ||
+		*original.ConstantMathRandomResult !=
+			*unmarshalled.ConstantMathRandomResult {
+		t.Errorf("ConstantMathRandomResult mismatch: got %v, want %v",
+			unmarshalled.ConstantMathRandomResult, original.ConstantMathRandomResult)
+	}
+}
+
+func TestArchiveJSON_WithoutConstantMathRandomResult(t *testing.T) {
+	original := Archive{
+		ConstantMathRandomResult: nil,
+		Requests:                 make(map[string]map[string][]*ArchivedRequest),
+	}
+	data, err := json.Marshal(original)
+	if err != nil {
+		t.Fatalf("json.Marshal failed: %v", err)
+	}
+
+	var unmarshalled Archive
+	if err := json.Unmarshal(data, &unmarshalled); err != nil {
+		t.Fatalf("json.Unmarshal failed: %v", err)
+	}
+
+	if unmarshalled.ConstantMathRandomResult != nil {
+		t.Errorf("ConstantMathRandomResult should be nil, got %v",
+			unmarshalled.ConstantMathRandomResult)
+	}
 }
 
 func TestTrim(t *testing.T) {
