@@ -8,6 +8,7 @@ import (
 	"bufio"
 	"bytes"
 	"compress/gzip"
+	"crypto/x509"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -581,11 +582,58 @@ func (a *WritableArchive) RecordHostCertificate(host string, der_bytes []byte) {
 	if a.Certs == nil {
 		a.Certs = make(map[string][]byte)
 	}
-	_, ok := a.Certs[host]
+	prev_der_bytes, ok := a.Certs[host]
 	if ok {
-		panic("must not record a host certificate when there's an existing one")
+		if !areEquivalentCertChains(prev_der_bytes, der_bytes) {
+			panic("must not record a host certificate when there's an existing one")
+		}
+		return
 	}
 	a.Certs[host] = der_bytes
+}
+
+// Check whether two certificate chains are similar enough that we can consider
+// them as equivalent.
+//
+// Note that this code is quite relaxed about security, as this is never
+// expected to be used in contexts where security matters.
+func areEquivalentCertChains(der1, der2 []byte) bool {
+	if bytes.Equal(der1, der2) {
+		return true
+	}
+
+	certs1, err1 := x509.ParseCertificates(der1)
+	if err1 != nil {
+		return false
+	}
+
+	certs2, err2 := x509.ParseCertificates(der2)
+	if err2 != nil {
+		return false
+	}
+
+	if len(certs1) != len(certs2) {
+		return false
+	}
+
+	for i := range certs1 {
+		c1, c2 := certs1[i], certs2[i]
+		// We intentionally skip such fields as `SerialNumber`.
+		if c1.SignatureAlgorithm != c2.SignatureAlgorithm ||
+			c1.Issuer.String() != c2.Issuer.String() ||
+			c1.Subject.String() != c2.Subject.String() ||
+			!c1.NotBefore.Equal(c2.NotBefore) ||
+			!c1.NotAfter.Equal(c2.NotAfter) ||
+			!reflect.DeepEqual(c1.PublicKey, c2.PublicKey) ||
+			!reflect.DeepEqual(c1.DNSNames, c2.DNSNames) ||
+			!reflect.DeepEqual(c1.IPAddresses, c2.IPAddresses) ||
+			!reflect.DeepEqual(c1.ExtKeyUsage, c2.ExtKeyUsage) ||
+			c1.KeyUsage != c2.KeyUsage {
+			return false
+		}
+	}
+
+	return true
 }
 
 // Must only be called if FindHostNegotiatedProtocol() returned ErrNotFound.
