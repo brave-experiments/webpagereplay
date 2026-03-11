@@ -19,10 +19,10 @@ import (
 )
 
 func TestReplaceTimeStamp(t *testing.T) {
-	time_stamp_ms :=
+	timeStampMs :=
 		time.Date(2017, time.June, 1, 23, 0, 0, 0, time.UTC).Unix() * 1000
 	replacements := map[string]string{
-		"{{WPR_TIME_SEED_TIMESTAMP}}": strconv.FormatInt(time_stamp_ms, 10)}
+		"{{WPR_TIME_SEED_TIMESTAMP}}": strconv.FormatInt(timeStampMs, 10)}
 	script := []byte("var time_seed = {{WPR_TIME_SEED_TIMESTAMP}};")
 	transformer, err := NewScriptInjector(script, replacements)
 	if err != nil {
@@ -44,7 +44,7 @@ func TestReplaceTimeStamp(t *testing.T) {
 	}
 	expectedContent := []byte(
 		fmt.Sprintf("<html><script>var time_seed=%de6</script></html>",
-			time_stamp_ms/1e6))
+			timeStampMs/1e6))
 	if !bytes.Equal(expectedContent, body) {
 		t.Fatal(
 			fmt.Errorf("expected : %s \n actual: %s \n", expectedContent, body))

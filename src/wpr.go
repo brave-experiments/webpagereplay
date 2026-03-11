@@ -66,7 +66,7 @@ type CommonConfig struct {
 	noArchiveCertificates                    bool
 
 	// Computed state.
-	root_certs   []tls.Certificate
+	rootCerts    []tls.Certificate
 	transformers []webpagereplay.ResponseTransformer
 }
 
@@ -206,11 +206,11 @@ func (common *CommonConfig) CheckArgs(c *cli.Context) error {
 	for i := 0; i < len(certFiles); i++ {
 		log.Printf("Loading cert from %v\n", certFiles[i])
 		log.Printf("Loading key from %v\n", keyFiles[i])
-		root_cert, err := tls.LoadX509KeyPair(certFiles[i], keyFiles[i])
+		rootCert, err := tls.LoadX509KeyPair(certFiles[i], keyFiles[i])
 		if err != nil {
 			return fmt.Errorf("error opening cert or key files: %v", err)
 		}
-		common.root_certs = append(common.root_certs, root_cert)
+		common.rootCerts = append(common.rootCerts, rootCert)
 	}
 	return nil
 }
@@ -459,7 +459,7 @@ func (r *RecordCommand) Run(c *cli.Context) error {
 	}
 	httpHandler := webpagereplay.NewRecordingProxy(archive, "http", r.common.transformers, r.common.paramToIgnoreInURLPath)
 	httpsHandler := webpagereplay.NewRecordingProxy(archive, "https", r.common.transformers, r.common.paramToIgnoreInURLPath)
-	tlsconfig, err := webpagereplay.RecordTLSConfig(r.common.root_certs, archive, !r.common.noArchiveCertificates)
+	tlsconfig, err := webpagereplay.RecordTLSConfig(r.common.rootCerts, archive, !r.common.noArchiveCertificates)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error creating TLSConfig: %v", err)
 		os.Exit(1)
@@ -533,7 +533,7 @@ func (r *ReplayCommand) Run(c *cli.Context) error {
 
 	httpHandler := webpagereplay.NewReplayingProxy(archive, "http", r.quietMode, r.common.paramToIgnoreInURLPath)
 	httpsHandler := webpagereplay.NewReplayingProxy(archive, "https", r.quietMode, r.common.paramToIgnoreInURLPath)
-	tlsconfig, err := webpagereplay.ReplayTLSConfig(r.common.root_certs, archive, !r.common.noArchiveCertificates)
+	tlsconfig, err := webpagereplay.ReplayTLSConfig(r.common.rootCerts, archive, !r.common.noArchiveCertificates)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error creating TLSConfig: %v", err)
 		os.Exit(1)
