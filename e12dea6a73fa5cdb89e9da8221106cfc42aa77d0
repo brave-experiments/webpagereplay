@@ -3,6 +3,52 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e0527aa9_ce7bb375",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-11T18:00:37Z",
+      "side": 1,
+      "message": "there\u0027s more than one way to refer to chrome changes, depending whether you use /c/ (gerrit id) or not (commit position), so please use crrev.com/c/7106523 here",
+      "range": {
+        "startLine": 9,
+        "startChar": 26,
+        "endLine": 9,
+        "endChar": 33
+      },
+      "revId": "e12dea6a73fa5cdb89e9da8221106cfc42aa77d0",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e94f5900_cdbd5509",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-11T18:00:37Z",
+      "side": 1,
+      "message": "lol",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 45
+      },
+      "revId": "e12dea6a73fa5cdb89e9da8221106cfc42aa77d0",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ff786157_273e789d",
         "filename": "src/webpagereplay/archive.go",
         "patchSetId": 1
