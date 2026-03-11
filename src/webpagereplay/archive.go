@@ -242,8 +242,8 @@ func (a *Archive) FindRequest(req *http.Request) (*http.Request, *http.Response,
 		req.ContentLength > 2<<20 {
 		buf := make([]byte, 1024)
 		for {
-			_, read_err := req.Body.Read(buf)
-			if read_err == io.EOF {
+			_, readErr := req.Body.Read(buf)
+			if readErr == io.EOF {
 				break
 			}
 		}
