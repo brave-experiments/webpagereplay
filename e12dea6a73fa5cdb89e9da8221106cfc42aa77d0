@@ -66,6 +66,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "17cd4441_901c338a",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-11T20:06:57Z",
+      "side": 1,
+      "message": "```\ngolang.org/x/net/internal/httpcommon\ngolang.org/x/net/http2\ngo.chromium.org/webpagereplay/src/webpagereplay\ncommand-line-arguments\nRunning clean command: go clean -modcache\nUpdate wpr binary dependency for OS win, ARCH: x86\nCopying file:///Users/eladalon/woa-scores/power/webpagereplay/src/wpr.exe [Content-Type\u003dapplication/x-msdownload]...\nResumableUploadAbortException: 401 Anonymous caller does not have storage.objects.create access to the Google Cloud Storage object. Permission \u0027storage.objects.create\u0027 denied on resource (or it may not exist).\nTraceback (most recent call last):\n  File \"scripts/upload_new_binaries.py\", line 153, in \u003cmodule\u003e\n    sys.exit(main())\n  File \"scripts/upload_new_binaries.py\", line 146, in main\n    BuildAndUpdateGoBinary(\u0027wpr\u0027, os_name, arch_name)\n  File \"scripts/upload_new_binaries.py\", line 136, in BuildAndUpdateGoBinary\n    update_dependency(\u0027%s_go\u0027 % binary_name,\n  File \"scripts/upload_new_binaries.py\", line 23, in update_dependency\n    subprocess.check_call([\n  File \"/Users/eladalon/Library/Caches/vpython-root.469393/store/cpython+fa1ipv0hcetnii1ulq4856mmfk/contents/lib/python3.8/subprocess.py\", line 364, in check_call\n    raise CalledProcessError(retcode, cmd)\nsubprocess.CalledProcessError: Command \u0027[\u0027gsutil.py\u0027, \u0027cp\u0027, \u0027/Users/eladalon/woa-scores/power/webpagereplay/src/wpr.exe\u0027, \u0027gs://chromium-telemetry/binary_dependencies/wpr_go_0b60a20b71ca7604b015a61e4dc1a86f7fc47682\u0027]\u0027 returned non-zero exit status 1.\n```",
+      "parentUuid": "ff786157_273e789d",
+      "revId": "e12dea6a73fa5cdb89e9da8221106cfc42aa77d0",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "86e7433b_4d1e283b",
         "filename": "src/webpagereplay/archive.go",
         "patchSetId": 1
@@ -111,6 +129,30 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c1e4dd55_dcf58c5b",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 585,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-11T20:06:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4c83c640_44848419",
+      "range": {
+        "startLine": 585,
+        "startChar": 1,
+        "endLine": 585,
+        "endChar": 15
+      },
+      "revId": "e12dea6a73fa5cdb89e9da8221106cfc42aa77d0",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "df63e139_015fbdc4",
@@ -124,6 +166,24 @@
       "writtenOn": "2026-03-11T17:59:21Z",
       "side": 1,
       "message": "Please fix this too",
+      "revId": "e12dea6a73fa5cdb89e9da8221106cfc42aa77d0",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c5fbbde4_f1ee7804",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 647,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-11T20:06:57Z",
+      "side": 1,
+      "message": "This one requires plumbing der_bytes (or derBytes) first. Let\u0027s address this as a separate CL.",
+      "parentUuid": "df63e139_015fbdc4",
       "revId": "e12dea6a73fa5cdb89e9da8221106cfc42aa77d0",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
