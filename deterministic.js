@@ -6,7 +6,7 @@
 
 // Math.random
 (function () {
-  var random_seed = 0.462;
+  let random_seed = 0.462;
   Math.random = function() {
     // Some websites rely on random values being reasonably unique and break if
     // random returns repeated values.
@@ -16,8 +16,8 @@
   if (typeof(crypto) == 'object' &&
       typeof(crypto.getRandomValues) == 'function') {
     crypto.getRandomValues = function(arr) {
-      var scale = Math.pow(256, arr.BYTES_PER_ELEMENT);
-      for (var i = 0; i < arr.length; i++) {
+      const scale = Math.pow(256, arr.BYTES_PER_ELEMENT);
+      for (let i = 0; i < arr.length; i++) {
         arr[i] = Math.floor(Math.random() * scale);
       }
       return arr;
@@ -27,12 +27,12 @@
 
 // Date
 (function () {
-  var date_count = 0;
-  var date_count_threshold = 25;
-  var orig_date = Date;
+  let date_count = 0;
+  const date_count_threshold = 25;
+  const orig_date = Date;
   // Time since epoch in milliseconds. This is replaced by script injector with
   // the date when the recording is done.
-  var time_seed = {{WPR_TIME_SEED_TIMESTAMP}};
+  let time_seed = {{WPR_TIME_SEED_TIMESTAMP}};
   Date = function() {
     if (this instanceof Date) {
       date_count++;
@@ -60,8 +60,8 @@
     return new Date().getTime();
   };
   orig_date.prototype.getTimezoneOffset = function() {
-    var dst2010Start = 1268560800000;
-    var dst2010End = 1289120400000;
+    const dst2010Start = 1268560800000;
+    const dst2010End = 1289120400000;
     if (this.getTime() >= dst2010Start && this.getTime() < dst2010End)
       return 420;
     return 480;
