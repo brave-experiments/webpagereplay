@@ -100,6 +100,24 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6f1dd82e_bb09f873",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-12T10:52:03Z",
+      "side": 1,
+      "message": "For posterity - the \\`s seem to have got mixed up for Victor there. Use this instead:\n```\nexport BOTO_CONFIG\u003d$(gcloud info --format \"value(config.paths.global_config_dir)\")/legacy_credentials/$(gcloud config list --format\u003d\"value(core.account)\")/.boto\n```\n\nVictor, I don\u0027t think it\u0027s advisable to put that in one\u0027s `.bashrc`, because it takes almost a second to execute. Instead, I suggest you incorporate it into the `upload_new_binaries.py` script.",
+      "parentUuid": "f3056663_6c0e3408",
+      "revId": "e12dea6a73fa5cdb89e9da8221106cfc42aa77d0",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "86e7433b_4d1e283b",
@@ -195,6 +213,30 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e6581d8_4741df17",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 585,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-12T10:52:03Z",
+      "side": 1,
+      "message": "I am not sure what happened there. Uploaded again.",
+      "parentUuid": "14458dcd_60aeaa88",
+      "range": {
+        "startLine": 585,
+        "startChar": 1,
+        "endLine": 585,
+        "endChar": 15
+      },
+      "revId": "e12dea6a73fa5cdb89e9da8221106cfc42aa77d0",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "df63e139_015fbdc4",
@@ -244,6 +286,24 @@
       "side": 1,
       "message": "how so? I\u0027m proposing\n```\nprotocol, ok :\u003d a.NegotiatedProtocol[host]\nif ok \u0026\u0026 protocol !\u003d negotiatedProtocol {\n   panic(\"must not record a protocol when there\u0027s an existing one\")\n}\n```",
       "parentUuid": "c5fbbde4_f1ee7804",
+      "revId": "e12dea6a73fa5cdb89e9da8221106cfc42aa77d0",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fa63d3d2_550d0fcb",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 647,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-12T10:52:03Z",
+      "side": 1,
+      "message": "I was too hasty; the protocol it is indeed. I have uploaded it as a separate CL [here](https://chromium-review.googlesource.com/c/webpagereplay/+/7661120).",
+      "parentUuid": "4a25de1a_49a4acde",
       "revId": "e12dea6a73fa5cdb89e9da8221106cfc42aa77d0",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
