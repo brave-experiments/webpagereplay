@@ -20,13 +20,15 @@ _SUPPORTED_PLATFORMS = (('win', 'x86'), ('mac', 'arm64'), ('mac', 'x86_64'),
                         ('linux', 'armv7l'), ('linux', 'aarch64'))
 
 
-def upload_dependency(dependency, dep_local_path, os_name, os_arch):
+def upload_dependency(dependency, dep_local_path, os_name, os_arch,
+                      upload_cmd_env):
     with open(dep_local_path, 'rb') as file:
         hash = hashlib.sha1(file.read()).hexdigest()
     subprocess.check_call([
         'gsutil.py', 'cp', dep_local_path,
         f'gs://chromium-telemetry/binary_dependencies/{dependency}_{hash}'
-    ])
+    ],
+                          env=(os.environ | upload_cmd_env))
     json_path = os.path.join(_REPO_DIR, 'scripts', 'binary_dependencies.json')
     with open(json_path) as file:
         deps_data = json.load(file)
@@ -91,7 +93,7 @@ def compute_go_os(os_name):
     return os_name
 
 
-def build_and_upload_go_binary(binary_name, os_name, os_arch):
+def build_and_upload_go_binary(binary_name, os_name, os_arch, upload_cmd_env):
     if (os_name, os_arch) not in _SUPPORTED_PLATFORMS:
         raise NotImplementedError('OS = %s, ARCH = %s is not supported' %
                                   (os_name, os_arch))
@@ -145,21 +147,47 @@ def build_and_upload_go_binary(binary_name, os_name, os_arch):
           (binary_name, os_name, os_arch))
     upload_dependency('%s_go' % binary_name,
                       binary_file,
+                      upload_cmd_env,
                       os_name=os_name,
                       os_arch=os_arch)
     shutil.rmtree(go_path_dir)
 
 
+def compute_upload_cmd_env():
+    config_dir_result = subprocess.check_call(
+        [
+            'gcloud', 'info', '--format',
+            '"value(config.paths.global_config_dir)"'
+        ],
+        text=True,
+        stdout=subprocess.PIPE,
+        # stderr sometimes asks the user to take a gcloud survey (?!).
+        stderr=subprocess.DEVNULL)
+    config_dir_result.stdout
+    account_result = subprocess.check_call(
+        ['gcloud', 'config', 'list', '--format', '"value(core.account)"'],
+        capture_output=True,
+        text=True,
+        stout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL)
+    return {
+        'BOTO_CONFIG':
+        f'{config_dir_result.stdout}/legacy_credentials/{account_result.stdout}'
+        '/.boto'
+    }
+
 
 
 def main():
+    upload_cmd_env = compute_upload_cmd_env()
     for os_name, os_arch in _SUPPORTED_PLATFORMS:
         # wpr is the wpr binary for recording and replaying network traffic to
         # allow for consistent and hermetic tests.
-        build_and_upload_go_binary('wpr', os_name, os_arch)
+        build_and_upload_go_binary('wpr', os_name, os_arch, upload_cmd_env)
         # httparchive is the wpr binary for interrogating and editing a wpr
         # archive that was previously recorded.
-        build_and_upload_go_binary('httparchive', os_name, os_arch)
+        build_and_upload_go_binary('httparchive', os_name, os_arch,
+                                   upload_cmd_env)
 
 
 if __name__ == '__main__':
