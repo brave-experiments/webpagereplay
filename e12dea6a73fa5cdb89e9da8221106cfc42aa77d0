@@ -84,6 +84,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f3056663_6c0e3408",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-12T10:00:40Z",
+      "side": 1,
+      "message": "One of these should do the trick, I\u0027m guessing the 2nd one\n```\ndownload_from_google_storage --config\n```\n\n```\n# Add to ~/.bashrc or similar\nexport BOTO_CONFIG\u003d$(gcloud info --format \"value(config.paths.global_config_dir)\")/legacy_credentials/$(gcloud config list --format\u003d\"value(core.account)\")/.botoDoes this do the trick?\n```\n\nI should probably modify scripts/upload_new_binaries.py to suggest these commands in the error message",
+      "parentUuid": "17cd4441_901c338a",
+      "revId": "e12dea6a73fa5cdb89e9da8221106cfc42aa77d0",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "86e7433b_4d1e283b",
         "filename": "src/webpagereplay/archive.go",
         "patchSetId": 1
@@ -155,6 +173,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "14458dcd_60aeaa88",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 585,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-12T10:00:40Z",
+      "side": 1,
+      "message": "Not addressed?",
+      "parentUuid": "c1e4dd55_dcf58c5b",
+      "range": {
+        "startLine": 585,
+        "startChar": 1,
+        "endLine": 585,
+        "endChar": 15
+      },
+      "revId": "e12dea6a73fa5cdb89e9da8221106cfc42aa77d0",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "df63e139_015fbdc4",
         "filename": "src/webpagereplay/archive.go",
         "patchSetId": 1
@@ -184,6 +226,24 @@
       "side": 1,
       "message": "This one requires plumbing der_bytes (or derBytes) first. Let\u0027s address this as a separate CL.",
       "parentUuid": "df63e139_015fbdc4",
+      "revId": "e12dea6a73fa5cdb89e9da8221106cfc42aa77d0",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4a25de1a_49a4acde",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 647,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-12T10:00:40Z",
+      "side": 1,
+      "message": "how so? I\u0027m proposing\n```\nprotocol, ok :\u003d a.NegotiatedProtocol[host]\nif ok \u0026\u0026 protocol !\u003d negotiatedProtocol {\n   panic(\"must not record a protocol when there\u0027s an existing one\")\n}\n```",
+      "parentUuid": "c5fbbde4_f1ee7804",
       "revId": "e12dea6a73fa5cdb89e9da8221106cfc42aa77d0",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
