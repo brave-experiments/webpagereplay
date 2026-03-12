@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6932ac7a_957173aa",
+        "filename": "src/wpr.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 1542233
+      },
+      "writtenOn": "2026-03-12T18:06:11Z",
+      "side": 1,
+      "message": "Nit: why not just hardcode `\"constant-math-random-result\"` here?",
+      "range": {
+        "startLine": 211,
+        "startChar": 56,
+        "endLine": 211,
+        "endChar": 58
+      },
+      "revId": "bbb1b3c7baf9e5c0016e53da4ecf95fc577392eb",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c06b9e3f_74927a1e",
+        "filename": "src/wpr.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 1542233
+      },
+      "writtenOn": "2026-03-12T18:06:11Z",
+      "side": 1,
+      "message": "Can we just make `common.certConfig` empty instead in the new test? I\u0027d rather avoid adding a test-only flag unless it\u0027s the only way to go.",
+      "range": {
+        "startLine": 222,
+        "startChar": 1,
+        "endLine": 225,
+        "endChar": 0
+      },
+      "revId": "bbb1b3c7baf9e5c0016e53da4ecf95fc577392eb",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a69ee5ad_6915a6eb",
+        "filename": "src/wpr_test.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1542233
+      },
+      "writtenOn": "2026-03-12T18:06:11Z",
+      "side": 1,
+      "message": "Can we also add the inf and nan case?",
+      "range": {
+        "startLine": 21,
+        "startChar": 2,
+        "endLine": 47,
+        "endChar": 2
+      },
+      "revId": "bbb1b3c7baf9e5c0016e53da4ecf95fc577392eb",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
