@@ -643,9 +643,9 @@ func (a *WritableArchive) RecordHostNegotiatedProtocol(host string, negotiatedPr
 	if a.NegotiatedProtocol == nil {
 		a.NegotiatedProtocol = make(map[string]string)
 	}
-	_, ok := a.NegotiatedProtocol[host]
-	if ok {
-		panic("must not record a protocol when there's an existing one")
+	protocol, ok := a.NegotiatedProtocol[host]
+	if ok && protocol != negotiatedProtocol {
+		panic("Must not rewrite the protocol with a different one.")
 	}
 	a.NegotiatedProtocol[host] = negotiatedProtocol
 }
