@@ -91,10 +91,15 @@ def compute_go_os(os_name):
     return os_name
 
 
-def build_go_binary(binary_name, os_name, os_arch):
-    """ Build and return path to wpr go binary."""
+def build_and_upload_go_binary(binary_name, os_name, os_arch):
+    if (os_name, os_arch) not in _SUPPORTED_PLATFORMS:
+        raise NotImplementedError('OS = %s, ARCH = %s is not supported' %
+                                  (os_name, os_arch))
+
     check_go_version()
 
+    print('Build %s binary for OS %s, ARCH: %s' %
+          (binary_name, os_name, os_arch))
     try:
         # We want to build wpr go binaries from the local source. We do this by
         # making a temporary GOPATH that symlinks to our local directory.
@@ -116,7 +121,14 @@ def build_go_binary(binary_name, os_name, os_arch):
         print('Running get command: %s' % ' '.join(get_cmd))
         subprocess.check_call(get_cmd, env=env, cwd=_WPR_GO_DIR)
 
-        build_cmd = ['go', 'build', '-v', '%s.go' % binary_name]
+        # Build in `go_path_dir`, so the binaries are deleted by the end.
+        binary_file = (os.path.join(go_path_dir, '%s.exe' %
+                                    binary_name) if os_name == 'win' else
+                       os.path.join(go_path_dir, binary_name))
+        build_cmd = [
+            'go', 'build', '-v', '-o', binary_file,
+            '%s.go' % binary_name
+        ]
         print('Running build command: %s' % ' '.join(build_cmd))
         subprocess.check_call(build_cmd, env=env, cwd=_WPR_GO_DIR)
 
@@ -124,24 +136,10 @@ def build_go_binary(binary_name, os_name, os_arch):
         print('Running clean command: %s' % ' '.join(clean_cmd))
         subprocess.check_call(clean_cmd, env=env, cwd=_WPR_GO_DIR)
 
-    finally:
+    except:
         if go_path_dir:
             shutil.rmtree(go_path_dir)
-
-    if os_name == 'win':
-        return os.path.join(_WPR_GO_DIR, '%s.exe' % binary_name)
-    return os.path.join(_WPR_GO_DIR, binary_name)
-
-
-
-def build_and_upload_go_binary(binary_name, os_name, os_arch):
-    if (os_name, os_arch) not in _SUPPORTED_PLATFORMS:
-        raise NotImplementedError('OS = %s, ARCH = %s is not supported' %
-                                  (os_name, os_arch))
-
-    print('Build %s binary for OS %s, ARCH: %s' %
-          (binary_name, os_name, os_arch))
-    binary_file = build_go_binary(binary_name, os_name, os_arch)
+        raise
 
     print('Upload %s binary dependency for OS %s, ARCH: %s' %
           (binary_name, os_name, os_arch))
@@ -149,6 +147,9 @@ def build_and_upload_go_binary(binary_name, os_name, os_arch):
                       binary_file,
                       os_name=os_name,
                       os_arch=os_arch)
+    shutil.rmtree(go_path_dir)
+
+
 
 
 def main():
