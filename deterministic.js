@@ -13,6 +13,10 @@
     random_seed = (random_seed + 0.13297) % 1;
     return random_seed;
   };
+})();
+
+// crypto.getRandomValues
+(function () {
   if (typeof(crypto) == 'object' &&
       typeof(crypto.getRandomValues) == 'function') {
     crypto.getRandomValues = function(arr) {
