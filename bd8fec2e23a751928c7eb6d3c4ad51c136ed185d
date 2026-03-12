@@ -33,6 +33,24 @@
       "message": "I\u0027m assuming you built the binaries with this commit checked out and not the child one",
       "revId": "bd8fec2e23a751928c7eb6d3c4ad51c136ed185d",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee147d94_ae63b85e",
+        "filename": "scripts/binary_dependencies.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-12T11:02:19Z",
+      "side": 1,
+      "message": "Of course.",
+      "parentUuid": "c657b49f_3e2c6706",
+      "revId": "bd8fec2e23a751928c7eb6d3c4ad51c136ed185d",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
