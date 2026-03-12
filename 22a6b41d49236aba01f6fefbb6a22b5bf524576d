@@ -22,6 +22,30 @@
       },
       "revId": "22a6b41d49236aba01f6fefbb6a22b5bf524576d",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ea4e1c8a_25efab27",
+        "filename": "scripts/upload_new_binaries.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-12T12:37:20Z",
+      "side": 1,
+      "message": "Done. Ideally, both the platforms and archs would be string enums to avoid this in the future, but some archs have different names for different platforms...",
+      "parentUuid": "fe4a6a9a_5d8af3b8",
+      "range": {
+        "startLine": 126,
+        "startChar": 64,
+        "endLine": 126,
+        "endChar": 71
+      },
+      "revId": "22a6b41d49236aba01f6fefbb6a22b5bf524576d",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
