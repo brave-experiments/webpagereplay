@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b9b3d3b1_b0770c6b",
+        "filename": "deterministic.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-12T14:47:59Z",
+      "side": 1,
+      "message": "For a sec I wondered whether we should add a comment saying \"this section should come after the Math.random\" one. But not really. Math.random just needs to have been overridden by the time crypto.getRandomValues() is first called. So even reversing the order would still work here",
+      "range": {
+        "startLine": 25,
+        "startChar": 33,
+        "endLine": 25,
+        "endChar": 39
+      },
+      "revId": "d493a7c6ce742269a593f771bc77d5bd443384d0",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
