@@ -118,6 +118,24 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "23a1fe15_89d0a713",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-12T10:53:46Z",
+      "side": 1,
+      "message": "P.S: Victor, please note that the script pollutes the repo\u0027s directory. It would be better to write such outputs to a temporary directory. (It\u0027d also be good to manually rm that temp directory, as it might otherwise take up space indefinitely.)",
+      "parentUuid": "6f1dd82e_bb09f873",
+      "revId": "e12dea6a73fa5cdb89e9da8221106cfc42aa77d0",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "86e7433b_4d1e283b",
