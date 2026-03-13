@@ -485,6 +485,9 @@ func TestArchiveClone(t *testing.T) {
 		CurrentSessionId:                     10,
 		DisableFuzzyURLMatching:              true,
 		Metadata:                             "test metadata",
+		InjectedScripts: map[string]string{
+			"s1.js": "var x = 1;",
+		},
 	}
 
 	clone := original.cloneFieldsExceptRequests()
@@ -513,6 +516,7 @@ func TestArchiveClone(t *testing.T) {
 	expectEqual("CurrentSessionId")
 	expectEqual("DisableFuzzyURLMatching")
 	expectEqual("Metadata")
+	expectEqual("InjectedScripts")
 
 	// Some extra tests for fields that can assume more than one class of value.
 	original.ConstantMathRandomResult = nil
@@ -541,6 +545,9 @@ func TestArchiveCloneIndependence(t *testing.T) {
 		CurrentSessionId:                     10,
 		DisableFuzzyURLMatching:              true,
 		Metadata:                             "test metadata",
+		InjectedScripts: map[string]string{
+			"s1.js": "var x = 1;",
+		},
 	}
 
 	clone := original.cloneFieldsExceptRequests()
@@ -580,6 +587,9 @@ func TestArchiveCloneIndependence(t *testing.T) {
 
 	clone.Metadata = "modified metadata"
 	expectUnequal("Metadata")
+
+	clone.InjectedScripts["s1.js"] = "modified"
+	expectUnequal("InjectedScripts")
 }
 
 func TestArchiveMetadata(t *testing.T) {
@@ -666,6 +676,29 @@ func TestArchiveJSON_WithoutConstantMathRandomResult(t *testing.T) {
 	if unmarshalled.ConstantMathRandomResult != nil {
 		t.Errorf("ConstantMathRandomResult should be nil, got %v",
 			unmarshalled.ConstantMathRandomResult)
+	}
+}
+
+func TestArchiveJSON_InjectedScripts(t *testing.T) {
+	original := newArchive()
+	original.InjectedScripts = map[string]string{
+		"s1.js": "var x = 1;",
+		"s2.js": "var y = 2;",
+	}
+
+	data, err := json.Marshal(original)
+	if err != nil {
+		t.Fatalf("json.Marshal failed: %v", err)
+	}
+
+	var unmarshalled Archive
+	if err := json.Unmarshal(data, &unmarshalled); err != nil {
+		t.Fatalf("json.Unmarshal failed: %v", err)
+	}
+
+	if !reflect.DeepEqual(unmarshalled.InjectedScripts, original.InjectedScripts) {
+		t.Errorf("InjectedScripts mismatch in unmarshalled: got %v, want %v",
+			unmarshalled.InjectedScripts, original.InjectedScripts)
 	}
 }
 
