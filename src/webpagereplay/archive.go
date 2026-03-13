@@ -92,6 +92,11 @@ func (ar *ArchivedRequest) unmarshal(scheme string) (*http.Request, *http.Respon
 	return req, resp, nil
 }
 
+type InjectedScript struct {
+	Name     string
+	Contents string
+}
+
 // Archive contains an archive of requests. Immutable except when embedded in
 // a WritableArchive.
 // Fields are exported to enabled JSON encoding.
@@ -127,12 +132,17 @@ type Archive struct {
 	DisableFuzzyURLMatching bool
 	// Metadata contains arbitrary text about the archive.
 	Metadata string
+	// Scripts to inject in all pages.
+	InjectedScripts []InjectedScript
 }
 
 // LINT.ThenChange(archive.go:archive_clone)
 
 func newArchive() Archive {
-	return Archive{Requests: make(map[string]map[string][]*ArchivedRequest)}
+	return Archive{
+		Requests:        make(map[string]map[string][]*ArchivedRequest),
+		InjectedScripts: []InjectedScript{},
+	}
 }
 
 func prepareArchiveForReplay(a *Archive) {
@@ -224,6 +234,7 @@ func (a *Archive) cloneFieldsExceptRequests() Archive {
 		CurrentSessionId:                     a.CurrentSessionId,
 		DisableFuzzyURLMatching:              a.DisableFuzzyURLMatching,
 		Metadata:                             a.Metadata,
+		InjectedScripts:                      a.InjectedScripts,
 	}
 }
 
