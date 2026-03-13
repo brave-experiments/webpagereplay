@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"reflect"
 	"testing"
 )
 
@@ -555,6 +556,43 @@ func TestArchiveJSON_WithoutConstantMathRandomResult(t *testing.T) {
 	if unmarshalled.ConstantMathRandomResult != nil {
 		t.Errorf("ConstantMathRandomResult should be nil, got %v",
 			unmarshalled.ConstantMathRandomResult)
+	}
+}
+
+func TestArchiveClone_InjectedScripts(t *testing.T) {
+	original := newArchive()
+	original.InjectedScripts = []InjectedScript{
+		{Name: "s1.js", Contents: "var x = 1;"},
+		{Name: "s2.js", Contents: "var y = 2;"},
+	}
+
+	clone := original.cloneFieldsExceptRequests()
+	if !reflect.DeepEqual(clone.InjectedScripts, original.InjectedScripts) {
+		t.Errorf("InjectedScripts mismatch in clone: got %v, want %v",
+			clone.InjectedScripts, original.InjectedScripts)
+	}
+}
+
+func TestArchiveJSON_InjectedScripts(t *testing.T) {
+	original := newArchive()
+	original.InjectedScripts = []InjectedScript{
+		{Name: "s1.js", Contents: "var x = 1;"},
+		{Name: "s2.js", Contents: "var y = 2;"},
+	}
+
+	data, err := json.Marshal(original)
+	if err != nil {
+		t.Fatalf("json.Marshal failed: %v", err)
+	}
+
+	var unmarshalled Archive
+	if err := json.Unmarshal(data, &unmarshalled); err != nil {
+		t.Fatalf("json.Unmarshal failed: %v", err)
+	}
+
+	if !reflect.DeepEqual(unmarshalled.InjectedScripts, original.InjectedScripts) {
+		t.Errorf("InjectedScripts mismatch in unmarshalled: got %v, want %v",
+			unmarshalled.InjectedScripts, original.InjectedScripts)
 	}
 }
 

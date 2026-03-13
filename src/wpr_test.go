@@ -6,10 +6,13 @@ package main
 
 import (
 	"flag"
+	"os"
+	"path/filepath"
 	"strconv"
 	"testing"
 
 	"github.com/urfave/cli/v2"
+	"go.chromium.org/webpagereplay/src/webpagereplay"
 )
 
 func TestCommonConfig_CheckArgs(t *testing.T) {
@@ -78,5 +81,199 @@ func TestCommonConfig_CheckArgs(t *testing.T) {
 					err, tt.expectSuccess)
 			}
 		})
+	}
+}
+
+func TestGetReplacements(t *testing.T) {
+	ptr := func(f float64) *float64 { return &f }
+	tests := []struct {
+		name     string
+		filename string
+		timeSeed int64
+		random   *float64
+		want     map[string]string
+	}{
+		{
+			name:     "deterministic.js with random result",
+			filename: "deterministic.js",
+			timeSeed: 12345,
+			random:   ptr(0.5),
+			want: map[string]string{
+				"{{WPR_TIME_SEED_TIMESTAMP}}":    "12345",
+				"{{WPR_CONSTANT_RANDOM_RESULT}}": "0.5",
+			},
+		},
+		{
+			name:     "deterministic.js with null random result",
+			filename: "/path/to/deterministic.js",
+			timeSeed: 12345,
+			random:   nil,
+			want: map[string]string{
+				"{{WPR_TIME_SEED_TIMESTAMP}}":    "12345",
+				"{{WPR_CONSTANT_RANDOM_RESULT}}": "null",
+			},
+		},
+		{
+			name:     "other script file",
+			filename: "other.js",
+			timeSeed: 12345,
+			random:   ptr(0.5),
+			want:     nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := getReplacements(tt.filename, tt.timeSeed, tt.random)
+			if (got == nil) != (tt.want == nil) {
+				t.Errorf("getReplacements() = %v, want %v", got, tt.want)
+				return
+			}
+			if got == nil {
+				return
+			}
+			for k, v := range tt.want {
+				if got[k] != v {
+					t.Errorf("getReplacements()[%s] = %v, want %v", k, got[k], v)
+				}
+			}
+		})
+	}
+}
+
+func TestProcessInjectedScriptsForRecording(t *testing.T) {
+	tempDir := t.TempDir()
+	scriptPath := filepath.Join(tempDir, "test.js")
+	scriptContent := "console.log('test');"
+	if err := os.WriteFile(scriptPath, []byte(scriptContent), 0644); err != nil {
+		t.Fatalf("failed to write temp script: %v", err)
+	}
+
+	common := &CommonConfig{
+		injectScripts: scriptPath,
+	}
+	archive := &webpagereplay.Archive{
+		InjectedScripts: []webpagereplay.InjectedScript{},
+	}
+
+	flagSet := flag.NewFlagSet("test", flag.ContinueOnError)
+	c := cli.NewContext(nil, flagSet, nil)
+
+	if err := common.ProcessInjectedScriptsForRecording(c, archive); err != nil {
+		t.Fatalf("ProcessInjectedScriptsForRecording failed: %v", err)
+	}
+
+	if len(archive.InjectedScripts) != 1 {
+		t.Errorf("expected 1 injected script in archive, got %d", len(archive.InjectedScripts))
+	} else {
+		if archive.InjectedScripts[0].Name != scriptPath {
+			t.Errorf("expected name %s, got %s", scriptPath, archive.InjectedScripts[0].Name)
+		}
+		if archive.InjectedScripts[0].Contents != scriptContent {
+			t.Errorf("expected content %s, got %s", scriptContent, archive.InjectedScripts[0].Contents)
+		}
+	}
+
+	if archive.DeterministicTimeSeedMs == 0 {
+		t.Error("DeterministicTimeSeedMs should be non-zero")
+	}
+
+	if len(common.transformers) != 1 {
+		t.Errorf("expected 1 transformer, got %d", len(common.transformers))
+	}
+}
+
+func TestProcessInjectedScriptsForReplay_SingleScriptInArchive(t *testing.T) {
+	archive := &webpagereplay.Archive{
+		InjectedScripts: []webpagereplay.InjectedScript{
+			{Name: "archived.js", Contents: "console.log('archived');"},
+		},
+	}
+	common := &CommonConfig{}
+	flagSet := flag.NewFlagSet("test", flag.ContinueOnError)
+	c := cli.NewContext(nil, flagSet, nil)
+
+	if err := common.ProcessInjectedScriptsForReplay(c, archive); err != nil {
+		t.Fatalf("ProcessInjectedScriptsForReplay failed: %v", err)
+	}
+
+	if len(common.transformers) != 1 {
+		t.Errorf("expected 1 transformer, got %d", len(common.transformers))
+	}
+}
+
+func TestProcessInjectedScriptsForReplay_MultipleScriptsInArchive(t *testing.T) {
+	archive := &webpagereplay.Archive{
+		InjectedScripts: []webpagereplay.InjectedScript{
+			{Name: "s1.js", Contents: "console.log('s1');"},
+			{Name: "s2.js", Contents: "console.log('s2');"},
+		},
+	}
+	common := &CommonConfig{}
+	flagSet := flag.NewFlagSet("test", flag.ContinueOnError)
+	c := cli.NewContext(nil, flagSet, nil)
+
+	if err := common.ProcessInjectedScriptsForReplay(c, archive); err != nil {
+		t.Fatalf("ProcessInjectedScriptsForReplay failed: %v", err)
+	}
+
+	if len(common.transformers) != 2 {
+		t.Errorf("expected 2 transformers, got %d", len(common.transformers))
+	}
+}
+
+func TestProcessInjectedScriptsForReplay_DiskOverride(t *testing.T) {
+	tempDir := t.TempDir()
+	scriptPath := filepath.Join(tempDir, "override.js")
+	scriptContent := "console.log('override');"
+	if err := os.WriteFile(scriptPath, []byte(scriptContent), 0644); err != nil {
+		t.Fatalf("failed to write temp script: %v", err)
+	}
+
+	archive := &webpagereplay.Archive{
+		InjectedScripts: []webpagereplay.InjectedScript{
+			{Name: "archived.js", Contents: "console.log('archived');"},
+		},
+	}
+	common := &CommonConfig{
+		injectScripts: scriptPath,
+	}
+	flagSet := flag.NewFlagSet("test", flag.ContinueOnError)
+	flagSet.String("inject_scripts", scriptPath, "")
+	if err := flagSet.Set("inject_scripts", scriptPath); err != nil {
+		t.Fatalf("failed to set flag: %v", err)
+	}
+	c := cli.NewContext(nil, flagSet, nil)
+
+	if err := common.ProcessInjectedScriptsForReplay(c, archive); err != nil {
+		t.Fatalf("ProcessInjectedScriptsForReplay failed: %v", err)
+	}
+
+	if len(common.transformers) != 1 {
+		t.Errorf("expected 1 transformer, got %d", len(common.transformers))
+	}
+}
+
+func TestProcessInjectedScriptsForReplay_Fallback(t *testing.T) {
+	tempDir := t.TempDir()
+	scriptPath := filepath.Join(tempDir, "fallback.js")
+	scriptContent := "console.log('fallback');"
+	if err := os.WriteFile(scriptPath, []byte(scriptContent), 0644); err != nil {
+		t.Fatalf("failed to write temp script: %v", err)
+	}
+
+	archive := &webpagereplay.Archive{} // No scripts
+	common := &CommonConfig{
+		injectScripts: scriptPath,
+	}
+	flagSet := flag.NewFlagSet("test", flag.ContinueOnError)
+	c := cli.NewContext(nil, flagSet, nil)
+
+	if err := common.ProcessInjectedScriptsForReplay(c, archive); err != nil {
+		t.Fatalf("ProcessInjectedScriptsForReplay failed: %v", err)
+	}
+
+	if len(common.transformers) != 1 {
+		t.Errorf("expected 1 transformer, got %d", len(common.transformers))
 	}
 }
