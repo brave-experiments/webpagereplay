@@ -77,6 +77,30 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b723ee10_348136ab",
+        "filename": "deterministic.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-13T16:33:47Z",
+      "side": 1,
+      "message": "In this context, `!\u003d\u003d` would be inferior, given that we have no reason to distinguish `undefined` and `null`; things would be less error-prone with them treated as equivalent (in this context).\n\nRun this code:\n```\nlet lhs, rhs;\n\nlhs \u003d null; rhs \u003d null;\nconsole.log(`(${lhs} \u003d\u003d ${rhs}) yields ${lhs \u003d\u003d rhs}.`);\nconsole.log(`(${lhs} \u003d\u003d\u003d ${rhs}) yields ${lhs \u003d\u003d\u003d rhs}.`);\n\nlhs \u003d 0; rhs \u003d null;\nconsole.log(`(${lhs} \u003d\u003d ${rhs}) yields ${lhs \u003d\u003d rhs}.`);\nconsole.log(`(${lhs} \u003d\u003d\u003d ${rhs}) yields ${lhs \u003d\u003d\u003d rhs}.`);\n\nlhs \u003d undefined; rhs \u003d null;\nconsole.log(`(${lhs} \u003d\u003d ${rhs}) yields ${lhs \u003d\u003d rhs}.`);\nconsole.log(`(${lhs} \u003d\u003d\u003d ${rhs}) yields ${lhs \u003d\u003d\u003d rhs}.`);\n```",
+      "parentUuid": "67795415_f7b3c582",
+      "range": {
+        "startLine": 18,
+        "startChar": 29,
+        "endLine": 18,
+        "endChar": 31
+      },
+      "revId": "bbb1b3c7baf9e5c0016e53da4ecf95fc577392eb",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fb806605_49d0da1b",
@@ -100,6 +124,30 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee965f1f_39e93fc9",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-13T16:33:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fb806605_49d0da1b",
+      "range": {
+        "startLine": 113,
+        "startChar": 54,
+        "endLine": 113,
+        "endChar": 63
+      },
+      "revId": "bbb1b3c7baf9e5c0016e53da4ecf95fc577392eb",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e112e904_b12f6c02",
@@ -113,6 +161,24 @@
       "writtenOn": "2026-03-13T16:06:54Z",
       "side": 1,
       "message": "Nice! The LINT.IfChange I asked Mika to add actually paid off",
+      "revId": "bbb1b3c7baf9e5c0016e53da4ecf95fc577392eb",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6eba4bcf_d453f461",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-13T16:33:47Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "e112e904_b12f6c02",
       "revId": "bbb1b3c7baf9e5c0016e53da4ecf95fc577392eb",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
@@ -188,6 +254,30 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c27e0fde_e1d7988c",
+        "filename": "src/wpr.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-13T16:33:47Z",
+      "side": 1,
+      "message": "Better readability given line-breaks, better git-blame in the face of future changes to the flag name that don\u0027t affect other things about the logic.",
+      "parentUuid": "869d3815_2c3baaee",
+      "range": {
+        "startLine": 211,
+        "startChar": 56,
+        "endLine": 211,
+        "endChar": 58
+      },
+      "revId": "bbb1b3c7baf9e5c0016e53da4ecf95fc577392eb",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c06b9e3f_74927a1e",
@@ -249,6 +339,30 @@
       "side": 1,
       "message": "For posterity, what was the issue? Maybe the solution is to just not instantiate tlsConfig in these 2 places if httpsPort \u003d -1\n\nhttps://source.chromium.org/chromium/chromium/src/+/main:third_party/webpagereplay/src/wpr.go;l\u003d462;drc\u003d8bb88234a0959017eb35d2086a4bf4c5d5aff029\n\nhttps://source.chromium.org/chromium/chromium/src/+/main:third_party/webpagereplay/src/wpr.go;l\u003d536;drc\u003d8bb88234a0959017eb35d2086a4bf4c5d5aff029",
       "parentUuid": "53e481f6_bd028a46",
+      "range": {
+        "startLine": 222,
+        "startChar": 1,
+        "endLine": 225,
+        "endChar": 0
+      },
+      "revId": "bbb1b3c7baf9e5c0016e53da4ecf95fc577392eb",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "16da1923_dd06792f",
+        "filename": "src/wpr.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-13T16:33:47Z",
+      "side": 1,
+      "message": "\u003e For posterity, what was the issue?\n\nThe test ends up trying to read cert file and not finding it.\n\n\u003e Maybe the solution is to just not instantiate tlsConfig in these 2 places if httpsPort \u003d -1\n\nDo you mean that because the cert file is of no use anyway unless we use HTTPS? The test currently hard-codes an HTTP port because of some logic that requires at least one redirected port. I think it\u0027d not be ideally robust to bake in assumptions that tests set the HTTP port but not the HTTPS port. I think it might be better to make sure the test just ends up using a cert file successfully. But either way, happy to defer this for follow-up CLs.",
+      "parentUuid": "3b9422ee_c05e3209",
       "range": {
         "startLine": 222,
         "startChar": 1,
