@@ -241,30 +241,111 @@ func (common *CommonConfig) CheckArgs(c *cli.Context) error {
 	return nil
 }
 
-func (common *CommonConfig) ProcessInjectedScripts(timeSeedMs int64, constantMathRandomResult *float64) error {
-	if common.injectScripts != "" {
-		for _, scriptFile := range strings.Split(common.injectScripts, ",") {
-			log.Printf("Loading script from %v\n", scriptFile)
-			// - Replace {{WPR_TIME_SEED_TIMESTAMP}} with the time seed.
-			// - Replace {{WPR_CONSTANT_RANDOM_RESULT}} with the constant
-			// 	 Math.random() result.
-			randomResultStr := "null"
-			if constantMathRandomResult != nil {
-				randomResultStr = strconv.FormatFloat(
-					*constantMathRandomResult, 'f', -1, 64)
-			}
-			replacements := map[string]string{
-				"{{WPR_TIME_SEED_TIMESTAMP}}":    strconv.FormatInt(timeSeedMs, 10),
-				"{{WPR_CONSTANT_RANDOM_RESULT}}": randomResultStr,
-			}
-			si, err := webpagereplay.NewScriptInjectorFromFile(scriptFile, replacements)
-			if err != nil {
-				return fmt.Errorf("error opening script %s: %v", scriptFile, err)
-			}
-			common.transformers = append(common.transformers, si)
-		}
+func (common *CommonConfig) ProcessInjectedScriptsForRecording(c *cli.Context,
+	archive *webpagereplay.Archive) error {
+	// Determine the time seed.
+	archive.DeterministicTimeSeedMs = 1000 * time.Now().Unix()
+
+	// Determine the constant Math.random() result, if any.
+	if c.IsSet("constant-math-random-result") {
+		archive.ConstantMathRandomResult = &common.constantMathRandomResult
 	}
 
+	return common.processScripts(archive.InjectedScripts,
+		archive.DeterministicTimeSeedMs, archive.ConstantMathRandomResult)
+}
+
+func (common *CommonConfig) ProcessInjectedScriptsForReplay(c *cli.Context,
+	archive *webpagereplay.Archive) error {
+	// Determine the time seed.
+	var timeSeedMs int64
+	if archive.DeterministicTimeSeedMs != 0 {
+		timeSeedMs = archive.DeterministicTimeSeedMs
+	} else {
+		// Old archive, predating the addition of DeterministicTimeSeedMs.
+		timeSeedMs = 1000 * time.Now().Unix()
+	}
+
+	var constantMathRandomResult *float64 = archive.ConstantMathRandomResult
+	if c.IsSet("constant-math-random-result") {
+		flagValue := &common.constantMathRandomResult
+
+		// Warn if archive contains a value that differs what the user specifies.
+		if archive.ConstantMathRandomResult != nil &&
+			*flagValue != *archive.ConstantMathRandomResult {
+			log.Printf("WARNING: constant-math-random-result flag (%v) differs from archive (%v).",
+				*flagValue, *archive.ConstantMathRandomResult)
+		}
+
+		// Still respect the user's wishes.
+		constantMathRandomResult = flagValue
+	}
+
+	// Replay from archive (unless --inject_scripts specified).
+	if !c.IsSet("inject_scripts") && len(archive.InjectedScripts) > 0 {
+		for name, contents := range archive.InjectedScripts {
+			replacements := getReplacements(name, timeSeedMs, constantMathRandomResult)
+			if err := common.addScriptInjector([]byte(contents), name, replacements); err != nil {
+				return fmt.Errorf("error processing injected script %s: %v", name, err)
+			}
+		}
+		return nil
+	}
+
+	return common.processScripts(nil, timeSeedMs, constantMathRandomResult)
+}
+
+var (
+	ErrDuplicateScriptName = errors.New("Duplicate script name")
+)
+
+func (common *CommonConfig) processScripts(scripts map[string]string, timeSeedMs int64, constantMathRandomResult *float64) error {
+	if common.injectScripts == "" {
+		return nil
+	}
+	for _, scriptFile := range strings.Split(common.injectScripts, ",") {
+		script, err := os.ReadFile(scriptFile)
+		if err != nil {
+			return fmt.Errorf("error opening script %s: %v", scriptFile, err)
+		}
+		name := filepath.Base(scriptFile)
+		if scripts != nil {
+			if _, ok := scripts[name]; ok {
+				return fmt.Errorf("%w: %s", ErrDuplicateScriptName, name)
+			}
+			scripts[name] = string(script)
+		}
+		replacements := getReplacements(name, timeSeedMs, constantMathRandomResult)
+		if err := common.addScriptInjector(script, name, replacements); err != nil {
+			return fmt.Errorf("error processing injected script %s: %v", name, err)
+		}
+	}
+	return nil
+}
+
+func getReplacements(filename string, timeSeedMs int64, constantMathRandomResult *float64) map[string]string {
+	if filepath.Base(filename) != "deterministic.js" {
+		return nil
+	}
+
+	randomResultStr := "null"
+	if constantMathRandomResult != nil {
+		randomResultStr = strconv.FormatFloat(*constantMathRandomResult, 'f', -1, 64)
+	}
+
+	return map[string]string{
+		"{{WPR_TIME_SEED_TIMESTAMP}}":    strconv.FormatInt(timeSeedMs, 10),
+		"{{WPR_CONSTANT_RANDOM_RESULT}}": randomResultStr,
+	}
+}
+
+func (common *CommonConfig) addScriptInjector(script []byte, scriptFile string, replacements map[string]string) error {
+	log.Printf("Processing script %v\n", scriptFile)
+	si, err := webpagereplay.NewScriptInjector(script, replacements)
+	if err != nil {
+		return fmt.Errorf("error creating script injector for %s: %v", scriptFile, err)
+	}
+	common.transformers = append(common.transformers, si)
 	return nil
 }
 
@@ -482,17 +563,10 @@ func (r *RecordCommand) Run(c *cli.Context) error {
 		os.Exit(0)
 	}()
 
-	timeSeedMs := time.Now().Unix() * 1000
-	var constantMathRandomResult *float64
-	if c.IsSet("constant-math-random-result") {
-		constantMathRandomResult = &r.common.constantMathRandomResult
-	}
-	if err := r.common.ProcessInjectedScripts(timeSeedMs, constantMathRandomResult); err != nil {
+	if err := r.common.ProcessInjectedScriptsForRecording(c, &archive.Archive); err != nil {
 		log.Printf("Error processing injected scripts: %v", err)
 		os.Exit(1)
 	}
-	archive.DeterministicTimeSeedMs = timeSeedMs
-	archive.ConstantMathRandomResult = constantMathRandomResult
 
 	if r.enableExperimentalTimedChunk {
 		log.Printf("NOTIMPLEMENTED: Experimental Timed Chunk recording support")
@@ -525,27 +599,7 @@ func (r *ReplayCommand) Run(c *cli.Context) error {
 		log.Printf("Disabling fuzzy URL matching.")
 	}
 
-	timeSeedMs := archive.DeterministicTimeSeedMs
-	if timeSeedMs == 0 {
-		// The time seed hasn't been set in the archive. Time seeds used to not be
-		// stored in the archive, so this is expected to happen when loading old
-		// archives. Just revert to the previous behavior: use the current time as
-		// the seed.
-		timeSeedMs = time.Now().Unix() * 1000
-	}
-
-	constantMathRandomResult := archive.ConstantMathRandomResult
-	if c.IsSet("constant-math-random-result") {
-		flagValue := &r.common.constantMathRandomResult
-		if archive.ConstantMathRandomResult != nil &&
-			*flagValue != *archive.ConstantMathRandomResult {
-			log.Printf("WARNING: constant-math-random-result flag (%v) differs "+
-				"from archive (%v).", *flagValue, *archive.ConstantMathRandomResult)
-		}
-		constantMathRandomResult = flagValue
-	}
-
-	if err := r.common.ProcessInjectedScripts(timeSeedMs, constantMathRandomResult); err != nil {
+	if err := r.common.ProcessInjectedScriptsForReplay(c, archive); err != nil {
 		log.Printf("Error processing injected scripts: %v", err)
 		os.Exit(1)
 	}
