@@ -36,6 +36,87 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cda923d7_19d981ad",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-13T16:06:54Z",
+      "side": 1,
+      "message": "Discussed offline. One point we raised is that, in terms of achieving consistent replay/recording behavior, one option would be to store deterministic.js completely into the archive at recording time. It comes with a trade-off, since in some cases we might want to change the behavior of those functions without recreating the archive.",
+      "parentUuid": "345e33c4_55d2d98e",
+      "revId": "bbb1b3c7baf9e5c0016e53da4ecf95fc577392eb",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "67795415_f7b3c582",
+        "filename": "deterministic.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-13T16:06:54Z",
+      "side": 1,
+      "message": "!\u003d\u003d (I was worried by 0 !\u003d null being false. Turns out it\u0027s true, but still probably best to use strong equality)",
+      "range": {
+        "startLine": 18,
+        "startChar": 29,
+        "endLine": 18,
+        "endChar": 31
+      },
+      "revId": "bbb1b3c7baf9e5c0016e53da4ecf95fc577392eb",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fb806605_49d0da1b",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-13T16:06:54Z",
+      "side": 1,
+      "message": "add: and deterministic.js is injected",
+      "range": {
+        "startLine": 113,
+        "startChar": 54,
+        "endLine": 113,
+        "endChar": 63
+      },
+      "revId": "bbb1b3c7baf9e5c0016e53da4ecf95fc577392eb",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e112e904_b12f6c02",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-13T16:06:54Z",
+      "side": 1,
+      "message": "Nice! The LINT.IfChange I asked Mika to add actually paid off",
+      "revId": "bbb1b3c7baf9e5c0016e53da4ecf95fc577392eb",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6932ac7a_957173aa",
@@ -85,6 +166,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "869d3815_2c3baaee",
+        "filename": "src/wpr.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-13T16:06:54Z",
+      "side": 1,
+      "message": "For posterity, why?",
+      "parentUuid": "f5aac93e_adc8681e",
+      "range": {
+        "startLine": 211,
+        "startChar": 56,
+        "endLine": 211,
+        "endChar": 58
+      },
+      "revId": "bbb1b3c7baf9e5c0016e53da4ecf95fc577392eb",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c06b9e3f_74927a1e",
         "filename": "src/wpr.go",
         "patchSetId": 2
@@ -120,6 +225,30 @@
       "side": 1,
       "message": "Disucssed offline; this doesn\u0027t work without additional changes that appear more detrimental.",
       "parentUuid": "c06b9e3f_74927a1e",
+      "range": {
+        "startLine": 222,
+        "startChar": 1,
+        "endLine": 225,
+        "endChar": 0
+      },
+      "revId": "bbb1b3c7baf9e5c0016e53da4ecf95fc577392eb",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3b9422ee_c05e3209",
+        "filename": "src/wpr.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-13T16:06:54Z",
+      "side": 1,
+      "message": "For posterity, what was the issue? Maybe the solution is to just not instantiate tlsConfig in these 2 places if httpsPort \u003d -1\n\nhttps://source.chromium.org/chromium/chromium/src/+/main:third_party/webpagereplay/src/wpr.go;l\u003d462;drc\u003d8bb88234a0959017eb35d2086a4bf4c5d5aff029\n\nhttps://source.chromium.org/chromium/chromium/src/+/main:third_party/webpagereplay/src/wpr.go;l\u003d536;drc\u003d8bb88234a0959017eb35d2086a4bf4c5d5aff029",
+      "parentUuid": "53e481f6_bd028a46",
       "range": {
         "startLine": 222,
         "startChar": 1,
