@@ -127,12 +127,17 @@ type Archive struct {
 	DisableFuzzyURLMatching bool
 	// Metadata contains arbitrary text about the archive.
 	Metadata string
+	// Scripts to inject in all pages. Map from name to contents.
+	InjectedScripts map[string]string
 }
 
 // LINT.ThenChange(archive.go:archive_clone)
 
 func newArchive() Archive {
-	return Archive{Requests: make(map[string]map[string][]*ArchivedRequest)}
+	return Archive{
+		Requests:        make(map[string]map[string][]*ArchivedRequest),
+		InjectedScripts: make(map[string]string),
+	}
 }
 
 func prepareArchiveForReplay(a *Archive) {
@@ -245,6 +250,12 @@ func (a *Archive) cloneFieldsExceptRequests() Archive {
 	if a.ConstantMathRandomResult != nil {
 		val := *a.ConstantMathRandomResult
 		clone.ConstantMathRandomResult = &val
+	}
+	if a.InjectedScripts != nil {
+		clone.InjectedScripts = make(map[string]string, len(a.InjectedScripts))
+		for k, v := range a.InjectedScripts {
+			clone.InjectedScripts[k] = v
+		}
 	}
 
 	return clone
