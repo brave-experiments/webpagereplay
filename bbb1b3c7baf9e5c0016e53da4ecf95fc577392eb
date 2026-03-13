@@ -3,6 +3,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8d6dfd6b_e28202f7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-13T13:26:30Z",
+      "side": 1,
+      "message": "What I don\u0027t like about this approach is we\u0027ll need to implement extra flags whenever we want something slightly different for deterministic.js. I would prefer just guaranteeing to the user that the scripts will be executed in the order they are passed to the CLI and then do:\n\n./cb.py --inject_scripts\u003ddeterministic.js,constant_random.js\n\nwhere constant_random.js overrides Math.random to be constant",
+      "revId": "bbb1b3c7baf9e5c0016e53da4ecf95fc577392eb",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "6932ac7a_957173aa",
         "filename": "src/wpr.go",
         "patchSetId": 2
