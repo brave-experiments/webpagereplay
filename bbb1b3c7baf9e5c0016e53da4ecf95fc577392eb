@@ -24,6 +24,30 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f5aac93e_adc8681e",
+        "filename": "src/wpr.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-13T12:08:58Z",
+      "side": 1,
+      "message": "Discussed offline.",
+      "parentUuid": "6932ac7a_957173aa",
+      "range": {
+        "startLine": 211,
+        "startChar": 56,
+        "endLine": 211,
+        "endChar": 58
+      },
+      "revId": "bbb1b3c7baf9e5c0016e53da4ecf95fc577392eb",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c06b9e3f_74927a1e",
@@ -47,6 +71,30 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "53e481f6_bd028a46",
+        "filename": "src/wpr.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-13T12:08:58Z",
+      "side": 1,
+      "message": "Disucssed offline; this doesn\u0027t work without additional changes that appear more detrimental.",
+      "parentUuid": "c06b9e3f_74927a1e",
+      "range": {
+        "startLine": 222,
+        "startChar": 1,
+        "endLine": 225,
+        "endChar": 0
+      },
+      "revId": "bbb1b3c7baf9e5c0016e53da4ecf95fc577392eb",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a69ee5ad_6915a6eb",
@@ -60,6 +108,30 @@
       "writtenOn": "2026-03-12T18:06:11Z",
       "side": 1,
       "message": "Can we also add the inf and nan case?",
+      "range": {
+        "startLine": 21,
+        "startChar": 2,
+        "endLine": 47,
+        "endChar": 2
+      },
+      "revId": "bbb1b3c7baf9e5c0016e53da4ecf95fc577392eb",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a9900ff0_f3c7e720",
+        "filename": "src/wpr_test.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-13T12:08:58Z",
+      "side": 1,
+      "message": "Seems like overkill to me; how would you input NaN or inf over the command line? (Discussed offline; Igor agrees - resolving.)",
+      "parentUuid": "a69ee5ad_6915a6eb",
       "range": {
         "startLine": 21,
         "startChar": 2,
