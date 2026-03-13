@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "345e33c4_55d2d98e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-13T14:13:06Z",
+      "side": 1,
+      "message": "I see the benefits of your proposed approach, but there are downsides as well. I\u0027ll only list two; note that the first one is the major one.\n- Your approach does not store the value used during recording in the archive. That requires that this information be transmitted out of band and then reapplied during replay; failure to provide that value (or include constant_random.js) would lead to discrepancies between the recording and the replay. Those won\u0027t be easy to detect, but they\u0027ll have the potential for significant performance and power ramificaitons.\n- It is potentially confusing for a future developer to see overrides in one file and then wonder why they did not take effect; it would take some time to realise that these overrides where themselves overridden again later, possibly multiple times. It also requires that the developer carefully manage dependencies across these files, possibly in hard to maintain ways.",
+      "parentUuid": "8d6dfd6b_e28202f7",
+      "revId": "bbb1b3c7baf9e5c0016e53da4ecf95fc577392eb",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "6932ac7a_957173aa",
         "filename": "src/wpr.go",
         "patchSetId": 2
