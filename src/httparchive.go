@@ -22,7 +22,9 @@ import (
 	"go.chromium.org/webpagereplay/src/webpagereplay"
 )
 
-const usage = "%s [ls|cat|edit|merge|add|addAll|trim|inject] [options] archive_file [output_file] [url]"
+const usage = "%s [ls|cat|edit|merge|add|addAll|trim|inject|" +
+	"read-metadata|write-metadata|edit-metadata] [options] archive_file " +
+	"[output_file] [url]"
 
 func requestEnabled(cfg *webpagereplay.HttpArchiveConfig, req *http.Request, resp *http.Response) bool {
 	if cfg.Method != "" && strings.ToUpper(cfg.Method) != req.Method {
@@ -60,6 +62,63 @@ func list(cfg *webpagereplay.HttpArchiveConfig, a *webpagereplay.Archive, printF
 		}
 		return nil
 	})
+}
+
+func readMetadata(a *webpagereplay.Archive) error {
+	fmt.Fprint(os.Stdout, a.Metadata)
+	if a.Metadata != "" && !strings.HasSuffix(a.Metadata, "\n") {
+		fmt.Fprint(os.Stdout, "\n")
+	}
+	return nil
+}
+
+func writeMetadata(a *webpagereplay.Archive, outfile, metadata string) error {
+	a.Metadata = metadata
+	return writeArchive(a, outfile)
+}
+
+func editMetadata(a *webpagereplay.Archive, outfile string) error {
+	// Determine which editor to use.
+	editor := os.Getenv("EDITOR")
+	if editor == "" {
+		fmt.Printf("Warning: EDITOR not specified, defaulting to vi.\n")
+		editor = "vi"
+	}
+
+	// Set up a temporary file to use.
+	tmpf, err := ioutil.TempFile("", "httparchive_edit_metadata")
+	if err != nil {
+		return err
+	}
+	tmpname := tmpf.Name()
+	defer os.Remove(tmpname)
+	if _, err := tmpf.WriteString(a.Metadata); err != nil {
+		tmpf.Close()
+		return err
+	}
+	if err := tmpf.Close(); err != nil {
+		return err
+	}
+
+	// Launch the editor; block until the user quits it. (Note that this
+	// would fail to block on GUI editors if EDITOR does not specify something
+	// like `code --wait` or `subl -w` or some equivalent.)
+	cmd := exec.Command(editor, tmpname)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("Error running %s %s: %v", editor, tmpname, err)
+	}
+
+	// After the user quits the editor, read the results back and write them to
+	// the target archive.
+	newMetadata, err := ioutil.ReadFile(tmpname)
+	if err != nil {
+		return err
+	}
+	a.Metadata = string(newMetadata)
+	return writeArchive(a, outfile)
 }
 
 func trim(cfg *webpagereplay.HttpArchiveConfig, a *webpagereplay.Archive, outfile string) error {
@@ -438,6 +497,33 @@ func main() {
 			Before:    checkArgs("inject", 3),
 			Action: func(c *cli.Context) error {
 				return inject(cfg, loadArchiveOrDie(c, 0), c.Args().Get(1), c.Args().Get(2))
+			},
+		},
+		&cli.Command{
+			Name:      "read-metadata",
+			Usage:     "Read metadata from an archive and print to stdout",
+			ArgsUsage: "archive",
+			Before:    checkArgs("read-metadata", 1),
+			Action: func(c *cli.Context) error {
+				return readMetadata(loadArchiveOrDie(c, 0))
+			},
+		},
+		&cli.Command{
+			Name:      "write-metadata",
+			Usage:     "Write metadata string to a copy of an archive",
+			ArgsUsage: "input_archive output_archive metadata_string",
+			Before:    checkArgs("write-metadata", 3),
+			Action: func(c *cli.Context) error {
+				return writeMetadata(loadArchiveOrDie(c, 0), c.Args().Get(1), c.Args().Get(2))
+			},
+		},
+		&cli.Command{
+			Name:      "edit-metadata",
+			Usage:     "Edit metadata from a copy of an archive using $EDITOR",
+			ArgsUsage: "input_archive output_archive",
+			Before:    checkArgs("edit-metadata", 2),
+			Action: func(c *cli.Context) error {
+				return editMetadata(loadArchiveOrDie(c, 0), c.Args().Get(1))
 			},
 		},
 	}

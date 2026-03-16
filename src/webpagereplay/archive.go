@@ -125,6 +125,8 @@ type Archive struct {
 	// If an incoming URL doesn't exactly match an entry in the archive,
 	// skip fuzzy matching and return nothing.
 	DisableFuzzyURLMatching bool
+	// Metadata contains arbitrary text about the archive.
+	Metadata string
 }
 
 // LINT.ThenChange(archive.go:archive_clone)
@@ -221,6 +223,7 @@ func (a *Archive) cloneFieldsExceptRequests() Archive {
 		ServeResponseInChronologicalSequence: a.ServeResponseInChronologicalSequence,
 		CurrentSessionId:                     a.CurrentSessionId,
 		DisableFuzzyURLMatching:              a.DisableFuzzyURLMatching,
+		Metadata:                             a.Metadata,
 	}
 }
 
