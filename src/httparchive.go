@@ -415,7 +415,7 @@ func main() {
 			Usage:     "Add a simple GET request from the network to the archive",
 			ArgsUsage: "input_archive output_archive urls_file",
 			Flags:     cfg.AddFlags(),
-			Before:    checkArgs("add", 3),
+			Before:    checkArgs("addAll", 3),
 			Action: func(c *cli.Context) error {
 				return addAll(cfg, loadArchiveOrDie(c, 0), c.Args().Get(1), c.Args().Get(2))
 			},
