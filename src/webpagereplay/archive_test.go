@@ -471,6 +471,7 @@ func TestArchiveClone(t *testing.T) {
 	original := Archive{
 		DeterministicTimeSeedMs:  12345,
 		ConstantMathRandomResult: &val,
+		Metadata:                 "test metadata",
 	}
 	clone := original.cloneFieldsExceptRequests()
 	if original.DeterministicTimeSeedMs != clone.DeterministicTimeSeedMs {
@@ -484,11 +485,37 @@ func TestArchiveClone(t *testing.T) {
 			clone.ConstantMathRandomResult, original.ConstantMathRandomResult)
 	}
 
+	if original.Metadata != clone.Metadata {
+		t.Errorf("Metadata mismatch: got %v, want %v",
+			clone.Metadata, original.Metadata)
+	}
+
 	original.ConstantMathRandomResult = nil
 	clone = original.cloneFieldsExceptRequests()
 	if clone.ConstantMathRandomResult != nil {
 		t.Errorf("ConstantMathRandomResult should be nil, got %v",
 			clone.ConstantMathRandomResult)
+	}
+}
+
+func TestArchiveMetadata(t *testing.T) {
+	original := Archive{
+		Metadata: "test metadata\nwith multiple lines",
+		Requests: make(map[string]map[string][]*ArchivedRequest),
+	}
+	data, err := json.Marshal(original)
+	if err != nil {
+		t.Fatalf("json.Marshal failed: %v", err)
+	}
+
+	var unmarshalled Archive
+	if err := json.Unmarshal(data, &unmarshalled); err != nil {
+		t.Fatalf("json.Unmarshal failed: %v", err)
+	}
+
+	if original.Metadata != unmarshalled.Metadata {
+		t.Errorf("Metadata mismatch: got %v, want %v",
+			unmarshalled.Metadata, original.Metadata)
 	}
 }
 
