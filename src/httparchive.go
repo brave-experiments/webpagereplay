@@ -337,7 +337,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	checkArgs := func(cmdName string, wantArgs int) func(*cli.Context) error {
+	checkArgs := func(wantArgs int) func(*cli.Context) error {
 		return func(c *cli.Context) error {
 			if c.Args().Len() != wantArgs {
 				return fmt.Errorf("Expected %d arguments but got %d", wantArgs, c.Args().Len())
@@ -360,7 +360,7 @@ func main() {
 			Usage:     "List the requests in an archive",
 			ArgsUsage: "archive",
 			Flags:     cfg.DefaultFlags(),
-			Before:    checkArgs("ls", 1),
+			Before:    checkArgs(1),
 			Action: func(c *cli.Context) error {
 				return list(cfg, loadArchiveOrDie(c, 0), false)
 			},
@@ -370,7 +370,7 @@ func main() {
 			Usage:     "Dump the requests/responses in an archive",
 			ArgsUsage: "archive",
 			Flags:     cfg.DefaultFlags(),
-			Before:    checkArgs("cat", 1),
+			Before:    checkArgs(1),
 			Action: func(c *cli.Context) error {
 				return list(cfg, loadArchiveOrDie(c, 0), true)
 			},
@@ -380,7 +380,7 @@ func main() {
 			Usage:     "Edit the requests/responses in an archive",
 			ArgsUsage: "input_archive output_archive",
 			Flags:     cfg.DefaultFlags(),
-			Before:    checkArgs("edit", 2),
+			Before:    checkArgs(2),
 			Action: func(c *cli.Context) error {
 				return edit(cfg, loadArchiveOrDie(c, 0), c.Args().Get(1))
 			},
@@ -390,7 +390,7 @@ func main() {
 			Usage:     "Merge the requests/responses of two archives",
 			ArgsUsage: "base_archive input_archive output_archive",
 			Flags:     cfg.MergeFlags(),
-			Before:    checkArgs("merge", 3),
+			Before:    checkArgs(3),
 			Action: func(c *cli.Context) error {
 				return merge(cfg, loadArchiveOrDie(c, 0), loadArchiveOrDie(c, 1), c.Args().Get(2), c.Bool("keep-duplicates"))
 			},
@@ -415,7 +415,7 @@ func main() {
 			Usage:     "Add a simple GET request from the network to the archive",
 			ArgsUsage: "input_archive output_archive urls_file",
 			Flags:     cfg.AddFlags(),
-			Before:    checkArgs("add", 3),
+			Before:    checkArgs(3),
 			Action: func(c *cli.Context) error {
 				return addAll(cfg, loadArchiveOrDie(c, 0), c.Args().Get(1), c.Args().Get(2))
 			},
@@ -425,7 +425,7 @@ func main() {
 			Usage:     "Trim the requests/responses in an archive",
 			ArgsUsage: "input_archive output_archive",
 			Flags:     cfg.TrimFlags(),
-			Before:    checkArgs("trim", 2),
+			Before:    checkArgs(2),
 			Action: func(c *cli.Context) error {
 				return trim(cfg, loadArchiveOrDie(c, 0), c.Args().Get(1))
 			},
@@ -435,7 +435,7 @@ func main() {
 			Usage:     "Inject a script into the selected responses of an archive",
 			ArgsUsage: "input_archive output_archive script",
 			Flags:     cfg.RequestFilterFlags(),
-			Before:    checkArgs("inject", 3),
+			Before:    checkArgs(3),
 			Action: func(c *cli.Context) error {
 				return inject(cfg, loadArchiveOrDie(c, 0), c.Args().Get(1), c.Args().Get(2))
 			},
