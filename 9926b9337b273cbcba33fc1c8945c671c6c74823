@@ -20,6 +20,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "87bc46ed_a6dab877",
+        "filename": "src/httparchive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-17T01:41:03Z",
+      "side": 1,
+      "message": "Not for this CL: adding --metadata to the record command would maybe increase adoption and discoverability of this feature",
+      "revId": "9926b9337b273cbcba33fc1c8945c671c6c74823",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a69753dd_9311f347",
         "filename": "src/httparchive.go",
         "patchSetId": 1
