@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "dff5685c_807263e7",
+        "filename": "src/httparchive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-17T02:00:10Z",
+      "side": 1,
+      "message": "Again, not for this CL, just ideas: maybe the recording should write these as part of the metadata\n- The flags that were passed to the recording command. Simpleperf does this for example\n- Webpagereplay revision.",
+      "parentUuid": "87bc46ed_a6dab877",
+      "revId": "9926b9337b273cbcba33fc1c8945c671c6c74823",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a69753dd_9311f347",
         "filename": "src/httparchive.go",
         "patchSetId": 1
