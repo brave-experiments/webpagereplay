@@ -1,0 +1,118 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6c3d0c0d_0b4e3f42",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-17T22:15:31Z",
+      "side": 1,
+      "message": "Sorry for the delay",
+      "revId": "02ff4ae9df1fda59897ae8b86e3b1c1aa7f6a86c",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1c5b4e1e_6e417e30",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-17T22:15:31Z",
+      "side": 1,
+      "message": "Add comment: Currently, it\u0027s impossible to have 2 InjectScript with the same name, so a map[string]string would work. But this might change, so an array is more future-proof.",
+      "revId": "02ff4ae9df1fda59897ae8b86e3b1c1aa7f6a86c",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5294b2e6_14574ec3",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-17T22:15:31Z",
+      "side": 1,
+      "message": "optional: you can get rid of the local variable here just like you did in other places\n```\nif archive.DeterministicTimeSeedMs \u003d\u003d 0 {\n  // Old archive, predating the addition of DeterministicTimeSeedMs.\n  archive.DeterministicTimeSeedMs \u003d 1000 * time.Now().Unix()\n}\n```\n\nAnd then you use `archive.DeterministicTimeSeedMs` below",
+      "range": {
+        "startLine": 258,
+        "startChar": 0,
+        "endLine": 264,
+        "endChar": 2
+      },
+      "revId": "02ff4ae9df1fda59897ae8b86e3b1c1aa7f6a86c",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "df700dfe_486bff82",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-17T22:15:31Z",
+      "side": 1,
+      "message": "Looking at the signature, it\u0027s not clear whether this function processes the scripts from `archive` or from `common.injectScripts`. It\u0027s also not obvious what is the semantics of passing null for `archive`.\n\nOne option is to move the archive.InjectedScripts assignment to the recording caller and adopt this signature instead\n```\nfunc (common *CommonConfig) processScripts(scripts InjectedScript[], timeSeedMs int64, constantMathRandomResult *float64) error\n```",
+      "revId": "02ff4ae9df1fda59897ae8b86e3b1c1aa7f6a86c",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "081e0ac3_d240cb2a",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-17T22:15:31Z",
+      "side": 1,
+      "message": "Remove. --inject_scripts\u003d,,,, should error, like before the CL, not fail gracefuly. If injectScripts is the empty string, you\u0027ll never enter the for loop, so it WAI",
+      "revId": "02ff4ae9df1fda59897ae8b86e3b1c1aa7f6a86c",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "acbd0d20_a88c211c",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-17T22:15:31Z",
+      "side": 1,
+      "message": "This behavior change belongs in a separate CL. It\u0027s also not mentioned in the CL description",
+      "range": {
+        "startLine": 319,
+        "startChar": 0,
+        "endLine": 321,
+        "endChar": 2
+      },
+      "revId": "02ff4ae9df1fda59897ae8b86e3b1c1aa7f6a86c",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
