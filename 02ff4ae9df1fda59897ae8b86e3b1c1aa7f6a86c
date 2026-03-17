@@ -37,6 +37,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ff4df636_f22e5443",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-17T22:17:49Z",
+      "side": 1,
+      "message": "This should be a deep copy instead. The same goes for ConstantMathRandomResult, I missed that in the previous CL, we can fix it separately",
+      "range": {
+        "startLine": 234,
+        "startChar": 42,
+        "endLine": 234,
+        "endChar": 57
+      },
+      "revId": "02ff4ae9df1fda59897ae8b86e3b1c1aa7f6a86c",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5294b2e6_14574ec3",
         "filename": "src/wpr.go",
         "patchSetId": 1
