@@ -16,6 +16,24 @@
       "message": "Looks like it\u0027s actually unused and so can be removed?\nhttps://source.chromium.org/chromium/chromium/src/+/main:third_party/webpagereplay/src/httparchive.go;l\u003d331;drc\u003d22be07d7809409644d7e292d9495fa8a251d5f29",
       "revId": "2bec254ac00e895140ede8f396194df6c39637e5",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6d8a8f9a_17363493",
+        "filename": "src/httparchive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-17T16:13:04Z",
+      "side": 1,
+      "message": "Removed.",
+      "parentUuid": "b333cc44_a1d12a6f",
+      "revId": "2bec254ac00e895140ede8f396194df6c39637e5",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
