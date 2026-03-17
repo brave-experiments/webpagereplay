@@ -53,6 +53,42 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad47ec25_28c536ce",
+        "filename": "src/httparchive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-17T16:25:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a0cfe3c4_ddd53514",
+      "revId": "9926b9337b273cbcba33fc1c8945c671c6c74823",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e62fe751_67bc6e9d",
+        "filename": "src/httparchive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-17T16:25:14Z",
+      "side": 1,
+      "message": "I have had these ideas too, and similar ones as well (e.g. the time and date when the recording was undertaken). But it\u0027s out of scope and lower priority for us right now.",
+      "parentUuid": "dff5685c_807263e7",
+      "revId": "9926b9337b273cbcba33fc1c8945c671c6c74823",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a69753dd_9311f347",
@@ -76,6 +112,30 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "879620e3_9ce68a62",
+        "filename": "src/httparchive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-17T16:25:14Z",
+      "side": 1,
+      "message": "Discussed offline; prefer to change addAll to add-all as a follow-up.",
+      "parentUuid": "a69753dd_9311f347",
+      "range": {
+        "startLine": 26,
+        "startChar": 2,
+        "endLine": 26,
+        "endChar": 3
+      },
+      "revId": "9926b9337b273cbcba33fc1c8945c671c6c74823",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3f85238d_166a6fa5",
@@ -89,6 +149,30 @@
       "writtenOn": "2026-03-17T01:38:16Z",
       "side": 1,
       "message": "This part could be useful to add to the error message, as a hint",
+      "range": {
+        "startLine": 103,
+        "startChar": 55,
+        "endLine": 105,
+        "endChar": 55
+      },
+      "revId": "9926b9337b273cbcba33fc1c8945c671c6c74823",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3c2f5a31_d2885bd2",
+        "filename": "src/httparchive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-17T16:25:14Z",
+      "side": 1,
+      "message": "The user would not see an error in this case. They\u0027d just see the EDITOR immediately resolve.",
+      "parentUuid": "3f85238d_166a6fa5",
       "range": {
         "startLine": 103,
         "startChar": 55,
