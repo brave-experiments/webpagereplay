@@ -46,8 +46,8 @@ func TestFlags(t *testing.T) {
 			flags:     cfg.AddFlags(),
 			wantFlags: addFlags,
 		},
-		"addAll": {
-			command:   "addAll",
+		"add-all": {
+			command:   "add-all",
 			flags:     cfg.AddFlags(),
 			wantFlags: addFlags,
 		},

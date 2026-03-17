@@ -22,7 +22,7 @@ import (
 	"go.chromium.org/webpagereplay/src/webpagereplay"
 )
 
-const usage = "%s [ls|cat|edit|merge|add|addAll|trim|inject|" +
+const usage = "%s [ls|cat|edit|merge|add|add-all|trim|inject|" +
 	"read-metadata|write-metadata|edit-metadata] [options] archive_file " +
 	"[output_file] [url]"
 
@@ -470,7 +470,7 @@ func main() {
 			},
 		},
 		&cli.Command{
-			Name:      "addAll",
+			Name:      "add-all",
 			Usage:     "Add a simple GET request from the network to the archive",
 			ArgsUsage: "input_archive output_archive urls_file",
 			Flags:     cfg.AddFlags(),
