@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a0cfe3c4_ddd53514",
+        "filename": "src/httparchive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-17T01:38:16Z",
+      "side": 1,
+      "message": "Run scripts/upload_new_binaries.py",
+      "revId": "9926b9337b273cbcba33fc1c8945c671c6c74823",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a69753dd_9311f347",
+        "filename": "src/httparchive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-17T01:38:16Z",
+      "side": 1,
+      "message": "nit: for consistency with addAll, camel case for all 3 commands. Also in the Cl description",
+      "range": {
+        "startLine": 26,
+        "startChar": 2,
+        "endLine": 26,
+        "endChar": 3
+      },
+      "revId": "9926b9337b273cbcba33fc1c8945c671c6c74823",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3f85238d_166a6fa5",
+        "filename": "src/httparchive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-17T01:38:16Z",
+      "side": 1,
+      "message": "This part could be useful to add to the error message, as a hint",
+      "range": {
+        "startLine": 103,
+        "startChar": 55,
+        "endLine": 105,
+        "endChar": 55
+      },
+      "revId": "9926b9337b273cbcba33fc1c8945c671c6c74823",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
