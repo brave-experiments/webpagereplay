@@ -55,6 +55,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c66b64b8_24efa1ce",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-18T16:31:19Z",
+      "side": 1,
+      "message": "The full train of thought was this :D \n\n- I looked at this code and thought \"Huh, files that are passed to --injected_scripts are actually unique (you could pass the same filename twice but it\u0027ll have the same contents). Let me tell Elad to refactor this into a map\".\n- Then I thought: \"No, this must be intentional because he must be thinking of a use case where someone *later* edits the archive to include a new injected script that has the same name as an existing one, but different contents\".\n- So I thought: \"Let\u0027s add a comment to prevent anyone from attempting the map refactor when there\u0027s a specific reason an array was chosen\".",
+      "parentUuid": "cb5bb1fc_753dcd09",
+      "revId": "02ff4ae9df1fda59897ae8b86e3b1c1aa7f6a86c",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ff4df636_f22e5443",
         "filename": "src/webpagereplay/archive.go",
         "patchSetId": 1
@@ -90,6 +108,30 @@
       "side": 1,
       "message": "Could you please clarify the functional difference this makes in this context? Or do you foresee the type changing in the future?",
       "parentUuid": "ff4df636_f22e5443",
+      "range": {
+        "startLine": 234,
+        "startChar": 42,
+        "endLine": 234,
+        "endChar": 57
+      },
+      "revId": "02ff4ae9df1fda59897ae8b86e3b1c1aa7f6a86c",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "39a30962_aabb3487",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-18T16:31:19Z",
+      "side": 1,
+      "message": "It\u0027s about expectations. A user wouldn\u0027t expect clone() to modify the original copy\n```\nnewArchive :\u003d archive.clone()\n*newArchive.ConstantMathRandomResult \u003d 3\n// User doesn\u0027t expect `archive` to be modified, but it is, because\n// clone() did a shallow copy.\n```",
+      "parentUuid": "e2414e6f_b15c86f6",
       "range": {
         "startLine": 234,
         "startChar": 42,
@@ -225,6 +267,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2db60b47_7c6bd23d",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-18T16:31:19Z",
+      "side": 1,
+      "message": "Huh? I\u0027m talking about the fact that repeated commas (,,) are not supported before the CL but are supported afterwards (the Split call leads to an empty string in the array returned by Split() and you early `continue` for those). That\u0027s orthogonal to the goal of this CL and I don\u0027t see a good reason to support it. Is there a reason you want to add this?",
+      "parentUuid": "63b7a438_880fb614",
+      "revId": "02ff4ae9df1fda59897ae8b86e3b1c1aa7f6a86c",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "acbd0d20_a88c211c",
         "filename": "src/wpr.go",
         "patchSetId": 1
@@ -260,6 +320,30 @@
       "side": 1,
       "message": "Beg pardon?",
       "parentUuid": "acbd0d20_a88c211c",
+      "range": {
+        "startLine": 319,
+        "startChar": 0,
+        "endLine": 321,
+        "endChar": 2
+      },
+      "revId": "02ff4ae9df1fda59897ae8b86e3b1c1aa7f6a86c",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "68556e49_ae373837",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-18T16:31:19Z",
+      "side": 1,
+      "message": "My understanding (purely from code read), is that the use case below works before this CL and does not work after the CL. It\u0027s a weird use case, and fine with dropping support, but that change is orthogonal and deserves a separate CL.\n\n```\n// some_injected_script.js\n// injecting this script will log the constant correctly.\nconsole.log({{WPR_TIME_SEED_TIMESTAMP}});\n```",
+      "parentUuid": "a4541887_0617aa74",
       "range": {
         "startLine": 319,
         "startChar": 0,
