@@ -352,6 +352,30 @@
       },
       "revId": "02ff4ae9df1fda59897ae8b86e3b1c1aa7f6a86c",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2e50bded_6767ea4a",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-18T16:55:11Z",
+      "side": 1,
+      "message": "The special-casing here is because only `deterministic.js` is part of the WPR repo, and it\u0027s only there that we can guarantee that `{{WPR_TIME_SEED_TIMESTAMP}}` and `{{WPR_CONSTANT_RANDOM_RESULT}}` are correctly substituted. In other files, we don\u0027t know if these strings naturally occur, and we neither want to provide the guarantee of replacement, nor risk doing so by accident.",
+      "parentUuid": "68556e49_ae373837",
+      "range": {
+        "startLine": 319,
+        "startChar": 0,
+        "endLine": 321,
+        "endChar": 2
+      },
+      "revId": "02ff4ae9df1fda59897ae8b86e3b1c1aa7f6a86c",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
