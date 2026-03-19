@@ -214,17 +214,40 @@ func assertCompleteURL(url *url.URL) {
 // Returns a new archive with all fields cloned, apart from requests.
 // LINT.IfChange(archive_clone)
 func (a *Archive) cloneFieldsExceptRequests() Archive {
-	return Archive{
+	// Clone elements that do NOT require a deep-copy. (Other than Requests.)
+	clone := Archive{
 		Requests:                             make(map[string]map[string][]*ArchivedRequest),
-		Certs:                                a.Certs,
-		NegotiatedProtocol:                   a.NegotiatedProtocol,
 		DeterministicTimeSeedMs:              a.DeterministicTimeSeedMs,
-		ConstantMathRandomResult:             a.ConstantMathRandomResult,
 		ServeResponseInChronologicalSequence: a.ServeResponseInChronologicalSequence,
 		CurrentSessionId:                     a.CurrentSessionId,
 		DisableFuzzyURLMatching:              a.DisableFuzzyURLMatching,
 		Metadata:                             a.Metadata,
 	}
+
+	// Clone elements that DO require a deep-copy.
+	if a.Certs != nil {
+		clone.Certs = make(map[string][]byte, len(a.Certs))
+		for k, v := range a.Certs {
+			if v != nil {
+				clone.Certs[k] = make([]byte, len(v))
+				copy(clone.Certs[k], v)
+			} else {
+				clone.Certs[k] = nil
+			}
+		}
+	}
+	if a.NegotiatedProtocol != nil {
+		clone.NegotiatedProtocol = make(map[string]string, len(a.NegotiatedProtocol))
+		for k, v := range a.NegotiatedProtocol {
+			clone.NegotiatedProtocol[k] = v
+		}
+	}
+	if a.ConstantMathRandomResult != nil {
+		val := *a.ConstantMathRandomResult
+		clone.ConstantMathRandomResult = &val
+	}
+
+	return clone
 }
 
 // LINT.ThenChange(archive.go:archive_struct)
