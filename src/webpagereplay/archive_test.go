@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"reflect"
 	"testing"
 )
 
@@ -469,33 +470,116 @@ func TestAdd(t *testing.T) {
 func TestArchiveClone(t *testing.T) {
 	val := 0.123
 	original := Archive{
-		DeterministicTimeSeedMs:  12345,
-		ConstantMathRandomResult: &val,
-		Metadata:                 "test metadata",
+		Requests: map[string]map[string][]*ArchivedRequest{
+			"host": {"url": {&ArchivedRequest{}}},
+		},
+		Certs: map[string][]byte{
+			"host": {1, 2, 3},
+		},
+		NegotiatedProtocol: map[string]string{
+			"host": "h2",
+		},
+		DeterministicTimeSeedMs:              12345,
+		ConstantMathRandomResult:             &val,
+		ServeResponseInChronologicalSequence: true,
+		CurrentSessionId:                     10,
+		DisableFuzzyURLMatching:              true,
+		Metadata:                             "test metadata",
 	}
+
 	clone := original.cloneFieldsExceptRequests()
-	if original.DeterministicTimeSeedMs != clone.DeterministicTimeSeedMs {
-		t.Errorf("DeterministicTimeSeedMs mismatch: got %v, want %v",
-			clone.DeterministicTimeSeedMs, original.DeterministicTimeSeedMs)
+
+	expectEqual := func(fieldName string) {
+		t.Helper()
+		origField := reflect.ValueOf(original).FieldByName(fieldName).Interface()
+		cloneField := reflect.ValueOf(clone).FieldByName(fieldName).Interface()
+		if !reflect.DeepEqual(origField, cloneField) {
+			t.Errorf("%s mismatch: got %v, want %v", fieldName, cloneField, origField)
+		}
 	}
 
-	if clone.ConstantMathRandomResult == nil ||
-		*original.ConstantMathRandomResult != *clone.ConstantMathRandomResult {
-		t.Errorf("ConstantMathRandomResult mismatch: got %v, want %v",
-			clone.ConstantMathRandomResult, original.ConstantMathRandomResult)
+	// Note that cloneFieldsExceptRequests() ends with "except requests."
+	// Ensure they are NOT cloned.
+	if len(clone.Requests) != 0 {
+		t.Errorf("Requests should be empty in clone, got %v", clone.Requests)
 	}
 
-	if original.Metadata != clone.Metadata {
-		t.Errorf("Metadata mismatch: got %v, want %v",
-			clone.Metadata, original.Metadata)
-	}
+	// Ensure all other fields are correctly cloned.
+	expectEqual("Certs")
+	expectEqual("NegotiatedProtocol")
+	expectEqual("DeterministicTimeSeedMs")
+	expectEqual("ConstantMathRandomResult")
+	expectEqual("ServeResponseInChronologicalSequence")
+	expectEqual("CurrentSessionId")
+	expectEqual("DisableFuzzyURLMatching")
+	expectEqual("Metadata")
 
+	// Some extra tests for fields that can assume more than one class of value.
 	original.ConstantMathRandomResult = nil
-	clone = original.cloneFieldsExceptRequests()
-	if clone.ConstantMathRandomResult != nil {
+	clone2 := original.cloneFieldsExceptRequests()
+	if clone2.ConstantMathRandomResult != nil {
 		t.Errorf("ConstantMathRandomResult should be nil, got %v",
-			clone.ConstantMathRandomResult)
+			clone2.ConstantMathRandomResult)
 	}
+}
+
+func TestArchiveCloneIndependence(t *testing.T) {
+	val := 0.123
+	original := Archive{
+		Requests: map[string]map[string][]*ArchivedRequest{
+			"host": {"url": {&ArchivedRequest{}}},
+		},
+		Certs: map[string][]byte{
+			"host": {1, 2, 3},
+		},
+		NegotiatedProtocol: map[string]string{
+			"host": "h2",
+		},
+		DeterministicTimeSeedMs:              12345,
+		ConstantMathRandomResult:             &val,
+		ServeResponseInChronologicalSequence: true,
+		CurrentSessionId:                     10,
+		DisableFuzzyURLMatching:              true,
+		Metadata:                             "test metadata",
+	}
+
+	clone := original.cloneFieldsExceptRequests()
+
+	expectUnequal := func(fieldName string) {
+		t.Helper()
+		origField := reflect.ValueOf(original).FieldByName(fieldName).Interface()
+		cloneField := reflect.ValueOf(clone).FieldByName(fieldName).Interface()
+		if reflect.DeepEqual(origField, cloneField) {
+			t.Errorf("Modifying clone's %s modified original", fieldName)
+		}
+	}
+
+	clone.Requests["new-host"] = map[string][]*ArchivedRequest{}
+	expectUnequal("Requests")
+
+	clone.Certs["host"][0] = 99
+	expectUnequal("Certs")
+
+	clone.NegotiatedProtocol["host"] = "http/1.1"
+	expectUnequal("NegotiatedProtocol")
+
+	clone.DeterministicTimeSeedMs = 54321
+	expectUnequal("DeterministicTimeSeedMs")
+
+	*clone.ConstantMathRandomResult = 0.456
+	expectUnequal("ConstantMathRandomResult")
+
+	clone.ServeResponseInChronologicalSequence = false
+	expectUnequal("ServeResponseInChronologicalSequence")
+
+	clone.CurrentSessionId = 20
+	expectUnequal("CurrentSessionId")
+
+	clone.DisableFuzzyURLMatching = false
+	expectUnequal("DisableFuzzyURLMatching")
+
+	clone.Metadata = "modified metadata"
+	expectUnequal("Metadata")
 }
 
 func TestArchiveMetadata(t *testing.T) {
