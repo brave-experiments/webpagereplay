@@ -71,6 +71,24 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bdf2dd4b_c69c3bb3",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-19T20:09:26Z",
+      "side": 1,
+      "message": "\u003e this must be intentional\n\nNo, this was oversight. Earlier, Gemini did something even sillier here - it had two parallel arrays for the name and for the contents. I told it to consolidate with a struct, but I was too distracted to think of polishing it further.\n\nI have now changed this into a map.\n\nI have also made the case where `path_1/file.js` and `path_2/file.js` are specified into an error. We could handle it more gracefully, but I don\u0027t think it\u0027s worth the effort.",
+      "parentUuid": "c66b64b8_24efa1ce",
+      "revId": "02ff4ae9df1fda59897ae8b86e3b1c1aa7f6a86c",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ff4df636_f22e5443",
@@ -132,6 +150,30 @@
       "side": 1,
       "message": "It\u0027s about expectations. A user wouldn\u0027t expect clone() to modify the original copy\n```\nnewArchive :\u003d archive.clone()\n*newArchive.ConstantMathRandomResult \u003d 3\n// User doesn\u0027t expect `archive` to be modified, but it is, because\n// clone() did a shallow copy.\n```",
       "parentUuid": "e2414e6f_b15c86f6",
+      "range": {
+        "startLine": 234,
+        "startChar": 42,
+        "endLine": 234,
+        "endChar": 57
+      },
+      "revId": "02ff4ae9df1fda59897ae8b86e3b1c1aa7f6a86c",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e8cbd32_0824e541",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-19T20:09:26Z",
+      "side": 1,
+      "message": "Actually, there are fields that even predate `ConstantMathRandomResult` where this issue exists. I have created [this separate CL](https://chromium.googlesource.com/c/webpagereplay/+/7685810) to fix this issue. The current CL is now rebased on top of that other CL.",
+      "parentUuid": "39a30962_aabb3487",
       "range": {
         "startLine": 234,
         "startChar": 42,
@@ -230,6 +272,24 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b5531ba_b63c408a",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-19T20:09:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "df700dfe_486bff82",
+      "revId": "02ff4ae9df1fda59897ae8b86e3b1c1aa7f6a86c",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "081e0ac3_d240cb2a",
@@ -279,6 +339,24 @@
       "side": 1,
       "message": "Huh? I\u0027m talking about the fact that repeated commas (,,) are not supported before the CL but are supported afterwards (the Split call leads to an empty string in the array returned by Split() and you early `continue` for those). That\u0027s orthogonal to the goal of this CL and I don\u0027t see a good reason to support it. Is there a reason you want to add this?",
       "parentUuid": "63b7a438_880fb614",
+      "revId": "02ff4ae9df1fda59897ae8b86e3b1c1aa7f6a86c",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9918f7a1_aebd670f",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-19T20:09:26Z",
+      "side": 1,
+      "message": "Ah, right. Commas. Replaced this with a check for the empty string prior to splitting.",
+      "parentUuid": "2db60b47_7c6bd23d",
       "revId": "02ff4ae9df1fda59897ae8b86e3b1c1aa7f6a86c",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
