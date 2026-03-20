@@ -2,7 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-'use strict';
+function __performDeterministicOverrides() {
+  'use strict';
+
+  if (typeof self !== 'undefined') {
+    self.__WPR_DETERMINISTIC_INJECTED = true;
+  }
 
   // Math.random
   (function () {
@@ -132,3 +137,10 @@
       configurable: true
     });
   })();
+}
+
+if (typeof self !== 'undefined' && self.__WPR_DETERMINISTIC_INJECTED) {
+  // Script already injected.
+} else {
+  __performDeterministicOverrides();
+}
