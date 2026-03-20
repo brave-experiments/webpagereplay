@@ -95,7 +95,7 @@
 
   // Event handler properties
   ["online", "offline"].forEach(val => {
-    Object.defineProperty(window, "on" + val, {
+    Object.defineProperty(self, "on" + val, {
         set: function(value) { return false; },
         get: function() { return null; },
         configurable: false
@@ -103,8 +103,8 @@
   });
 
   // Event listeners
-  const originalAddEventListener = window.addEventListener;
-  window.addEventListener = function(type, listener, optionsOrUseCapture) {
+  const originalAddEventListener = self.addEventListener;
+  self.addEventListener = function(type, listener, optionsOrUseCapture) {
     if (type === "online" || type === "offline") {
       return undefined;
     }
