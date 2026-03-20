@@ -18,6 +18,8 @@ import (
 	"github.com/kylelemons/godebug/pretty"
 )
 
+const testScript string = "var foo=1"
+
 func TestReplaceTimeStamp(t *testing.T) {
 	timeStampMs :=
 		time.Date(2017, time.June, 1, 23, 0, 0, 0, time.UTC).Unix() * 1000
@@ -53,8 +55,7 @@ func TestReplaceTimeStamp(t *testing.T) {
 
 // Regression test for https://github.com/catapult-project/catapult/issues/3726
 func TestInjectScript(t *testing.T) {
-	script := []byte("var foo = 1;")
-	transformer, err := NewScriptInjector(script, nil)
+	transformer, err := NewScriptInjector([]byte(testScript), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -73,9 +74,9 @@ func TestInjectScript(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	expectedContent := []byte(fmt.Sprintf("<html><head><script>var foo=" +
-		"1</script><script>document.write('<head></head>');</script>" +
-		"</head></html>"))
+	expectedContent := []byte("<html><head><script>" + testScript + "</script>" +
+		"<script>document.write('<head></head>');</script>" +
+		"</head></html>")
 	if !bytes.Equal(expectedContent, body) {
 		t.Fatal(
 			fmt.Errorf("expected : %s \n actual: %s \n", expectedContent, body))
@@ -83,8 +84,7 @@ func TestInjectScript(t *testing.T) {
 }
 
 func TestNoTagFound(t *testing.T) {
-	script := []byte("var foo = 1;")
-	transformer, err := NewScriptInjector(script, nil)
+	transformer, err := NewScriptInjector([]byte(testScript), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -112,8 +112,7 @@ func TestNoTagFound(t *testing.T) {
 }
 
 func TestInjectScriptToGzipResponse(t *testing.T) {
-	script := []byte("var foo = 1;")
-	transformer, minifyErr := NewScriptInjector(script, nil)
+	transformer, minifyErr := NewScriptInjector([]byte(testScript), nil)
 	if minifyErr != nil {
 		t.Fatal(minifyErr)
 	}
@@ -145,7 +144,7 @@ func TestInjectScriptToGzipResponse(t *testing.T) {
 		t.Fatal(err)
 	}
 	reader.Close()
-	expectedContent := []byte("<html><script>var foo=1</script></html>")
+	expectedContent := []byte("<html><script>" + testScript + "</script></html>")
 	if !bytes.Equal(expectedContent, body) {
 		t.Fatal(
 			fmt.Errorf("expected : %s \n actual: %s \n", expectedContent, body))
@@ -161,38 +160,37 @@ func TestInjectScriptToResponse(t *testing.T) {
 		{
 			desc:  "With CSP Nonce script-src",
 			input: []string{"script-src 'strict-dynamic' 'nonce-2726c7f26c'"},
-			want: "<html><head><script nonce=\"2726c7f26c\">var foo=1</script>" +
+			want: "<html><head><script nonce=\"2726c7f26c\">" + testScript + "</script>" +
 				"<script>document.write('<head></head>');</script></head></html>",
 		},
 		{
 			desc:  "With CSP Nonce default-src",
 			input: []string{"default-src 'strict-dynamic' 'nonce-2726c7f26c'"},
-			want: "<html><head><script nonce=\"2726c7f26c\">var foo=1</script>" +
+			want: "<html><head><script nonce=\"2726c7f26c\">" + testScript + "</script>" +
 				"<script>document.write('<head></head>');</script></head></html>",
 		},
 		{
 			desc:  "With CSP Nonce and both Default and Script",
 			input: []string{"default-src 'self' https://foo.com;script-src 'strict-dynamic' 'nonce-2726cf26c'"},
-			want: "<html><head><script nonce=\"2726cf26c\">var foo=1</script>" +
+			want: "<html><head><script nonce=\"2726cf26c\">" + testScript + "</script>" +
 				"<script>document.write('<head></head>');</script></head></html>",
 		},
 		{
 			desc:  "With CSP Nonce and both Default and Script override",
 			input: []string{"default-src 'self' 'nonce-99999cf26c';script-src 'strict-dynamic' 'nonce-2726cf26c'"},
-			want: "<html><head><script nonce=\"2726cf26c\">var foo=1</script>" +
+			want: "<html><head><script nonce=\"2726cf26c\">" + testScript + "</script>" +
 				"<script>document.write('<head></head>');</script></head></html>",
 		},
 		{
 			desc:  "With two CSP headers",
 			input: []string{"useless", "script-src 'strict-dynamic' 'nonce-12345'"},
-			want: "<html><head><script nonce=\"12345\">var foo=1</script>" +
+			want: "<html><head><script nonce=\"12345\">" + testScript + "</script>" +
 				"<script>document.write('<head></head>');</script></head></html>",
 		},
 	}
 
 	for _, tc := range tests {
-		script := []byte("var foo = 1;")
-		transformer, err := NewScriptInjector(script, nil)
+		transformer, err := NewScriptInjector([]byte(testScript), nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -222,8 +220,7 @@ func TestInjectScriptToResponse(t *testing.T) {
 }
 
 func TestInjectScriptToResponseWithCspHash(t *testing.T) {
-	script := []byte("var foo = 1;")
-	transformer, err := NewScriptInjector(script, nil)
+	transformer, err := NewScriptInjector([]byte(testScript), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
