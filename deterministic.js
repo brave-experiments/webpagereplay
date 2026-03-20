@@ -4,6 +4,13 @@
 
 'use strict';
 
+if (typeof self !== 'undefined' && self.__WPR_DETERMINISTIC_INJECTED) {
+  // Script already injected.
+} else {
+  if (typeof self !== 'undefined') {
+    self.__WPR_DETERMINISTIC_INJECTED = true;
+  }
+
   // Math.random
   (function () {
     // We hard-code a constant sequence of random numbers.
@@ -132,3 +139,4 @@
       configurable: true
     });
   })();
+}
