@@ -151,6 +151,98 @@ func TestInjectScriptToGzipResponse(t *testing.T) {
 	}
 }
 
+func transform(t *testing.T, inputJS, contentType string) string {
+	t.Helper()
+	transformer, err := NewScriptInjector([]byte(injectedScript), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req := http.Request{}
+	responseHeader := http.Header{"Content-Type": []string{contentType}}
+
+	resp := http.Response{
+		StatusCode: 200,
+		Header:     responseHeader,
+		Request:    &req,
+		Body:       ioutil.NopCloser(bytes.NewReader([]byte(inputJS)))}
+
+	transformer.Transform(&req, &resp)
+	body, err := ioutil.ReadAll(resp.Body)
+	resp.Body.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return string(body)
+}
+
+func TestInjectScriptToJSMimeType(t *testing.T) {
+	const originalJS string = "console.log('hello');"
+	const expectedJS string = injectedScript + "\n" + originalJS
+
+	contentTypes := []string{
+		// Standard MIME types.
+		"application/javascript",
+		"text/javascript",
+		"application/x-javascript",
+		// Non-standard but seen in the wild.
+		"javascript",
+		// Case insensitivity.
+		"Application/JavaScript",
+		"TEXT/JAVASCRIPT",
+		"application/x-JAVASCRIPT",
+		"JavaScript",
+	}
+
+	for _, contentType := range contentTypes {
+		for _, suffix := range []string{"", "; charset=utf-8"} {
+			transformationResult := transform(t, originalJS, contentType+suffix)
+			if transformationResult != expectedJS {
+				t.Errorf("For %s:\nExpected: %s\nActual:   %s",
+					contentType+suffix, expectedJS, string(transformationResult))
+			}
+		}
+	}
+}
+
+func TestInjectScriptToNonJSMimeType(t *testing.T) {
+	const originalJS string = "console.log('hello');"
+
+	contentTypes := []string{
+		"text/html",          // Real non-JS MIME type, special case in our code.
+		"text/css",           // Real non-JS MIME type, arbitrary other value.
+		"application/msword", // Real non-JS MIME type, arbitrary other value.
+		"made/up",            // Not a real JS MIME type.
+		"gar-ba-ge",          // Not a real JS MIME type.
+	}
+
+	for _, contentType := range contentTypes {
+		for _, suffix := range []string{"", "; charset=utf-8"} {
+			transformationResult := transform(t, originalJS, contentType+suffix)
+			if transformationResult != originalJS {
+				t.Errorf("For %s:\nExpected: %s\nActual:   %s",
+					contentType+suffix, originalJS, string(transformationResult))
+			}
+		}
+	}
+}
+
+func TestAlreadyInjected(t *testing.T) {
+	const originalJS string = "console.log('hello');"
+	const expectedJS string = injectedScript + "\n" + originalJS
+	const contentType string = "application/javascript"
+
+	// The first injection is impactful.
+	if result := transform(t, originalJS, contentType); result != expectedJS {
+		t.Errorf("Expected: %s\nActual:   %s", expectedJS, result)
+	}
+
+	// The second injection is no-op.
+	if result := transform(t, originalJS, contentType); result != expectedJS {
+		t.Errorf("Expected: %s\nActual:   %s", expectedJS, result)
+	}
+}
+
 func TestInjectScriptToResponse(t *testing.T) {
 	tests := []struct {
 		desc  string
