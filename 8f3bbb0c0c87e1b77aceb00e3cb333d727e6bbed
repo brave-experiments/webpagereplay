@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e13ccf9_501f3caf",
+        "filename": "src/webpagereplay/transformers.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-20T21:23:49Z",
+      "side": 0,
+      "message": "Reviewers, note that although it\u0027s more efficient to do this (ToLower) once than to do it twice, isHtmlMimeType() and isJavascriptMimeType() are more robust this way.",
+      "range": {
+        "startLine": 420,
+        "startChar": 2,
+        "endLine": 420,
+        "endChar": 17
+      },
+      "revId": "8f3bbb0c0c87e1b77aceb00e3cb333d727e6bbed",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
