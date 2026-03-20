@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "27113110_031a5ee2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-20T20:03:39Z",
+      "side": 1,
+      "message": "As I have mentioned over chat, this has the potential to impact LoadLine and Speedometer scores. Mika has kindly agreed to check LL. If those are impacted in some way we dislike, we can guard this behind a command-line flag. Please review modulo this question for now.\n\nCC Igor for Speedometer scores, btw.",
+      "revId": "972a5236573ce96314220fb0425276a7b40c5e24",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
