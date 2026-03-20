@@ -152,6 +152,70 @@ func TestInjectScriptToGzipResponse(t *testing.T) {
 	}
 }
 
+func runJSInjectionTest(t *testing.T, contentType, inputJS, expectedJS string) {
+	t.Helper()
+	script := []byte("var foo = 1;")
+	transformer, err := NewScriptInjector(script, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req := http.Request{}
+	responseHeader := http.Header{"Content-Type": []string{contentType}}
+
+	resp := http.Response{
+		StatusCode: 200,
+		Header:     responseHeader,
+		Request:    &req,
+		Body:       ioutil.NopCloser(bytes.NewReader([]byte(inputJS)))}
+
+	transformer.Transform(&req, &resp)
+	body, err := ioutil.ReadAll(resp.Body)
+	resp.Body.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if string(body) != expectedJS {
+		t.Errorf("For %s:\nExpected: %s\nActual:   %s", contentType, expectedJS, string(body))
+	}
+}
+
+func TestInjectScriptToJS(t *testing.T) {
+	script := "var foo=1"
+	originalJS := "console.log('hello');"
+	expectedJS := script + "\n" + originalJS
+
+	contentTypes := []string{
+		// Standard MIME types.
+		"application/javascript",
+		"text/javascript",
+		"application/x-javascript",
+		// Non-standard but seen in the wild.
+		"javascript",
+		// Case insensitivity.
+		"Application/JavaScript",
+		"TEXT/JAVASCRIPT",
+		"application/x-JAVASCRIPT",
+		"JavaScript",
+	}
+
+	for _, contentType := range contentTypes {
+		runJSInjectionTest(t, contentType, originalJS, expectedJS)
+	}
+}
+
+func TestAlreadyInjected(t *testing.T) {
+	script := "var foo=1"
+	originalJS := "console.log('hello');"
+	expectedJS := script + "\n" + originalJS
+
+	// The first injection is impactful.
+	runJSInjectionTest(t, "application/javascript", originalJS, expectedJS)
+
+	// The first injection is no-op.
+	runJSInjectionTest(t, "application/javascript", expectedJS, expectedJS)
+}
+
 func TestInjectScriptToResponse(t *testing.T) {
 	tests := []struct {
 		desc  string
