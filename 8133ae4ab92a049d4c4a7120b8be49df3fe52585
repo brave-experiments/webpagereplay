@@ -16,6 +16,24 @@
       "message": "The standard JS formatting in Chromium is that of `git cl format --js`, which is not the one adopted here\n\nI sent crrev.com/c/7689218 to support the command in standalone webpagereplay checkouts now",
       "revId": "8133ae4ab92a049d4c4a7120b8be49df3fe52585",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "148fb11b_135e1aa8",
+        "filename": "deterministic.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-23T21:22:04Z",
+      "side": 1,
+      "message": "Please see the CL description.",
+      "parentUuid": "63afe434_3aba930d",
+      "revId": "8133ae4ab92a049d4c4a7120b8be49df3fe52585",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
