@@ -106,6 +106,24 @@
       "parentUuid": "542aa5e4_2c632a7e",
       "revId": "972a5236573ce96314220fb0425276a7b40c5e24",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eee17d3a_f69a6725",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-23T21:21:16Z",
+      "side": 1,
+      "message": "Thanks for checking; I\u0027m looking forward to hearing how it went with LL1, and more about the Globo situation.",
+      "parentUuid": "e4c665ac_cbb0afbf",
+      "revId": "972a5236573ce96314220fb0425276a7b40c5e24",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
