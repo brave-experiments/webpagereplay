@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "443b4688_6a918907",
+        "filename": "DEPS",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-23T11:12:52Z",
+      "side": 1,
+      "message": "Is this really necessary? I\u0027ve not had to do that with the scripts and power repos, which have crossbench, Speedometer and WPR as their submodules.",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 49
+      },
+      "revId": "7af0f813d57f8bdedea95239f02efe2796a96ab1",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b21ee0f9_e451c591",
+        "filename": "DEPS",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-23T11:12:52Z",
+      "side": 1,
+      "message": "IIANM, this is not a standard git command (see [here](https://git-scm.com/docs)). FYI that this would fail the second time a user runs it on their machine unless they manually erase the branch from last time. You could suggest `git branch -f` to force the old branch to the new commit if it exists. Otherwise, to the best of my knowledge, the current command is equivalent to `git branch`.",
+      "range": {
+        "startLine": 19,
+        "startChar": 3,
+        "endLine": 19,
+        "endChar": 26
+      },
+      "revId": "7af0f813d57f8bdedea95239f02efe2796a96ab1",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad200afa_d9b396b9",
+        "filename": "DEPS",
+        "patchSetId": 4
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-23T11:12:52Z",
+      "side": 1,
+      "message": "I asked Gemini about this. Interesting. Next time you\u0027re at the office, if you have a moment, I\u0027d love to discuss and learn whether the two repos I have recently set up might benefit of this treatment.",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 25
+      },
+      "revId": "7af0f813d57f8bdedea95239f02efe2796a96ab1",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0877a582_bf69241c",
+        "filename": "DEPS",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-23T11:12:52Z",
+      "side": 1,
+      "message": "I\u0027m doing something similar [here](https://source.corp.google.com/h/woa-scores/power/+/main:.gclient;l\u003d7;drc\u003d460bf23eeb3b1e05d36b2711bd70b58f7b2d7f28), but in the `.gclient` file. I\u0027d love to hear your feedback if you think I can improve things there.",
+      "revId": "7af0f813d57f8bdedea95239f02efe2796a96ab1",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
