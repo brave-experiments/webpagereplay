@@ -184,6 +184,30 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e800914b_82d64e2f",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-23T14:46:49Z",
+      "side": 1,
+      "message": "Nice, thanks for catching and fixing preexisting cases",
+      "parentUuid": "2e8cbd32_0824e541",
+      "range": {
+        "startLine": 234,
+        "startChar": 42,
+        "endLine": 234,
+        "endChar": 57
+      },
+      "revId": "02ff4ae9df1fda59897ae8b86e3b1c1aa7f6a86c",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5294b2e6_14574ec3",
@@ -446,6 +470,30 @@
       "side": 1,
       "message": "The special-casing here is because only `deterministic.js` is part of the WPR repo, and it\u0027s only there that we can guarantee that `{{WPR_TIME_SEED_TIMESTAMP}}` and `{{WPR_CONSTANT_RANDOM_RESULT}}` are correctly substituted. In other files, we don\u0027t know if these strings naturally occur, and we neither want to provide the guarantee of replacement, nor risk doing so by accident.",
       "parentUuid": "68556e49_ae373837",
+      "range": {
+        "startLine": 319,
+        "startChar": 0,
+        "endLine": 321,
+        "endChar": 2
+      },
+      "revId": "02ff4ae9df1fda59897ae8b86e3b1c1aa7f6a86c",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "76bf1c1b_98603c56",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-23T14:46:49Z",
+      "side": 1,
+      "message": "Again, I don\u0027t mind this change, just split it to a separate CL, or at least call it out in the CL description",
+      "parentUuid": "2e50bded_6767ea4a",
       "range": {
         "startLine": 319,
         "startChar": 0,
