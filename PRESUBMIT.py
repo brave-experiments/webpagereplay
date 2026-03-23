@@ -58,8 +58,8 @@ def CheckGoTests(input_api, output_api):
 
 def CheckPrebuiltBinaryUpdated(input_api, output_api):
     files = input_api.UnixLocalPaths()
-    if (not any(f.endswith('binary_dependencies.json') for f in files)
-            and any(f.endswith('.go') for f in files)):
+    if (not any(f.endswith('binary_dependencies.json') for f in files) and any(
+            f.endswith('.go') and not f.endswith('_test.go') for f in files)):
         return [
             output_api.PresubmitError(
                 'You changed go files, but didn\'t run scripts/'
