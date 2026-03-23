@@ -126,7 +126,7 @@ def build_and_upload_go_binary(binary_name, os_name, os_arch):
                                     binary_name) if os_name == 'win' else
                        os.path.join(go_path_dir, binary_name))
         build_cmd = [
-            'go', 'build', '-v', '-o', binary_file,
+            'go', 'build', '-v', '-trimpath', '-o', binary_file,
             '%s.go' % binary_name
         ]
         print('Running build command: %s' % ' '.join(build_cmd))
