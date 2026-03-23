@@ -88,6 +88,24 @@
       "parentUuid": "358b51cb_b94137b4",
       "revId": "972a5236573ce96314220fb0425276a7b40c5e24",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e4c665ac_cbb0afbf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1328067
+      },
+      "writtenOn": "2026-03-23T16:41:57Z",
+      "side": 1,
+      "message": "Now it works!\n\nIt\u0027s funny, but it seems that your change (almost) fixes the regression we\u0027ve been investigating in crbug.com/479819560. I don\u0027t know how, but with this CL, the regression in the globo_interactive metric associated with the LowPriorityAsyncScriptExecution feature is much smaller. And all other metrics stay the same.\n\nLet me check LoadLine v1 as well (this is going to take a little longer).",
+      "parentUuid": "542aa5e4_2c632a7e",
+      "revId": "972a5236573ce96314220fb0425276a7b40c5e24",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
