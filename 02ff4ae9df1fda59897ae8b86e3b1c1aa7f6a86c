@@ -502,6 +502,30 @@
       },
       "revId": "02ff4ae9df1fda59897ae8b86e3b1c1aa7f6a86c",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d64ba640_a5de8fb2",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-23T15:23:43Z",
+      "side": 1,
+      "message": "Sure, I can add it to the CL description.",
+      "parentUuid": "76bf1c1b_98603c56",
+      "range": {
+        "startLine": 319,
+        "startChar": 0,
+        "endLine": 321,
+        "endChar": 2
+      },
+      "revId": "02ff4ae9df1fda59897ae8b86e3b1c1aa7f6a86c",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
