@@ -52,6 +52,24 @@
       "parentUuid": "f5b0bdda_253174be",
       "revId": "972a5236573ce96314220fb0425276a7b40c5e24",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "358b51cb_b94137b4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1328067
+      },
+      "writtenOn": "2026-03-23T11:28:46Z",
+      "side": 1,
+      "message": "Reporting: LoadLine is broken with this change (scripts on pages stop working and the interactive metric never triggers). You can reproduce this with e.g.:\n```\n./cb.py loadline2-phone --browser adb:chrome --repeat 1 --story amazon_product\n```",
+      "parentUuid": "f5b0bdda_253174be",
+      "revId": "972a5236573ce96314220fb0425276a7b40c5e24",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
