@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dd799271_0e4921f2",
+        "filename": "deterministic.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-23T21:40:35Z",
+      "side": 1,
+      "message": "LGTM but please wait for the child CL to be approved before landing since this one doesn\u0027t make sense in isolation.\n\nAlso, I ended up accidentally uploading to your CL, so my LGTM won\u0027t count and you\u0027ll need Mika (or yourself?) to stamp",
+      "revId": "0bd3f53509429efcfc1ca5ee70716e3ed85b0e15",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
