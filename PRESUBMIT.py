@@ -78,12 +78,12 @@ def CheckPanProjectChecks(input_api, output_api):
                                                     owners_check=False)
 
 
-def CheckPythonFormat(input_api, output_api):
+def CheckPythonAndJavascriptFormat(input_api, output_api):
     return input_api.canned_checks.CheckPatchFormatted(
         input_api,
         output_api,
         check_clang_format=False,
-        check_js=False,
+        check_js=True,
         check_python=True,
         result_factory=output_api.PresubmitError)
 
