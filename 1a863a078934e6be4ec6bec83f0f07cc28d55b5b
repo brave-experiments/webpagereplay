@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7046bc7a_a15952a4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-24T15:23:46Z",
+      "side": 1,
+      "message": "Add: This is a reland of commit 6e8427e53c07a4c84cc1a2fa4b327174f0af0135.",
+      "revId": "1a863a078934e6be4ec6bec83f0f07cc28d55b5b",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
