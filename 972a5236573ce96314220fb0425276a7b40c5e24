@@ -124,6 +124,24 @@
       "parentUuid": "e4c665ac_cbb0afbf",
       "revId": "972a5236573ce96314220fb0425276a7b40c5e24",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c18b9f7_cb5b1399",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1328067
+      },
+      "writtenOn": "2026-03-24T15:11:32Z",
+      "side": 1,
+      "message": "LLv1 results are in. There are no metrics movement (including globo), so we\u0027re good.\n\nThe globo effect I\u0027ll have to double-check, but I don\u0027t want to block this CL. Since there\u0027s no LLv1 score movement, we can land this.",
+      "parentUuid": "eee17d3a_f69a6725",
+      "revId": "972a5236573ce96314220fb0425276a7b40c5e24",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
