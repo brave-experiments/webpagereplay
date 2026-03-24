@@ -34,6 +34,24 @@
       "parentUuid": "5b08f6ce_642a6804",
       "revId": "cbe5ee4ffb6f5ff57569b3d7587d29ddfabd5d5f",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b7f9f4e4_6deffaea",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-24T15:21:45Z",
+      "side": 1,
+      "message": "It was some glitch with gerrit UI, all good, I see the banner now\nhttps://screenshot.googleplex.com/4Auxt9vNFPeB6oD",
+      "parentUuid": "43a953b2_c6d4bfba",
+      "revId": "cbe5ee4ffb6f5ff57569b3d7587d29ddfabd5d5f",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ],
   "submitRequirementResults": [
