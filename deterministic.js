@@ -2,10 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-function __performDeterministicOverrides() {
-  'use strict';
-
-  self.__WPR_DETERMINISTIC_INJECTED = true;
+'use strict';
 
   // Math.random
   (function () {
@@ -135,14 +132,3 @@ function __performDeterministicOverrides() {
       configurable: true
     });
   })();
-}
-
-if (typeof self === 'object' && self) {
-  if (self.__WPR_DETERMINISTIC_INJECTED) {
-    // Script already injected.
-  } else {
-    __performDeterministicOverrides();
-  }
-} else {
-  // Environment lacks 'self' global (e.g. Node.js); skipping overrides.
-}
