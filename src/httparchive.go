@@ -22,6 +22,8 @@ import (
 	"go.chromium.org/webpagereplay/src/webpagereplay"
 )
 
+var Log = webpagereplay.Log
+
 const usage = "%s [ls|cat|edit|merge|add|add-all|trim|inject|" +
 	"read-metadata|write-metadata|edit-metadata] [options] archive_file " +
 	"[output_file] [url]"
@@ -48,26 +50,26 @@ func list(cfg *webpagereplay.HttpArchiveConfig, a *webpagereplay.Archive, printF
 			return nil
 		}
 		if printFull {
-			fmt.Fprint(os.Stdout, "----------------------------------------\n")
+			fmt.Printf("----------------------------------------\n")
 			req.Write(os.Stdout)
-			fmt.Fprint(os.Stdout, "\n")
+			fmt.Printf("\n")
 			err := webpagereplay.DecompressResponse(resp)
 			if err != nil {
 				return fmt.Errorf("Unable to decompress body:\n%v", err)
 			}
 			resp.Write(os.Stdout)
-			fmt.Fprint(os.Stdout, "\n")
+			fmt.Printf("\n")
 		} else {
-			fmt.Fprintf(os.Stdout, "%s %s %s %s\n", req.Method, req.Host, req.URL, resp.Status)
+			fmt.Printf("%s %s %s %s\n", req.Method, req.Host, req.URL, resp.Status)
 		}
 		return nil
 	})
 }
 
 func readMetadata(a *webpagereplay.Archive) error {
-	fmt.Fprint(os.Stdout, a.Metadata)
+	fmt.Printf(a.Metadata)
 	if a.Metadata != "" && !strings.HasSuffix(a.Metadata, "\n") {
-		fmt.Fprint(os.Stdout, "\n")
+		fmt.Printf("\n")
 	}
 	return nil
 }
@@ -81,7 +83,7 @@ func editMetadata(a *webpagereplay.Archive, outfile string) error {
 	// Determine which editor to use.
 	editor := os.Getenv("EDITOR")
 	if editor == "" {
-		fmt.Printf("Warning: EDITOR not specified, defaulting to vi.\n")
+		Log().Warn("EDITOR not specified, defaulting to vi.")
 		editor = "vi"
 	}
 
@@ -127,10 +129,10 @@ func trim(cfg *webpagereplay.HttpArchiveConfig, a *webpagereplay.Archive, outfil
 		// If req doesn't match and !invertMatch -> keep match
 		// Otherwise, trim match
 		if requestEnabled(cfg, req, resp) == cfg.InvertMatch {
-			fmt.Printf("Keeping request: host=%s uri=%s\n", req.Host, req.URL.String())
+			Log().Warn("Keeping request", "host", req.Host, "uri", req.URL.String())
 			return false, nil
 		} else {
-			fmt.Printf("Trimming request: host=%s uri=%s\n", req.Host, req.URL.String())
+			Log().Warn("Trimming request", "host", req.Host, "uri", req.URL.String())
 			return true, nil
 		}
 	})
@@ -143,7 +145,7 @@ func trim(cfg *webpagereplay.HttpArchiveConfig, a *webpagereplay.Archive, outfil
 func edit(cfg *webpagereplay.HttpArchiveConfig, a *webpagereplay.Archive, outfile string) error {
 	editorFields := strings.Fields(os.Getenv("EDITOR"))
 	if len(editorFields) == 0 {
-		fmt.Printf("Warning: EDITOR not specified or invalid, using default.\n")
+		Log().Warn("EDITOR not specified, using default.")
 		editorFields = []string{"vi"}
 	}
 
@@ -241,7 +243,7 @@ func edit(cfg *webpagereplay.HttpArchiveConfig, a *webpagereplay.Archive, outfil
 		if !requestEnabled(cfg, req, resp) {
 			return req, resp, nil
 		}
-		fmt.Printf("Editing request: host=%s uri=%s\n", req.Host, req.URL.String())
+		Log().Info("Editing request", "host", req.Host, "uri", req.URL.String())
 		// Serialize the req/resp to a temporary file, let the user edit that file, then
 		// de-serialize and return the result. Repeat until de-serialization succeeds.
 		for {
@@ -274,7 +276,7 @@ func edit(cfg *webpagereplay.HttpArchiveConfig, a *webpagereplay.Archive, outfil
 			defer tmpf.Close()
 			newReq, newResp, err := unmarshalAfterEdit(tmpf)
 			if err != nil {
-				fmt.Printf("Error in editing request. Try again: %v\n", err)
+				Log().Error("Error while editing request", "error", err)
 				continue
 			}
 			return newReq, newResp, nil
@@ -300,7 +302,7 @@ func writeArchive(archive *webpagereplay.Archive, outfile string) error {
 		}
 		return fmt.Errorf("error writing edited archive to %s:\n%v", outfile, err0)
 	}
-	fmt.Printf("Wrote edited archive to %s\n", outfile)
+	Log().Info("Wrote edited archive", "file", outfile)
 	return nil
 }
 
@@ -416,7 +418,7 @@ func main() {
 	cfg := &webpagereplay.HttpArchiveConfig{}
 
 	fail := func(c *cli.Context, err error) {
-		fmt.Fprintf(os.Stderr, "Error:\n%v.\n\n", err)
+		Log().Error("An error occurred", "error", err)
 		cli.ShowSubcommandHelp(c)
 		os.Exit(1)
 	}
@@ -557,9 +559,15 @@ func main() {
 	app.HideVersion = true
 	app.Version = ""
 	app.Writer = os.Stderr
+	app.Before = func(c *cli.Context) error {
+		if err := webpagereplay.SetLogLevel(cfg.LogLevel); err != nil {
+			return fmt.Errorf("Invalid log-level (%s): %v", cfg.LogLevel, err)
+		}
+		return nil
+	}
 	err := app.Run(os.Args)
 	if err != nil {
-		fmt.Printf("%v\n", err)
+		Log().Error("Error encountered", "error", err)
 		os.Exit(1)
 	}
 }
