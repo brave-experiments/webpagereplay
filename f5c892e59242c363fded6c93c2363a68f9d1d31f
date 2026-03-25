@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a37ebe38_4e4b09a6",
+        "filename": "README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1328067
+      },
+      "writtenOn": "2026-03-25T12:17:15Z",
+      "side": 1,
+      "message": "Does it still work? I get this when I try this command:\n```\ngo: go.mod file not found in current directory or any parent directory.\n\t\u0027go get\u0027 is no longer supported outside a module.\n\tTo build and install a command, use \u0027go install\u0027 with a version,\n\tlike \u0027go install example.com/cmd@latest\u0027\n\tFor more information, see https://golang.org/doc/go-get-install-deprecation\n\tor run \u0027go help get\u0027 or \u0027go help install\u0027.\n```",
+      "revId": "f5c892e59242c363fded6c93c2363a68f9d1d31f",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
