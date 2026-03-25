@@ -15,10 +15,16 @@ typically `$HOME/go`:
 go get go.chromium.org/webpagereplay
 ```
 
-The second way is to clone the repository.
+The second way is to download the repository. Don't just `git clone`! Use
+depot_tools to set everything up correctly for you.
 
-```shell
-git clone https://chromium.googlesource.com/webpagereplay
+- Install [Chromium depot_tools](https://commondatastorage.googleapis.com/chrome-infra-docs/flat/depot_tools/docs/html/depot_tools_tutorial.html#_setting_up).
+- Get webpagereplay code with all dependencies:
+```
+mkdir webpagereplay
+cd webpagereplay
+fetch webpagereplay
+cd webpagereplay
 ```
 
 ## Sample usage
