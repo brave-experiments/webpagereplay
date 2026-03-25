@@ -217,6 +217,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "4e49d841_4ec7e407",
+        "filename": "DEPS",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-25T17:21:37Z",
+      "side": 1,
+      "message": "Oh, it checks out `origin/main`? Okay, then it has some added value.",
+      "parentUuid": "e1311cd0_87968303",
+      "range": {
+        "startLine": 19,
+        "startChar": 3,
+        "endLine": 19,
+        "endChar": 26
+      },
+      "revId": "7af0f813d57f8bdedea95239f02efe2796a96ab1",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "ad200afa_d9b396b9",
         "filename": "DEPS",
         "patchSetId": 4
