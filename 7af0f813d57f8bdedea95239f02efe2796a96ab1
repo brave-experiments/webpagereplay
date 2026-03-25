@@ -97,6 +97,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "10b92863_ee2f2fff",
+        "filename": "DEPS",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-25T12:12:42Z",
+      "side": 1,
+      "message": "Also, this is all verbatim from chromium DEPS\nhttps://source.chromium.org/chromium/chromium/src/+/main:DEPS;l\u003d19;drc\u003d6c23d114b68cc363ad0a0a75a0c3cee3147b203f",
+      "parentUuid": "a8f25862_89e666c5",
+      "range": {
+        "startLine": 19,
+        "startChar": 3,
+        "endLine": 19,
+        "endChar": 26
+      },
+      "revId": "7af0f813d57f8bdedea95239f02efe2796a96ab1",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "ad200afa_d9b396b9",
         "filename": "DEPS",
         "patchSetId": 4
