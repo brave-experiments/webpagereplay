@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a02cd628_1f33acca",
+        "filename": "src/httparchive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-25T22:13:53Z",
+      "side": 1,
+      "message": "Kept this using Printf because its purpose it to output to stdout, rather than this being a side-effect while logging. Likewise elsewhere.",
+      "revId": "f32f859edb4a29ff512956a0af283fdd6363ad48",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
