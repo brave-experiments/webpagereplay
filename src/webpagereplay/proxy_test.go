@@ -31,7 +31,7 @@ func TestMain(m *testing.M) {
 	var err error
 	tmpdir, err = ioutil.TempDir("", "webpagereplay_proxy_test")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "cannot make tempdir: %v", err)
+		Log().Error("Cannot make tempdir", "error", err)
 		os.Exit(1)
 	}
 	ret := m.Run()

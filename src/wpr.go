@@ -9,7 +9,6 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"log"
 	"math"
 	"net"
 	"net/http"
@@ -24,6 +23,8 @@ import (
 	"go.chromium.org/webpagereplay/src/webpagereplay"
 	"golang.org/x/net/http2"
 )
+
+var Log = webpagereplay.Log
 
 const longUsage = `
    %s [installroot|removeroot] [options]
@@ -230,8 +231,8 @@ func (common *CommonConfig) CheckArgs(c *cli.Context) error {
 		return fmt.Errorf("list of cert files given should match list of key files")
 	}
 	for i := 0; i < len(certFiles); i++ {
-		log.Printf("Loading cert from %v\n", certFiles[i])
-		log.Printf("Loading key from %v\n", keyFiles[i])
+		Log().Info("Loading cert", "path", certFiles[i])
+		Log().Info("Loading key", "path", keyFiles[i])
 		rootCert, err := tls.LoadX509KeyPair(certFiles[i], keyFiles[i])
 		if err != nil {
 			return fmt.Errorf("error opening cert or key files: %v", err)
@@ -273,8 +274,8 @@ func (common *CommonConfig) ProcessInjectedScriptsForReplay(c *cli.Context,
 		// Warn if archive contains a value that differs what the user specifies.
 		if archive.ConstantMathRandomResult != nil &&
 			*flagValue != *archive.ConstantMathRandomResult {
-			log.Printf("WARNING: constant-math-random-result flag (%v) differs from archive (%v).",
-				*flagValue, *archive.ConstantMathRandomResult)
+			Log().Warn("constant-math-random-result flag differs from archive",
+				"flag", *flagValue, "archive", *archive.ConstantMathRandomResult)
 		}
 
 		// Still respect the user's wishes.
@@ -340,7 +341,7 @@ func getReplacements(filename string, timeSeedMs int64, constantMathRandomResult
 }
 
 func (common *CommonConfig) addScriptInjector(script []byte, scriptFile string, replacements map[string]string) error {
-	log.Printf("Processing script %v\n", scriptFile)
+	Log().Info("Processing script", "path", scriptFile)
 	si, err := webpagereplay.NewScriptInjector(script, replacements)
 	if err != nil {
 		return fmt.Errorf("error creating script injector for %s: %v", scriptFile, err)
@@ -366,9 +367,9 @@ func (r *RecordCommand) CheckArgs(c *cli.Context) error {
 	}
 
 	if r.enableExperimentalTimedChunk {
-		log.Printf("WARNING: Timed chunk recording is enabled. Note that the" +
-			"implementation is highly experimental at the moment and the " +
-			"format is subject to change.")
+		Log().Warn("Timed chunk recording is enabled. Note that the " +
+			"implementation is highly experimental at the moment and the format " +
+			"is subject to change.")
 	}
 
 	return nil
@@ -527,17 +528,17 @@ func startServers(tlsconfig *tls.Config, httpHandler, httpsHandler http.Handler,
 				panic(fmt.Sprintf("unknown s.Scheme: %s", s.Scheme))
 			}
 			if err != nil {
-				log.Printf("Failed to start server on %s://%s: %v", s.Scheme, s.Addr, err)
+				Log().Error("Failed to start server", "scheme", s.Scheme, "addr", s.Addr, "error", err)
 			}
 		}()
 	}
 
-	log.Printf("Use Ctrl-C to exit.")
+	Log().Info("Use Ctrl-C to exit")
 	select {}
 }
 
 func logServeStarted(scheme string, ln net.Listener) {
-	log.Printf("Starting server on %s://%s", scheme, ln.Addr().String())
+	Log().Info("Starting server", "scheme", scheme, "addr", ln.Addr().String())
 }
 
 func (r *RecordCommand) Run(c *cli.Context) error {
@@ -548,35 +549,35 @@ func (r *RecordCommand) Run(c *cli.Context) error {
 		os.Exit(1)
 	}
 	defer archive.Close()
-	log.Printf("Opened archive %s", archiveFileName)
+	Log().Info("Opened archive", "path", archiveFileName)
 
 	// Install a SIGINT handler to close the archive before shutting down.
 	go func() {
 		sigchan := make(chan os.Signal, 1)
 		signal.Notify(sigchan, os.Interrupt)
 		<-sigchan
-		log.Printf("Shutting down")
-		log.Printf("Writing archive file to %s", archiveFileName)
+		Log().Info("Shutting down")
+		Log().Info("Writing archive", "path", archiveFileName)
 		if err := archive.Close(); err != nil {
-			log.Printf("Error flushing archive: %v", err)
+			Log().Error("Error flushing archive", "error", err)
 		}
 		os.Exit(0)
 	}()
 
 	if err := r.common.ProcessInjectedScriptsForRecording(c, &archive.Archive); err != nil {
-		log.Printf("Error processing injected scripts: %v", err)
+		Log().Error("Error processing injected scripts", "error", err)
 		os.Exit(1)
 	}
 
 	if r.enableExperimentalTimedChunk {
-		log.Printf("NOTIMPLEMENTED: Experimental Timed Chunk recording support")
+		Log().Error("NOTIMPLEMENTED: Experimental Timed Chunk recording support")
 		os.Exit(1)
 	}
 	httpHandler := webpagereplay.NewRecordingProxy(archive, "http", r.common.transformers, r.common.paramToIgnoreInURLPath)
 	httpsHandler := webpagereplay.NewRecordingProxy(archive, "https", r.common.transformers, r.common.paramToIgnoreInURLPath)
 	tlsconfig, err := webpagereplay.RecordTLSConfig(r.common.rootCerts, archive, !r.common.noArchiveCertificates)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error creating TLSConfig: %v", err)
+		Log().Error("Error creating TLSConfig", "error", err)
 		os.Exit(1)
 	}
 	startServers(tlsconfig, httpHandler, httpsHandler, &r.common)
@@ -585,33 +586,33 @@ func (r *RecordCommand) Run(c *cli.Context) error {
 
 func (r *ReplayCommand) Run(c *cli.Context) error {
 	archiveFileName := c.Args().First()
-	log.Printf("Loading archive file from %s\n", archiveFileName)
+	Log().Info("Loading archive", "path", archiveFileName)
 	archive, err := webpagereplay.OpenArchive(archiveFileName)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error opening archive file: %v", err)
+		Log().Error("Error opening archive file", "error", err)
 		os.Exit(1)
 	}
-	log.Printf("Opened archive %s", archiveFileName)
+	Log().Info("Opened archive", "path", archiveFileName)
 
 	archive.ServeResponseInChronologicalSequence = r.serveResponseInChronologicalSequence
 	archive.DisableFuzzyURLMatching = r.disableFuzzyURLMatching
 	if archive.DisableFuzzyURLMatching {
-		log.Printf("Disabling fuzzy URL matching.")
+		Log().Info("Disabling fuzzy URL matching")
 	}
 
 	if err := r.common.ProcessInjectedScriptsForReplay(c, archive); err != nil {
-		log.Printf("Error processing injected scripts: %v", err)
+		Log().Error("Error processing injected scripts", "error", err)
 		os.Exit(1)
 	}
 
 	if r.rulesFile != "" {
 		t, err := webpagereplay.NewRuleBasedTransformer(r.rulesFile)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error opening rules file %s: %v\n", r.rulesFile, err)
+			Log().Error("Error opening rules file", "path", r.rulesFile, "error", err)
 			os.Exit(1)
 		}
 		r.common.transformers = append(r.common.transformers, t)
-		log.Printf("Loaded replay rules from %s", r.rulesFile)
+		Log().Info("Loaded replay rules", "path", r.rulesFile)
 	}
 
 	// When recording, transformations are applied at request time, because that's
@@ -633,7 +634,7 @@ func (r *ReplayCommand) Run(c *cli.Context) error {
 		return transformedArchive.AddArchivedRequest(req, resp, webpagereplay.AddModeAppend)
 	})
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Using original archive, error while creating transformed one: %v\n", err)
+		Log().Error("Error while creating transformed archive", "error", err)
 	} else {
 		archive = &transformedArchive
 	}
@@ -642,7 +643,7 @@ func (r *ReplayCommand) Run(c *cli.Context) error {
 	httpsHandler := webpagereplay.NewReplayingProxy(archive, "https", r.quietMode, r.common.paramToIgnoreInURLPath)
 	tlsconfig, err := webpagereplay.ReplayTLSConfig(r.common.rootCerts, archive, !r.common.noArchiveCertificates)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error creating TLSConfig: %v", err)
+		Log().Error("Error creating TLSConfig", "error", err)
 		os.Exit(1)
 	}
 	startServers(tlsconfig, httpHandler, httpsHandler, &r.common)
@@ -652,7 +653,7 @@ func (r *ReplayCommand) Run(c *cli.Context) error {
 func (r *RootCACommand) Install(c *cli.Context) error {
 	if err := r.installer.InstallRoot(
 		r.certConfig.certFile, r.certConfig.keyFile); err != nil {
-		fmt.Fprintf(os.Stderr, "Install root failed: %v", err)
+		Log().Error("Install root failed", "error", err)
 		os.Exit(1)
 	}
 	return nil
