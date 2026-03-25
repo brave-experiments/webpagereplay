@@ -74,6 +74,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ede2bf4f_d4665cd9",
+        "filename": "DEPS",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-25T14:05:58Z",
+      "side": 1,
+      "message": "There\u0027s some nuance. In chromium, submodules are part of the tree. In other projects, like [webrtc](https://source.chromium.org/chromium/chromium/src/+/main:third_party/webrtc/.gitignore;l\u003d47;drc\u003deea6b6510b8d6714786b550b009f604e6a538d63) and [v8](https://source.chromium.org/chromium/chromium/src/+/main:v8/.gitignore;l\u003d55;drc\u003dfbe8f41e7ce796c07e282d060fbc496e7c220be1), they are gitignored. Both work.\nI\u0027m personally used to having them in-tree, but other people are not and therefore gitignoring avoids mistakes.\nFor instance, in crossbench, submodules became part of the tree [not long ago](crrev.com/c/7031039). Since then we\u0027ve run into cases where people accidentally get them out of sync with DEPS, leading to a dirty tree after `gclient sync`. I fixed a couple of those instances, e.g. crrev.com/c/7531938",
+      "parentUuid": "791342fe_acd9a333",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 49
+      },
+      "revId": "7af0f813d57f8bdedea95239f02efe2796a96ab1",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b21ee0f9_e451c591",
         "filename": "DEPS",
         "patchSetId": 4
@@ -157,6 +181,30 @@
       "side": 1,
       "message": "Strange that they use a non-standard git command, but it is what it is.",
       "parentUuid": "10b92863_ee2f2fff",
+      "range": {
+        "startLine": 19,
+        "startChar": 3,
+        "endLine": 19,
+        "endChar": 26
+      },
+      "revId": "7af0f813d57f8bdedea95239f02efe2796a96ab1",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e1311cd0_87968303",
+        "filename": "DEPS",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-25T14:05:58Z",
+      "side": 1,
+      "message": "It\u0027s less verbose than `git checkout origin/main -b my-branch --track origin/main`",
+      "parentUuid": "5f6efce7_0f5d98e8",
       "range": {
         "startLine": 19,
         "startChar": 3,
