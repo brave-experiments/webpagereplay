@@ -14,7 +14,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -182,7 +181,8 @@ func (a *Archive) ForEach(f func(req *http.Request, resp *http.Response) error) 
 			for index, archivedRequest := range requests {
 				req, resp, err := archivedRequest.unmarshal(fullURL.Scheme)
 				if err != nil {
-					log.Printf("Error unmarshaling request #%d for %s: %v", index, urlString, err)
+					Log().Error("Error unmarshaling request", "index", index,
+						"url", urlString, "error", err)
 					continue
 				}
 				if err := f(req, resp); err != nil {
@@ -211,7 +211,8 @@ func (a *Archive) FindHostNegotiatedProtocol(host string) (string, error) {
 
 func assertCompleteURL(url *url.URL) {
 	if url.Host == "" || url.Scheme == "" {
-		log.Printf("Missing host and scheme: %v\n", url)
+		// TODO: Handle this more gracefully.
+		Log().Error("Missing host and scheme", "url", url)
 		os.Exit(1)
 	}
 }
@@ -347,12 +348,11 @@ func (a *Archive) FindRequest(req *http.Request) (*http.Request, *http.Response,
 
 	if bestURL != "" && !a.DisableFuzzyURLMatching {
 		return a.findBestMatchInArchivedRequestSet(req, hostMap[bestURL])
-	} else if a.DisableFuzzyURLMatching {
-		logStr := "No exact match found for %s.\nFuzzy matching would have returned one of the following %d matches:\n%v\n"
-		if len(bestURLs) > 0 {
-			logStr += "\n"
-		}
-		log.Printf(logStr, reqUrl, len(bestURLs), strings.Join(bestURLs[:], "\n"))
+	}
+
+	if a.DisableFuzzyURLMatching {
+		Log().Debug("No exact match found", "url", reqUrl,
+			"num_matches", len(bestURLs), "matches", strings.Join(bestURLs, ","))
 	}
 
 	return nil, nil, ErrNotFound
@@ -371,7 +371,7 @@ func (a *Archive) findBestMatchInArchivedRequestSet(
 	} else if len(archivedReqs) == 1 {
 		archivedReq, archivedResp, err := archivedReqs[0].unmarshal(scheme)
 		if err != nil {
-			log.Println("Error unmarshaling request")
+			Log().Error("Error unmarshaling request", "error", err)
 			return nil, nil, err
 		}
 		return archivedReq, archivedResp, err
@@ -385,7 +385,7 @@ func (a *Archive) findBestMatchInArchivedRequestSet(
 	for _, r := range archivedReqs {
 		archivedReq, archivedResp, err := r.unmarshal(scheme)
 		if err != nil {
-			log.Println("Error unmarshaling request")
+			Log().Error("Error unmarshaling request", "error", err)
 			continue
 		}
 
@@ -454,11 +454,11 @@ func (a *Archive) AddArchivedRequest(req *http.Request, resp *http.Response, mod
 	if mode == AddModeAppend {
 		requests = append(requests, archivedRequest)
 	} else if mode == AddModeOverwriteExisting {
-		log.Printf("Overwriting existing request")
+		Log().Warn("Overwriting existing request")
 		requests = []*ArchivedRequest{archivedRequest}
 	} else if mode == AddModeSkipExisting {
 		if requests != nil {
-			log.Printf("Skipping existing request: %s", urlStr)
+			Log().Warn("Skipping existing request", "url", urlStr)
 			return nil
 		}
 		requests = append(requests, archivedRequest)
@@ -518,7 +518,8 @@ func (a *Archive) Merge(other *Archive, keepDuplicates bool) error {
 		}
 		return nil
 	})
-	log.Printf("Merged requests: added=%d duplicates=%d \n", numAddedRequests, numSkippedRequests)
+	Log().Info("Merged requests", "added", numAddedRequests,
+		"duplicates", numSkippedRequests)
 	return err
 }
 
@@ -540,7 +541,7 @@ func (a *Archive) Trim(trimMatch func(req *http.Request, resp *http.Response) (b
 		}
 		return nil
 	})
-	log.Printf("Trimmed requests: removed=%d", numRemovedRequests)
+	Log().Info("Trimmed requests", "removed", numRemovedRequests)
 	if err != nil {
 		return nil, err
 	}
@@ -561,10 +562,12 @@ func (a *Archive) Add(method string, urlString string, mode AddMode) error {
 		if foundReq, _, notFoundErr := a.FindRequest(req); notFoundErr != ErrNotFound {
 			if foundReq.URL.String() == url.String() {
 				if mode == AddModeSkipExisting {
-					log.Printf("Skipping existing request: %s %s", req.Method, urlString)
+					Log().Warn("Skipping existing request", "method", req.Method,
+						"url", urlString)
 					return nil
 				}
-				log.Printf("Adding duplicate request:")
+				Log().Warn("Adding duplicate request", "method", req.Method,
+					"url", urlString)
 			}
 		}
 	}
@@ -578,7 +581,8 @@ func (a *Archive) Add(method string, urlString string, mode AddMode) error {
 		return err
 	}
 
-	fmt.Printf("Added request: (%s %s) %s\n", req.Method, resp.Status, urlString)
+	Log().Info("Added request", "method", req.Method, "status", resp.Status,
+		"url", urlString)
 	return nil
 }
 
