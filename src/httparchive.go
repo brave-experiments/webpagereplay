@@ -15,6 +15,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -22,7 +23,7 @@ import (
 	"go.chromium.org/webpagereplay/src/webpagereplay"
 )
 
-const usage = "%s [ls|cat|edit|merge|add|addAll|trim|inject] [options] archive_file [output_file] [url]"
+const usage = "%s [ls|cat|edit|merge|add|addAll|trim|inject|substitute] [options] archive_file [output_file] [url]"
 
 func requestEnabled(cfg *webpagereplay.HttpArchiveConfig, req *http.Request, resp *http.Response) bool {
 	if cfg.Method != "" && strings.ToUpper(cfg.Method) != req.Method {
@@ -294,6 +295,76 @@ func inject(cfg *webpagereplay.HttpArchiveConfig, a *webpagereplay.Archive, outf
 	return writeArchive(a, outfile)
 }
 
+func substitute(cfg *webpagereplay.HttpArchiveConfig, a *webpagereplay.Archive, outfile string, oldString string, newString string) error {
+	oldBytes := []byte(oldString)
+	newBytes := []byte(newString)
+	scriptBlockRE := regexp.MustCompile(`(?is)(<script[^>]*>)(.*?)(</script>)`)
+
+	err := a.ForEach(func(req *http.Request, resp *http.Response) error {
+		if !requestEnabled(cfg, req, resp) {
+			return nil
+		}
+
+		contentType := strings.ToLower(resp.Header.Get("Content-Type"))
+		isHTML := strings.HasPrefix(contentType, "text/html")
+		isJS := strings.HasPrefix(contentType, "application/javascript") || strings.HasPrefix(contentType, "text/javascript") || strings.HasPrefix(contentType, "application/x-javascript")
+
+		if !isHTML && !isJS {
+			a.AddArchivedRequest(req, resp, webpagereplay.AddModeOverwriteExisting)
+			return nil
+		}
+
+		if err := webpagereplay.DecompressResponse(resp); err != nil {
+			fmt.Fprintf(os.Stderr, "Error decompressing response for %s: %v\n", req.URL.String(), err)
+			a.AddArchivedRequest(req, resp, webpagereplay.AddModeOverwriteExisting)
+			return nil
+		}
+
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error reading response body for %s: %v\n", req.URL.String(), err)
+			a.AddArchivedRequest(req, resp, webpagereplay.AddModeOverwriteExisting)
+			return nil
+		}
+		resp.Body.Close()
+
+		var newBody []byte
+		if isJS {
+			newBody = bytes.Replace(body, oldBytes, newBytes, -1)
+		} else if isHTML {
+			newBody = scriptBlockRE.ReplaceAllFunc(body, func(match []byte) []byte {
+				submatches := scriptBlockRE.FindSubmatch(match)
+				if len(submatches) == 4 {
+					replacedContent := bytes.Replace(submatches[2], oldBytes, newBytes, -1)
+					var buf bytes.Buffer
+					buf.Write(submatches[1])
+					buf.Write(replacedContent)
+					buf.Write(submatches[3])
+					return buf.Bytes()
+				}
+				return match
+			})
+		}
+
+		resp.Body = ioutil.NopCloser(bytes.NewReader(newBody))
+		resp.ContentLength = int64(len(newBody))
+		resp.Header.Set("Content-Length", strconv.Itoa(len(newBody)))
+
+		if err := compressResponse(resp); err != nil {
+			fmt.Fprintf(os.Stderr, "Error compressing response for %s: %v\n", req.URL.String(), err)
+		}
+		resp.Header.Set("Content-Length", strconv.FormatInt(resp.ContentLength, 10))
+
+		a.AddArchivedRequest(req, resp, webpagereplay.AddModeOverwriteExisting)
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("Error editing archive: %v", err)
+	}
+
+	return writeArchive(a, outfile)
+}
+
 // compressResponse compresses resp.Body in place according to resp's Content-Encoding header.
 func compressResponse(resp *http.Response) error {
 	ce := strings.ToLower(resp.Header.Get("Content-Encoding"))
@@ -429,6 +500,16 @@ func main() {
 			Before:    checkArgs("inject", 3),
 			Action: func(c *cli.Context) error {
 				return inject(cfg, loadArchiveOrDie(c, 0), c.Args().Get(1), c.Args().Get(2))
+			},
+		},
+		&cli.Command{
+			Name:      "substitute",
+			Usage:     "Substitute string A with string B in all javascript (standalone and inline in HTML)",
+			ArgsUsage: "input_archive output_archive string_a string_b",
+			Flags:     cfg.RequestFilterFlags(),
+			Before:    checkArgs("substitute", 4),
+			Action: func(c *cli.Context) error {
+				return substitute(cfg, loadArchiveOrDie(c, 0), c.Args().Get(1), c.Args().Get(2), c.Args().Get(3))
 			},
 		},
 	}
