@@ -196,6 +196,26 @@ func edit(cfg *webpagereplay.HttpArchiveConfig, a *webpagereplay.Archive, outfil
 		if err != nil {
 			return nil, nil, fmt.Errorf("couldn't unmarshal response: %v", err)
 		}
+
+		originalContentLength := resp.ContentLength
+
+		// The user might have edited the response body, changing its length,
+		// without manually updating the Content-Length header.
+		// So we ignore resp.Body (which relies on Content-Length) and just read
+		// the rest of the file directly.
+		actualBody, err := ioutil.ReadAll(br)
+		if err != nil {
+			return nil, nil, fmt.Errorf("couldn't read actual response body: %v", err)
+		}
+		resp.Body.Close()
+		resp.Body = ioutil.NopCloser(bytes.NewReader(actualBody))
+
+		// Chunked responses have Content-Length -1 and those should be preserved.
+		if originalContentLength >= 0 {
+			resp.ContentLength = int64(len(actualBody))
+			resp.Header.Set("Content-Length", strconv.Itoa(len(actualBody)))
+		}
+
 		if cfg.DecodeResponseBody {
 			// Compress body back according to Content-Encoding
 			if err := compressResponse(resp); err != nil {
@@ -208,7 +228,12 @@ func edit(cfg *webpagereplay.HttpArchiveConfig, a *webpagereplay.Archive, outfil
 		if err != nil {
 			return nil, nil, fmt.Errorf("couldn't unmarshal response body: %v", err)
 		}
+
 		resp.Body = ioutil.NopCloser(bytes.NewReader(body))
+		if originalContentLength >= 0 {
+			resp.ContentLength = int64(len(body))
+			resp.Header.Set("Content-Length", strconv.Itoa(len(body)))
+		}
 		return req, resp, nil
 	}
 
@@ -363,6 +388,7 @@ func inject(cfg *webpagereplay.HttpArchiveConfig, a *webpagereplay.Archive, outf
 }
 
 // compressResponse compresses resp.Body in place according to resp's Content-Encoding header.
+// The caller is responsible for setting Content-Length.
 func compressResponse(resp *http.Response) error {
 	ce := strings.ToLower(resp.Header.Get("Content-Encoding"))
 	if ce == "" {
@@ -382,7 +408,6 @@ func compressResponse(resp *http.Response) error {
 		return fmt.Errorf("can't compress body to '%s' received Content-Encoding: '%s'", ce, newCE)
 	}
 	resp.Body = ioutil.NopCloser(bytes.NewReader(body))
-	resp.ContentLength = int64(len(body))
 	return nil
 }
 
