@@ -12,6 +12,7 @@ type HttpArchiveConfig struct {
 	Method, Host, FullPath                                           string
 	StatusCode                                                       int
 	LogLevel                                                         string
+	RelativeTimestamps                                               bool
 	DecodeResponseBody, SkipExisting, OverwriteExisting, InvertMatch bool
 	KeepDuplicates                                                   bool
 }
@@ -47,6 +48,11 @@ func (cfg *HttpArchiveConfig) RequestFilterFlags() []cli.Flag {
 			Value:       "INFO",
 			Usage:       "Logging level (DEBUG, INFO, WARN, ERROR).",
 			Destination: &cfg.LogLevel,
+		},
+		&cli.BoolFlag{
+			Name:        "relative_timestamps",
+			Usage:       "Display relative timestamps in logs.",
+			Destination: &cfg.RelativeTimestamps,
 		},
 	}
 }

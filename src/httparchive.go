@@ -563,6 +563,7 @@ func main() {
 		if err := webpagereplay.SetLogLevel(cfg.LogLevel); err != nil {
 			return fmt.Errorf("Invalid log_level (%s): %v", cfg.LogLevel, err)
 		}
+		webpagereplay.SetRelativeTimestamps(cfg.RelativeTimestamps)
 		return nil
 	}
 	err := app.Run(os.Args)
