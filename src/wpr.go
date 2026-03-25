@@ -63,6 +63,7 @@ type CommonConfig struct {
 	host                                     string
 	httpPort, httpsPort, httpSecureProxyPort int
 	logLevel                                 string
+	relativeTimestamps                       bool
 	certConfig                               CertConfig
 	injectScripts                            string
 	paramToIgnoreInURLPath                   string
@@ -149,6 +150,11 @@ func (common *CommonConfig) Flags() []cli.Flag {
 			Usage:       "Logging level (DEBUG, INFO, WARN, ERROR).",
 			Destination: &common.logLevel,
 		},
+		&cli.BoolFlag{
+			Name:        "relative-timestamps",
+			Usage:       "Display relative timestamps in logs.",
+			Destination: &common.relativeTimestamps,
+		},
 		&cli.StringFlag{
 			Name:  "inject_scripts",
 			Value: "deterministic.js",
@@ -216,6 +222,7 @@ func (common *CommonConfig) CheckArgsAndSetLogLevel(c *cli.Context) error {
 	if err := webpagereplay.SetLogLevel(common.logLevel); err != nil {
 		return fmt.Errorf("Invalid log_level (%s): %v", common.logLevel, err)
 	}
+	webpagereplay.SetRelativeTimestamps(common.relativeTimestamps)
 
 	if c.IsSet("constant-math-random-result") {
 		val := common.constantMathRandomResult
