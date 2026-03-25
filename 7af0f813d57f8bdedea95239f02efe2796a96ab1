@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "791342fe_acd9a333",
+        "filename": "DEPS",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-25T12:26:00Z",
+      "side": 1,
+      "message": "Sorry, I think this was necessary with the old way of doing things, but not with `git_dependencies \u003d \u0027SYNC\u0027`?",
+      "parentUuid": "e94676f8_5908b985",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 49
+      },
+      "revId": "7af0f813d57f8bdedea95239f02efe2796a96ab1",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b21ee0f9_e451c591",
         "filename": "DEPS",
         "patchSetId": 4
@@ -109,6 +133,30 @@
       "side": 1,
       "message": "Also, this is all verbatim from chromium DEPS\nhttps://source.chromium.org/chromium/chromium/src/+/main:DEPS;l\u003d19;drc\u003d6c23d114b68cc363ad0a0a75a0c3cee3147b203f",
       "parentUuid": "a8f25862_89e666c5",
+      "range": {
+        "startLine": 19,
+        "startChar": 3,
+        "endLine": 19,
+        "endChar": 26
+      },
+      "revId": "7af0f813d57f8bdedea95239f02efe2796a96ab1",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5f6efce7_0f5d98e8",
+        "filename": "DEPS",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-25T12:26:00Z",
+      "side": 1,
+      "message": "Strange that they use a non-standard git command, but it is what it is.",
+      "parentUuid": "10b92863_ee2f2fff",
       "range": {
         "startLine": 19,
         "startChar": 3,
