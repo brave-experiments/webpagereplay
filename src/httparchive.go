@@ -141,10 +141,10 @@ func trim(cfg *webpagereplay.HttpArchiveConfig, a *webpagereplay.Archive, outfil
 }
 
 func edit(cfg *webpagereplay.HttpArchiveConfig, a *webpagereplay.Archive, outfile string) error {
-	editor := os.Getenv("EDITOR")
-	if editor == "" {
-		fmt.Printf("Warning: EDITOR not specified, using default.\n")
-		editor = "vi"
+	editorFields := strings.Fields(os.Getenv("EDITOR"))
+	if len(editorFields) == 0 {
+		fmt.Printf("Warning: EDITOR not specified or invalid, using default.\n")
+		editorFields = []string{"vi"}
 	}
 
 	marshalForEdit := func(w io.Writer, req *http.Request, resp *http.Response) error {
@@ -234,12 +234,12 @@ func edit(cfg *webpagereplay.HttpArchiveConfig, a *webpagereplay.Archive, outfil
 				return nil, nil, err
 			}
 			// Edit this file.
-			cmd := exec.Command(editor, tmpname)
+			cmd := exec.Command(editorFields[0], append(editorFields[1:], tmpname)...)
 			cmd.Stdin = os.Stdin
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
 			if err := cmd.Run(); err != nil {
-				return nil, nil, fmt.Errorf("Error running %s %s: %v", editor, tmpname, err)
+				return nil, nil, fmt.Errorf("Error running %s %s: %v", editorFields, tmpname, err)
 			}
 			// Reload.
 			tmpf, err = os.Open(tmpname)
