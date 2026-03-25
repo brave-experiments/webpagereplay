@@ -24,6 +24,30 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e94676f8_5908b985",
+        "filename": "DEPS",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-25T12:12:02Z",
+      "side": 1,
+      "message": "Discussed offline",
+      "parentUuid": "443b4688_6a918907",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 49
+      },
+      "revId": "7af0f813d57f8bdedea95239f02efe2796a96ab1",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b21ee0f9_e451c591",
@@ -37,6 +61,30 @@
       "writtenOn": "2026-03-23T11:12:52Z",
       "side": 1,
       "message": "IIANM, this is not a standard git command (see [here](https://git-scm.com/docs)). FYI that this would fail the second time a user runs it on their machine unless they manually erase the branch from last time. You could suggest `git branch -f` to force the old branch to the new commit if it exists. Otherwise, to the best of my knowledge, the current command is equivalent to `git branch`.",
+      "range": {
+        "startLine": 19,
+        "startChar": 3,
+        "endLine": 19,
+        "endChar": 26
+      },
+      "revId": "7af0f813d57f8bdedea95239f02efe2796a96ab1",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8f25862_89e666c5",
+        "filename": "DEPS",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-25T12:12:02Z",
+      "side": 1,
+      "message": "crrev.com/c/7697921 -\u003e now it\u0027s fine because depot_tools ships with `git new-branch`",
+      "parentUuid": "b21ee0f9_e451c591",
       "range": {
         "startLine": 19,
         "startChar": 3,
