@@ -11,6 +11,7 @@ import (
 type HttpArchiveConfig struct {
 	Method, Host, FullPath                                           string
 	StatusCode                                                       int
+	LogLevel                                                         string
 	DecodeResponseBody, SkipExisting, OverwriteExisting, InvertMatch bool
 	KeepDuplicates                                                   bool
 }
@@ -40,6 +41,12 @@ func (cfg *HttpArchiveConfig) RequestFilterFlags() []cli.Flag {
 			Value:       0,
 			Usage:       "Only include URLs matching this response status code.",
 			Destination: &cfg.StatusCode,
+		},
+		&cli.StringFlag{
+			Name:        "log-level",
+			Value:       "INFO",
+			Usage:       "Logging level (DEBUG, INFO, WARN, ERROR).",
+			Destination: &cfg.LogLevel,
 		},
 	}
 }
