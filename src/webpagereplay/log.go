@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"os"
+	"time"
 )
 
 // Logger is a simple logging interface that can be easily swapped.
@@ -45,14 +46,26 @@ func (l *slogLogger) WithContext(ctx context.Context) Logger {
 }
 
 var (
+	loggingStartTime = time.Now()
+	levelVar         = &slog.LevelVar{} // Default is Info
+
 	defaultLogger = &slogLogger{
-		logger: slog.New(makeHandler(&slog.LevelVar{})),
+		logger: slog.New(makeHandler(levelVar)),
 	}
 )
 
 func makeHandler(level slog.Leveler) slog.Handler {
 	return slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
 		Level: level,
+		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+			if a.Key == slog.TimeKey {
+				// Display the delta since logging started in MM:SS.mmm format.
+				d := a.Value.Time().Sub(loggingStartTime)
+				return slog.String(a.Key,
+					time.Unix(0, 0).UTC().Add(d).Format("04:05.000"))
+			}
+			return a
+		},
 	})
 }
 
