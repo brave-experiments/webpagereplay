@@ -12,9 +12,11 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -22,7 +24,7 @@ import (
 	"go.chromium.org/webpagereplay/src/webpagereplay"
 )
 
-const usage = "%s [ls|cat|edit|merge|add|add-all|trim|inject|" +
+const usage = "%s [ls|cat|edit|merge|add|add-all|trim|inject|substitute|" +
 	"read-metadata|write-metadata|edit-metadata] [options] archive_file " +
 	"[output_file] [url]"
 
@@ -387,6 +389,133 @@ func inject(cfg *webpagereplay.HttpArchiveConfig, a *webpagereplay.Archive, outf
 	return writeArchive(a, outfile)
 }
 
+func unmarshal(ar *webpagereplay.ArchivedRequest, scheme string) (*http.Request, *http.Response, error) {
+	req, err := http.ReadRequest(bufio.NewReader(bytes.NewReader(ar.SerializedRequest)))
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if req.URL.Host == "" {
+		req.URL.Host = req.Host
+		req.URL.Scheme = scheme
+	}
+
+	resp, err := http.ReadResponse(bufio.NewReader(bytes.NewReader(ar.SerializedResponse)), req)
+	if err != nil {
+		if req.Body != nil {
+			req.Body.Close()
+		}
+		return nil, nil, err
+	}
+	return req, resp, nil
+}
+
+func substitute(cfg *webpagereplay.HttpArchiveConfig, a *webpagereplay.Archive, outfile string, oldString string, newString string) error {
+	oldBytes := []byte(oldString)
+	newBytes := []byte(newString)
+	scriptBlockRE := regexp.MustCompile(`(?is)(<script[^>]*>)(.*?)(</script>)`)
+
+	newA := &webpagereplay.Archive{
+		Requests:                             make(map[string]map[string][]*webpagereplay.ArchivedRequest),
+		Certs:                                a.Certs,
+		NegotiatedProtocol:                   a.NegotiatedProtocol,
+		DeterministicTimeSeedMs:              a.DeterministicTimeSeedMs,
+		ServeResponseInChronologicalSequence: a.ServeResponseInChronologicalSequence,
+		CurrentSessionId:                     a.CurrentSessionId,
+		DisableFuzzyURLMatching:              a.DisableFuzzyURLMatching,
+	}
+
+	for host, urlmap := range a.Requests {
+		newA.Requests[host] = make(map[string][]*webpagereplay.ArchivedRequest)
+		for urlString, requests := range urlmap {
+			fullURL, _ := url.Parse(urlString)
+			for _, ar := range requests {
+				req, resp, err := unmarshal(ar, fullURL.Scheme)
+				if err != nil {
+					newA.Requests[host][urlString] = append(newA.Requests[host][urlString], ar)
+					continue
+				}
+
+				if !requestEnabled(cfg, req, resp) {
+					newA.Requests[host][urlString] = append(newA.Requests[host][urlString], ar)
+					continue
+				}
+
+				contentType := strings.ToLower(resp.Header.Get("Content-Type"))
+				isHTML := strings.HasPrefix(contentType, "text/html")
+				isJS := strings.HasPrefix(contentType, "application/javascript") || strings.HasPrefix(contentType, "text/javascript") || strings.HasPrefix(contentType, "application/x-javascript")
+
+				if !isHTML && !isJS {
+					newA.Requests[host][urlString] = append(newA.Requests[host][urlString], ar)
+					continue
+				}
+
+				if err := webpagereplay.DecompressResponse(resp); err != nil {
+					newA.Requests[host][urlString] = append(newA.Requests[host][urlString], ar)
+					continue
+				}
+
+				body, err := ioutil.ReadAll(resp.Body)
+				if err != nil {
+					newA.Requests[host][urlString] = append(newA.Requests[host][urlString], ar)
+					continue
+				}
+				resp.Body.Close()
+
+				var newBody []byte
+				modified := false
+
+				if isJS {
+					newBody = bytes.Replace(body, oldBytes, newBytes, -1)
+					if bytes.Contains(body, oldBytes) {
+						modified = true
+					}
+				} else if isHTML {
+					newBody = scriptBlockRE.ReplaceAllFunc(body, func(match []byte) []byte {
+						submatches := scriptBlockRE.FindSubmatch(match)
+						if len(submatches) == 4 {
+							replacedContent := bytes.Replace(submatches[2], oldBytes, newBytes, -1)
+							var buf bytes.Buffer
+							buf.Write(submatches[1])
+							buf.Write(replacedContent)
+							buf.Write(submatches[3])
+							return buf.Bytes()
+						}
+						return match
+					})
+					if !bytes.Equal(body, newBody) {
+						modified = true
+					}
+				}
+
+				if !modified {
+					newA.Requests[host][urlString] = append(newA.Requests[host][urlString], ar)
+					continue
+				}
+
+				resp.Body = ioutil.NopCloser(bytes.NewReader(newBody))
+				resp.ContentLength = int64(len(newBody))
+				resp.Header.Set("Content-Length", strconv.Itoa(len(newBody)))
+
+				if err := compressResponse(resp); err != nil {
+					resp.Body = ioutil.NopCloser(bytes.NewReader(newBody))
+					resp.ContentLength = int64(len(newBody))
+					resp.Header.Del("Content-Encoding")
+					resp.Header.Set("Content-Length", strconv.FormatInt(resp.ContentLength, 10))
+				} else {
+					resp.Header.Set("Content-Length", strconv.FormatInt(resp.ContentLength, 10))
+				}
+
+				if err := newA.AddArchivedRequest(req, resp, webpagereplay.AddModeAppend); err != nil {
+					fmt.Printf("Error adding request for %s: %v\n", req.URL.String(), err)
+				}
+			}
+		}
+	}
+
+	return writeArchive(newA, outfile)
+}
+
 // compressResponse compresses resp.Body in place according to resp's Content-Encoding header.
 // The caller is responsible for setting Content-Length.
 func compressResponse(resp *http.Response) error {
@@ -408,6 +537,7 @@ func compressResponse(resp *http.Response) error {
 		return fmt.Errorf("can't compress body to '%s' received Content-Encoding: '%s'", ce, newCE)
 	}
 	resp.Body = ioutil.NopCloser(bytes.NewReader(body))
+	resp.ContentLength = int64(len(body))
 	return nil
 }
 
@@ -549,6 +679,16 @@ func main() {
 			Before:    checkArgs(2),
 			Action: func(c *cli.Context) error {
 				return editMetadata(loadArchiveOrDie(c, 0), c.Args().Get(1))
+			},
+		},
+		&cli.Command{
+			Name:      "substitute",
+			Usage:     "Substitute string A with string B in all javascript (standalone and inline in HTML)",
+			ArgsUsage: "input_archive output_archive string_a string_b",
+			Flags:     cfg.RequestFilterFlags(),
+			Before:    checkArgs(4),
+			Action: func(c *cli.Context) error {
+				return substitute(cfg, loadArchiveOrDie(c, 0), c.Args().Get(1), c.Args().Get(2), c.Args().Get(3))
 			},
 		},
 	}
