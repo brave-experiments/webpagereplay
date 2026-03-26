@@ -38,6 +38,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "56676497_1f39b25c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-26T15:16:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2e079ec9_39f7f341",
+      "revId": "f32f859edb4a29ff512956a0af283fdd6363ad48",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "a02cd628_1f33acca",
         "filename": "src/httparchive.go",
         "patchSetId": 1
@@ -99,6 +117,54 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac2bcef6_03ada96c",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-26T15:16:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2ac2256d_cd04fcc1",
+      "range": {
+        "startLine": 354,
+        "startChar": 0,
+        "endLine": 355,
+        "endChar": 49
+      },
+      "revId": "f32f859edb4a29ff512956a0af283fdd6363ad48",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "199e7039_4479ff59",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-26T15:16:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4043e181_a7173383",
+      "range": {
+        "startLine": 355,
+        "startChar": 43,
+        "endLine": 355,
+        "endChar": 47
+      },
+      "revId": "f32f859edb4a29ff512956a0af283fdd6363ad48",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8c59edc0_d7ce07c7",
@@ -112,6 +178,24 @@
       "writtenOn": "2026-03-26T11:57:04Z",
       "side": 1,
       "message": "Needs fix, it\u0027s still using the % format, which doesn\u0027t work with the new logger https://go.dev/play/p/OcDGnGsJ8Ok",
+      "revId": "f32f859edb4a29ff512956a0af283fdd6363ad48",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f0763aa2_84810161",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 584,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-26T15:16:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8c59edc0_d7ce07c7",
       "revId": "f32f859edb4a29ff512956a0af283fdd6363ad48",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
@@ -133,6 +217,24 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "72b81b56_ec9bad2a",
+        "filename": "src/webpagereplay/log.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-26T15:16:34Z",
+      "side": 1,
+      "message": "It could, but using a function offers a few advantages.\n- A variable can be reassigned; we avoid this (minor) risk.\n- It\u0027s more consistent with the idiom of `slog.Default()`.",
+      "parentUuid": "513c2fdd_aa78cc2d",
+      "revId": "f32f859edb4a29ff512956a0af283fdd6363ad48",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a688649e_6b984f1a",
@@ -150,6 +252,24 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "34cdda44_d390f00c",
+        "filename": "src/webpagereplay/proxy.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-26T15:16:34Z",
+      "side": 1,
+      "message": "That\u0027d be a change of behaviour, so let\u0027s discuss it as a potential follow-up instead. As I have not yet played around with the logs, I don\u0027t yet have an opinion as to whether I want to preserve `--quiet_mode` at all; if not, then no need to have NullLogger *nor* a dedicated new log level.",
+      "parentUuid": "a688649e_6b984f1a",
+      "revId": "f32f859edb4a29ff512956a0af283fdd6363ad48",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "00fec5ab_515a8299",
@@ -163,6 +283,30 @@
       "writtenOn": "2026-03-26T11:57:04Z",
       "side": 1,
       "message": "\"ServeHTTP\" is still relevant here IMO",
+      "range": {
+        "startLine": 27,
+        "startChar": 18,
+        "endLine": 27,
+        "endChar": 19
+      },
+      "revId": "f32f859edb4a29ff512956a0af283fdd6363ad48",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "04e73bdb_9b055a52",
+        "filename": "src/webpagereplay/proxy.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-26T15:16:34Z",
+      "side": 1,
+      "message": "Indeed it is. This was unintentional. Thanks for catching.",
+      "parentUuid": "00fec5ab_515a8299",
       "range": {
         "startLine": 27,
         "startChar": 18,
