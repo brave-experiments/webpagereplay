@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7e67e3aa_0e9e25aa",
+        "filename": "src/webpagereplay/httparchive_config.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-26T16:50:44Z",
+      "side": 1,
+      "message": "I\u0027m assuming the user of dash here is not accidental, and rather that the choice doesn\u0027t matter because you\u0027ll implement the proposal we discussed",
+      "range": {
+        "startLine": 53,
+        "startChar": 25,
+        "endLine": 53,
+        "endChar": 26
+      },
+      "revId": "8556af92434a1c4c262e47e61b1e295447300c34",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "539b70ed_d3f7b7f7",
+        "filename": "src/wpr.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-26T16:50:44Z",
+      "side": 1,
+      "message": "Not exhaustive anymore. Oh well, good enough",
+      "range": {
+        "startLine": 211,
+        "startChar": 40,
+        "endLine": 211,
+        "endChar": 51
+      },
+      "revId": "8556af92434a1c4c262e47e61b1e295447300c34",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
