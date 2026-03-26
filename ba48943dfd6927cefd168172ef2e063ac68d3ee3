@@ -24,6 +24,30 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "85dc570a_6e7c8975",
+        "filename": "src/httparchive.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-26T16:19:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cbf3a278_9e978cc0",
+      "range": {
+        "startLine": 135,
+        "startChar": 9,
+        "endLine": 135,
+        "endChar": 13
+      },
+      "revId": "ba48943dfd6927cefd168172ef2e063ac68d3ee3",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1ad35d9a_422466df",
@@ -37,6 +61,24 @@
       "writtenOn": "2026-03-26T15:34:11Z",
       "side": 1,
       "message": "nit: Should we keep this as Printf? It\u0027s something that should still be printed even in quiet mode.",
+      "revId": "ba48943dfd6927cefd168172ef2e063ac68d3ee3",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "adecfbdf_f8108d18",
+        "filename": "src/wpr.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 547,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-26T16:19:04Z",
+      "side": 1,
+      "message": "Done (and changed from log to fmt).",
+      "parentUuid": "1ad35d9a_422466df",
       "revId": "ba48943dfd6927cefd168172ef2e063ac68d3ee3",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }

@@ -24,6 +24,30 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ebd6159c_9b7d870f",
+        "filename": "src/webpagereplay/httparchive_config.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-26T16:19:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4a843824_4aeef332",
+      "range": {
+        "startLine": 46,
+        "startChar": 20,
+        "endLine": 46,
+        "endChar": 21
+      },
+      "revId": "3cf2bff32d9022e787e2a386e8c789616bb84f45",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e4242402_661e5924",
@@ -60,6 +84,48 @@
       "writtenOn": "2026-03-26T16:01:20Z",
       "side": 1,
       "message": "I believe you\u0027re aware but just in case: the placement choice here has subtle consequences. --log_level support is added for `wpr record` and `wpr replay` but not `wpr installroot` or `wpr removeroot`. The last 2 use CertConfig, which does not reuse CommonConfig (the \"Common\" in  `CommonConfig` is quite misleading in that sense...)\n\nThis is even reflected in the CheckArgs modifications. There are 3 CheckArgs methods in this file:\n1. for CommonConfig -\u003e you added a SetLogLevel() call\n2. for RecordCommand (L375) -\u003e it calls (1), so it calls SetLogLevel()\n3. for CertConfig (L197) -\u003e it does not call SetLogLevel()\n\nNot having --log_level for installroot and removeroot is probably fine, since:\na) the default log level is INFO, so it\u0027s not like we\u0027re omitting any useful information from the user\nb) those 2 commands are short-lived anyways\n\nOne request I have is that you rename the (1) and (2) to CheckArgsAndSetLogLevel(), to reflect they have a side-effect now",
+      "revId": "3cf2bff32d9022e787e2a386e8c789616bb84f45",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0555c00d_f19d47a1",
+        "filename": "src/wpr.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-26T16:19:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cf712372_894cf7e2",
+      "revId": "3cf2bff32d9022e787e2a386e8c789616bb84f45",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2f762bef_c7786672",
+        "filename": "src/wpr.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-26T16:19:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e4242402_661e5924",
+      "range": {
+        "startLine": 147,
+        "startChar": 20,
+        "endLine": 147,
+        "endChar": 21
+      },
       "revId": "3cf2bff32d9022e787e2a386e8c789616bb84f45",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
