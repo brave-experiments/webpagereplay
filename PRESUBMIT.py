@@ -46,14 +46,34 @@ def CheckGoTests(input_api, output_api):
     cmd_name = 'WebPageReplay go tests'
     if input_api.verbose:
         print(f'Running {cmd_name}')
-    test_cmd = input_api.Command(
-        name=cmd_name,
-        cmd=['go', 'test', './webpagereplay'],
-        kwargs={
-            'cwd': str(pathlib.Path(input_api.PresubmitLocalPath()) / 'src')
-        },
-        message=output_api.PresubmitError)
-    return input_api.RunTests([test_cmd])
+    results = []
+    results.extend(
+        input_api.RunTests([
+            input_api.Command(
+                name=cmd_name,
+                cmd=['go', 'test', './webpagereplay'],
+                kwargs={
+                    'cwd':
+                    str(pathlib.Path(input_api.PresubmitLocalPath()) / 'src')
+                },
+                message=output_api.PresubmitError)
+        ]))
+    results.extend(
+        input_api.RunTests([
+            input_api.Command(
+                name='wpr.go tests',
+                cmd=['go', 'test', 'wpr.go', 'wpr_test.go'],
+                kwargs={
+                    'cwd':
+                    str(pathlib.Path(input_api.PresubmitLocalPath()) / 'src')
+                },
+                message=output_api.PresubmitError)
+        ]))
+    return results
+
+
+def CheckChangeOnUpload(input_api, output_api):
+    return CheckGoTests(input_api, output_api)
 
 
 def CheckPrebuiltBinaryUpdated(input_api, output_api):
