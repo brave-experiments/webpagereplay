@@ -60,6 +60,7 @@ func TestCommonConfig_CheckArgs(t *testing.T) {
 			common := &CommonConfig{
 				constantMathRandomResult:  val,
 				httpPort:                  8080,
+				logLevel:                  "INFO",
 				skipCertLoadingForTesting: true,
 			}
 
@@ -76,7 +77,7 @@ func TestCommonConfig_CheckArgs(t *testing.T) {
 			flagSet.Parse(args)
 			c := cli.NewContext(nil, flagSet, nil)
 
-			err := common.CheckArgs(c)
+			err := common.CheckArgsAndSetLogLevel(c)
 			if (err == nil) != tt.expectSuccess {
 				t.Errorf("CheckArgs() error = %v, expectSuccess %v",
 					err, tt.expectSuccess)
