@@ -18,6 +18,24 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "2e079ec9_39f7f341",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-26T12:10:31Z",
+      "side": 1,
+      "message": "Also, depending on what the default log level is now, this patch might be changing the amount of messages that WPR shows by default. So please mention that too",
+      "parentUuid": "a6a58481_1d91ea03",
+      "revId": "f32f859edb4a29ff512956a0af283fdd6363ad48",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "a02cd628_1f33acca",
