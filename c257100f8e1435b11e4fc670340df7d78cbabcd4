@@ -70,6 +70,24 @@
       "parentUuid": "23c0ddc3_ee0990d4",
       "revId": "c257100f8e1435b11e4fc670340df7d78cbabcd4",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e02728df_e9d7ffab",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-26T16:34:17Z",
+      "side": 1,
+      "message": "Following OOB discussion, we decided to keep the old behaviour as the default.",
+      "parentUuid": "3ffb83d4_0b4123e7",
+      "revId": "c257100f8e1435b11e4fc670340df7d78cbabcd4",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
