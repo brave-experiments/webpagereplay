@@ -34,6 +34,24 @@
       "parentUuid": "c441dc3a_9aeaecd6",
       "revId": "c257100f8e1435b11e4fc670340df7d78cbabcd4",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "23c0ddc3_ee0990d4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1328067
+      },
+      "writtenOn": "2026-03-26T14:08:01Z",
+      "side": 1,
+      "message": "What\u0027s the use case for the relative timestamp?",
+      "parentUuid": "fb10e7cb_96e22cd1",
+      "revId": "c257100f8e1435b11e4fc670340df7d78cbabcd4",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
