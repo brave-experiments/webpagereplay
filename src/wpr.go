@@ -104,13 +104,13 @@ type RootCACommand struct {
 func (certCfg *CertConfig) Flags() []cli.Flag {
 	return []cli.Flag{
 		&cli.StringFlag{
-			Name:        "https_cert_file",
+			Name:        "https-cert-file",
 			Value:       "",
 			Usage:       "File containing 1 or more comma separated PEM-encoded X509 certificates to use with SSL.",
 			Destination: &certCfg.certFile,
 		},
 		&cli.StringFlag{
-			Name:        "https_key_file",
+			Name:        "https-key-file",
 			Value:       "",
 			Usage:       "File containing 1 or more comma separated PEM-encoded private keys to use with SSL.",
 			Destination: &certCfg.keyFile,
@@ -127,36 +127,36 @@ func (common *CommonConfig) Flags() []cli.Flag {
 			Destination: &common.host,
 		},
 		&cli.IntFlag{
-			Name:        "http_port",
+			Name:        "http-port",
 			Value:       -1,
 			Usage:       "Port number to listen on for HTTP requests, 0 to use any port, or -1 to disable.",
 			Destination: &common.httpPort,
 		},
 		&cli.IntFlag{
-			Name:        "https_port",
+			Name:        "https-port",
 			Value:       -1,
 			Usage:       "Port number to listen on for HTTPS requests, 0 to use any port, or -1 to disable.",
 			Destination: &common.httpsPort,
 		},
 		&cli.IntFlag{
-			Name:        "https_to_http_port",
+			Name:        "https-to-http-port",
 			Value:       -1,
 			Usage:       "Port number to listen on for HTTP proxy requests over an HTTPS connection, 0 to use any port, or -1 to disable.",
 			Destination: &common.httpSecureProxyPort,
 		},
 		&cli.StringFlag{
-			Name:        "log_level",
+			Name:        "log-level",
 			Value:       "INFO",
 			Usage:       "Logging level (DEBUG, INFO, WARN, ERROR).",
 			Destination: &common.logLevel,
 		},
 		&cli.BoolFlag{
-			Name:        "relative_timestamps",
+			Name:        "relative-timestamps",
 			Usage:       "Display relative timestamps in logs.",
 			Destination: &common.relativeTimestamps,
 		},
 		&cli.StringFlag{
-			Name:  "inject_scripts",
+			Name:  "inject-scripts",
 			Value: "deterministic.js",
 			Usage: "A comma separated list of JavaScript sources to inject in all pages. " +
 				"By default a script is injected that eliminates sources of entropy " +
@@ -176,7 +176,7 @@ func (common *CommonConfig) Flags() []cli.Flag {
 			Destination: &common.paramToIgnoreInURLPath,
 		},
 		&cli.BoolFlag{
-			Name: "no_archive_certificates",
+			Name: "no-archive-certificates",
 			Usage: "By default, WPR stores certificates in the archive during " +
 				"recording (minted from the root ones) and reads them during replay " +
 				"Such certificates will expire eventually, so this setup is only " +
@@ -198,6 +198,10 @@ func (common *CommonConfig) Flags() []cli.Flag {
 			Destination: &common.constantMathRandomResult,
 		},
 	)
+}
+
+func isSet(c *cli.Context, name string) bool {
+	return c.IsSet(name) || c.IsSet(strings.ReplaceAll(name, "-", "_"))
 }
 
 func (certCfg *CertConfig) CheckArgs(c *cli.Context) error {
@@ -224,7 +228,7 @@ func (common *CommonConfig) CheckArgsAndSetLogLevel(c *cli.Context) error {
 	}
 	webpagereplay.SetRelativeTimestamps(common.relativeTimestamps)
 
-	if c.IsSet("constant-math-random-result") {
+	if isSet(c, "constant-math-random-result") {
 		val := common.constantMathRandomResult
 		if math.IsNaN(val) || math.IsInf(val, 0) || val < 0.0 || val >= 1.0 {
 			return fmt.Errorf("Invalid value (%v) for the flag --%v. "+
@@ -266,7 +270,7 @@ func (common *CommonConfig) ProcessInjectedScriptsForRecording(c *cli.Context,
 	archive.DeterministicTimeSeedMs = 1000 * time.Now().Unix()
 
 	// Determine the constant Math.random() result, if any.
-	if c.IsSet("constant-math-random-result") {
+	if isSet(c, "constant-math-random-result") {
 		archive.ConstantMathRandomResult = &common.constantMathRandomResult
 	}
 
@@ -286,7 +290,7 @@ func (common *CommonConfig) ProcessInjectedScriptsForReplay(c *cli.Context,
 	}
 
 	var constantMathRandomResult *float64 = archive.ConstantMathRandomResult
-	if c.IsSet("constant-math-random-result") {
+	if isSet(c, "constant-math-random-result") {
 		flagValue := &common.constantMathRandomResult
 
 		// Warn if archive contains a value that differs what the user specifies.
@@ -300,8 +304,8 @@ func (common *CommonConfig) ProcessInjectedScriptsForReplay(c *cli.Context,
 		constantMathRandomResult = flagValue
 	}
 
-	// Replay from archive (unless --inject_scripts specified).
-	if !c.IsSet("inject_scripts") && len(archive.InjectedScripts) > 0 {
+	// Replay from archive (unless --inject-scripts specified).
+	if !isSet(c, "inject-scripts") && len(archive.InjectedScripts) > 0 {
 		for name, contents := range archive.InjectedScripts {
 			replacements := getReplacements(name, timeSeedMs, constantMathRandomResult)
 			if err := common.addScriptInjector([]byte(contents), name, replacements); err != nil {
@@ -371,7 +375,7 @@ func (common *CommonConfig) addScriptInjector(script []byte, scriptFile string, 
 func (r *RecordCommand) Flags() []cli.Flag {
 	return append(r.common.Flags(),
 		&cli.BoolFlag{
-			Name: "enable_experimental_timed_chunk",
+			Name: "enable-experimental-timed-chunk",
 			Usage: "When specified, record the precise timings of receiving " +
 				"response stream chunks.",
 			Destination: &r.enableExperimentalTimedChunk,
@@ -396,13 +400,13 @@ func (r *RecordCommand) CheckArgsAndSetLogLevel(c *cli.Context) error {
 func (r *ReplayCommand) Flags() []cli.Flag {
 	return append(r.common.Flags(),
 		&cli.StringFlag{
-			Name:        "rules_file",
+			Name:        "rules-file",
 			Value:       "",
 			Usage:       "File containing rules to apply to responses during replay",
 			Destination: &r.rulesFile,
 		},
 		&cli.BoolFlag{
-			Name: "serve_response_in_chronological_sequence",
+			Name: "serve-response-in-chronological-sequence",
 			Usage: "When an incoming request matches multiple recorded " +
 				"responses, serve response in chronological sequence. " +
 				"I.e. wpr responds to the first request with the first " +
@@ -411,43 +415,45 @@ func (r *ReplayCommand) Flags() []cli.Flag {
 			Destination: &r.serveResponseInChronologicalSequence,
 		},
 		&cli.BoolFlag{
-			Name:        "disable_fuzzy_url_matching",
+			Name:        "disable-fuzzy-url-matching",
 			Usage:       "When doing playback, require URLs to match exactly.",
 			Destination: &r.disableFuzzyURLMatching,
 		},
 		&cli.BoolFlag{
-			Name: "quiet_mode",
+			Name: "quiet-mode",
 			Usage: "quiets the logging output by not logging the " +
 				"ServeHTTP url call and responses",
 			Destination: &r.quietMode,
-		})
+		},
+	)
 }
 
 func (r *RootCACommand) Flags() []cli.Flag {
 	return append(r.certConfig.Flags(),
 		&cli.StringFlag{
-			Name:        "android_device_id",
+			Name:        "android-device-id",
 			Value:       "",
 			Usage:       "Device id of an android device. Only relevant for Android",
 			Destination: &r.installer.AndroidDeviceId,
 		},
 		&cli.StringFlag{
-			Name:        "adb_binary_path",
+			Name:        "adb-binary-path",
 			Value:       "adb",
 			Usage:       "Path to adb binary. Only relevant for Android",
 			Destination: &r.installer.AdbBinaryPath,
 		},
 		// Most desktop machines Google engineers use come with certutil installed.
-		// In the chromium lab, desktop bots do not have certutil. Instead, desktop bots
-		// deploy certutil binaries to <chromium src>/third_party/nss/certutil.
+		// In the chromium lab, desktop bots do not have certutil. Instead, desktop
+		// bots deploy certutil binaries to <chromium src>/third_party/nss/certutil.
 		// To accommodate chromium bots, the following flag accepts a custom path to
 		// certutil. Otherwise WPR assumes that certutil resides in the PATH.
 		&cli.StringFlag{
-			Name:        "certutil_path",
+			Name:        "certutil-path",
 			Value:       "certutil",
 			Usage:       "Path to Network Security Services (NSS)'s certutil tool.",
 			Destination: &r.installer.CertUtilBinaryPath,
-		})
+		},
+	)
 }
 
 func getListener(host string, port int) (net.Listener, error) {
@@ -724,6 +730,9 @@ func main() {
 
 	app := cli.NewApp()
 	app.Commands = []*cli.Command{&record.cmd, &replay.cmd, &installroot.cmd, &removeroot.cmd}
+	for _, cmd := range app.Commands {
+		webpagereplay.AddLegacyAliases(&cmd.Flags)
+	}
 	app.Usage = "Web Page Replay"
 	app.UsageText = fmt.Sprintf(longUsage, progName, progName)
 	app.HideVersion = true

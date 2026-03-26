@@ -480,7 +480,8 @@ func main() {
 			Flags:     cfg.MergeFlags(),
 			Before:    checkArgs(3),
 			Action: func(c *cli.Context) error {
-				return merge(cfg, loadArchiveOrDie(c, 0), loadArchiveOrDie(c, 1), c.Args().Get(2), c.Bool("keep-duplicates"))
+				return merge(cfg, loadArchiveOrDie(c, 0), loadArchiveOrDie(c, 1),
+					c.Args().Get(2), cfg.KeepDuplicates)
 			},
 		},
 		&cli.Command{
@@ -555,6 +556,9 @@ func main() {
 				return editMetadata(loadArchiveOrDie(c, 0), c.Args().Get(1))
 			},
 		},
+	}
+	for _, cmd := range app.Commands {
+		webpagereplay.AddLegacyAliases(&cmd.Flags)
 	}
 	app.Usage = "HTTP Archive Utils"
 	app.UsageText = fmt.Sprintf(usage, progName)
