@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "03f89240_ddf7609b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-26T16:19:59Z",
+      "side": 1,
+      "message": "I forgot to update `scripts/binary_dependencies.json` with the last patchset. I\u0027ll get to it with the next CL.",
+      "revId": "99a9003c9cbae6edccb4ec6023294bde3b126028",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
