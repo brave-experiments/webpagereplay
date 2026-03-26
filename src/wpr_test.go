@@ -273,8 +273,8 @@ func TestProcessInjectedScriptsForReplay_DiskOverride(t *testing.T) {
 		injectScripts: scriptPath,
 	}
 	flagSet := flag.NewFlagSet("test", flag.ContinueOnError)
-	flagSet.String("inject_scripts", scriptPath, "")
-	if err := flagSet.Set("inject_scripts", scriptPath); err != nil {
+	flagSet.String("inject-scripts", scriptPath, "")
+	if err := flagSet.Set("inject-scripts", scriptPath); err != nil {
 		t.Fatalf("failed to set flag: %v", err)
 	}
 	c := cli.NewContext(nil, flagSet, nil)
