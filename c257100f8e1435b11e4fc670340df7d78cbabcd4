@@ -16,6 +16,24 @@
       "message": "TBH, I prefer it as it is now. Absolute time allows to e.g. synchronise what I see in WPR logs with traces and device logs. Can be useful when debugging.",
       "revId": "c257100f8e1435b11e4fc670340df7d78cbabcd4",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fb10e7cb_96e22cd1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-26T12:40:59Z",
+      "side": 1,
+      "message": "I\u0027ll make it controlled by a command-line flag so that you and I can both enjoy our preferred approach.\n\nLet\u0027s vote on the default, though; I personally prefer the relative timestamp. @victorvianna@google.com, please break the tie. (In the absence of a preference from Victor, I guess the status quo wins, and we\u0027ll go with Mikhail\u0027s preference.)",
+      "parentUuid": "c441dc3a_9aeaecd6",
+      "revId": "c257100f8e1435b11e4fc670340df7d78cbabcd4",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
