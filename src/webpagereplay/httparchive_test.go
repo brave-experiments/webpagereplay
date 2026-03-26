@@ -12,7 +12,8 @@ import (
 
 func TestFlags(t *testing.T) {
 	cfg := &HttpArchiveConfig{}
-	baseFlags := []string{"decode_response_body", "command", "host", "full_path", "status_code"}
+	baseFlags := []string{"decode_response_body", "command", "host", "full_path",
+		"status_code", "log_level", "relative_timestamps"}
 	addFlags := []string{"skip-existing", "overwrite-existing"}
 	trimFlags := append([]string{"invert-match"}, baseFlags...)
 
