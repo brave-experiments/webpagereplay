@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "a6a58481_1d91ea03",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-26T11:57:04Z",
+      "side": 1,
+      "message": "Please mention if passing some sort of --log-level flag now has effect on the logs, or not",
+      "revId": "f32f859edb4a29ff512956a0af283fdd6363ad48",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "a02cd628_1f33acca",
@@ -14,6 +31,126 @@
       "writtenOn": "2026-03-25T22:13:53Z",
       "side": 1,
       "message": "Kept this using Printf because its purpose it to output to stdout, rather than this being a side-effect while logging. Likewise elsewhere.",
+      "revId": "f32f859edb4a29ff512956a0af283fdd6363ad48",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2ac2256d_cd04fcc1",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-26T11:57:04Z",
+      "side": 1,
+      "message": "nit: going with \"num_matches\" and \"matches\" is clearer to me than \"matches\" and \"fuzzy_matches\" (If wasn\u0027t looking at the underlying code, I would wonder if they are different lists)",
+      "range": {
+        "startLine": 354,
+        "startChar": 0,
+        "endLine": 355,
+        "endChar": 49
+      },
+      "revId": "f32f859edb4a29ff512956a0af283fdd6363ad48",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4043e181_a7173383",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-26T11:57:04Z",
+      "side": 1,
+      "message": "joining with \\n renders incorrectly in this case https://go.dev/play/p/whpH6hmGoti, use comma",
+      "range": {
+        "startLine": 355,
+        "startChar": 43,
+        "endLine": 355,
+        "endChar": 47
+      },
+      "revId": "f32f859edb4a29ff512956a0af283fdd6363ad48",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8c59edc0_d7ce07c7",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 584,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-26T11:57:04Z",
+      "side": 1,
+      "message": "Needs fix, it\u0027s still using the % format, which doesn\u0027t work with the new logger https://go.dev/play/p/OcDGnGsJ8Ok",
+      "revId": "f32f859edb4a29ff512956a0af283fdd6363ad48",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "513c2fdd_aa78cc2d",
+        "filename": "src/webpagereplay/log.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-26T11:57:04Z",
+      "side": 1,
+      "message": "Can it be a variable instead of a function?",
+      "revId": "f32f859edb4a29ff512956a0af283fdd6363ad48",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a688649e_6b984f1a",
+        "filename": "src/webpagereplay/proxy.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-26T11:57:04Z",
+      "side": 1,
+      "message": "Do we even need this dedicated NullLogger logic? If feels that --quiet_mode should just imply something for the overall log level now, which would then be handled by Log() directly",
+      "revId": "f32f859edb4a29ff512956a0af283fdd6363ad48",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "00fec5ab_515a8299",
+        "filename": "src/webpagereplay/proxy.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-26T11:57:04Z",
+      "side": 1,
+      "message": "\"ServeHTTP\" is still relevant here IMO",
+      "range": {
+        "startLine": 27,
+        "startChar": 18,
+        "endLine": 27,
+        "endChar": 19
+      },
       "revId": "f32f859edb4a29ff512956a0af283fdd6363ad48",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
