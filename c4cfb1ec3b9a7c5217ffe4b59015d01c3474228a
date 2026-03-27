@@ -16,6 +16,24 @@
       "message": "This comment thread serves as a guard against submitting this before crrev.com/c/7705194 is landed.",
       "revId": "c4cfb1ec3b9a7c5217ffe4b59015d01c3474228a",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3bd6238c_507f3aac",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-27T15:47:06Z",
+      "side": 1,
+      "message": "Resolving.",
+      "parentUuid": "2f5246e5_66b40bb5",
+      "revId": "c4cfb1ec3b9a7c5217ffe4b59015d01c3474228a",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
