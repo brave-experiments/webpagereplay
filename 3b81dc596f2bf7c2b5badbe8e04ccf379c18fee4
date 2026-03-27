@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "85394b36_88224a63",
+        "filename": "src/webpagereplay/cli.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-27T16:44:48Z",
+      "side": 1,
+      "message": "You have asked about avoiding reflection, @victorvianna@google.com. Please feel free to make a concrete suggestion. (But let\u0027s add it as a follow-up CL anyway, so that this CL will end up a simple move of the function.)",
+      "revId": "3b81dc596f2bf7c2b5badbe8e04ccf379c18fee4",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
