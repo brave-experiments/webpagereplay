@@ -24,7 +24,7 @@ func makeLogger(req *http.Request, quietMode bool) Logger {
 	if quietMode {
 		return NullLogger()
 	}
-	return Log().With("ServeHTTP:", "url", req.URL.String())
+	return Log().With("url", req.URL.String())
 }
 
 // fixupRequestURL adds a scheme and host to req.URL.
