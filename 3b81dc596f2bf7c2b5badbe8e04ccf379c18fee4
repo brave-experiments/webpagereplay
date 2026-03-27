@@ -16,6 +16,24 @@
       "message": "You have asked about avoiding reflection, @victorvianna@google.com. Please feel free to make a concrete suggestion. (But let\u0027s add it as a follow-up CL anyway, so that this CL will end up a simple move of the function.)",
       "revId": "3b81dc596f2bf7c2b5badbe8e04ccf379c18fee4",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "40e8fe7e_e0fd4200",
+        "filename": "src/webpagereplay/cli.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-27T16:50:28Z",
+      "side": 1,
+      "message": "Here is what Gemini generated for this, btw:\n```\n// Copyright 2026 The Chromium Authors. All rights reserved.\n// Use of this source code is governed by a BSD-style license that can be\n// found in the LICENSE file.\n\npackage webpagereplay\n\nimport (\n\t\"strings\"\n\n\t\"github.com/urfave/cli/v2\"\n)\n\n// AddLegacyAliases modifies the provided slice of flags to include hidden\n// copies of any flags that contain dashes in their names, with those dashes\n// replaced by underscores. This is done for legacy reasons, as earlier\n// versions of this tool used underscores. To avoid confusion and ensure\n// a consistent user experience, this treatment is also applied to newly\n// introduced flags.\nfunc AddLegacyAliases(flags *[]cli.Flag) {\n\tn :\u003d len(*flags)\n\tfor i :\u003d 0; i \u003c n; i++ {\n\t\tf :\u003d (*flags)[i]\n\t\tnames :\u003d f.Names()\n\t\tif len(names) \u003d\u003d 0 {\n\t\t\tcontinue\n\t\t}\n\t\tname :\u003d names[0]\n\t\tlegacyName :\u003d strings.ReplaceAll(name, \"-\", \"_\")\n\t\tif legacyName \u003d\u003d name {\n\t\t\tcontinue\n\t\t}\n\n\t\tvar legacyFlag cli.Flag\n\t\tswitch v :\u003d f.(type) {\n\t\tcase *cli.StringFlag:\n\t\t\tcopy :\u003d *v\n\t\t\tcopy.Name \u003d legacyName\n\t\t\tcopy.Hidden \u003d true\n\t\t\tlegacyFlag \u003d \u0026copy\n\t\tcase *cli.IntFlag:\n\t\t\tcopy :\u003d *v\n\t\t\tcopy.Name \u003d legacyName\n\t\t\tcopy.Hidden \u003d true\n\t\t\tlegacyFlag \u003d \u0026copy\n\t\tcase *cli.BoolFlag:\n\t\t\tcopy :\u003d *v\n\t\t\tcopy.Name \u003d legacyName\n\t\t\tcopy.Hidden \u003d true\n\t\t\tlegacyFlag \u003d \u0026copy\n\t\tcase *cli.Float64Flag:\n\t\t\tcopy :\u003d *v\n\t\t\tcopy.Name \u003d legacyName\n\t\t\tcopy.Hidden \u003d true\n\t\t\tlegacyFlag \u003d \u0026copy\n\t\t}\n\n\t\tif legacyFlag !\u003d nil {\n\t\t\t*flags \u003d append(*flags, legacyFlag)\n\t\t}\n\t}\n}\n```\nI am not really a fan.",
+      "parentUuid": "85394b36_88224a63",
+      "revId": "3b81dc596f2bf7c2b5badbe8e04ccf379c18fee4",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
