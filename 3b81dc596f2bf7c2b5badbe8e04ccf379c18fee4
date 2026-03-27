@@ -34,6 +34,24 @@
       "parentUuid": "85394b36_88224a63",
       "revId": "3b81dc596f2bf7c2b5badbe8e04ccf379c18fee4",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e60c10ca_f06a5cae",
+        "filename": "src/webpagereplay/cli.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-27T17:20:52Z",
+      "side": 1,
+      "message": "Yeah, the current version is better then, thanks for checking",
+      "parentUuid": "40e8fe7e_e0fd4200",
+      "revId": "3b81dc596f2bf7c2b5badbe8e04ccf379c18fee4",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
