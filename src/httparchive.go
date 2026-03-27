@@ -415,7 +415,9 @@ func compressResponse(resp *http.Response) error {
 
 func main() {
 	progName := filepath.Base(os.Args[0])
-	cfg := &webpagereplay.HttpArchiveConfig{}
+	cfg := &webpagereplay.HttpArchiveConfig{
+		LogLevel: "INFO",
+	}
 
 	fail := func(c *cli.Context, err error) {
 		Log().Error("An error occurred", "error", err)
