@@ -16,6 +16,24 @@
       "message": "Can you please provide more context? What exactly does not work, and why? Was it http://crrev.com/c/7706635 that broke something?",
       "revId": "578816644582e1c216e9219e39befc22b95803e6",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b6988a98_883fc93a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-27T13:53:36Z",
+      "side": 1,
+      "message": "When you commit in this repo, you normally use a hook to insert `Change-Id: \u003cid\u003e` into your commit message. You have likely followed at some point an instruction to set it up using the following command:\n```\nf\u003d`git rev-parse --git-dir`/hooks/commit-msg ; mkdir -p $(dirname $f) ; curl -Lo $f https://gerrit-review.googlesource.com/tools/hooks/commit-msg ; chmod +x $f\n```\nNow that I86db79d9065d626a9ea8516f46eea576a45b6067 introduced `.githooks/` and put a hook there, we need to make sure other hooks are also installed there, including the on-commit hook. To that end, I have run the following command locally and committed its result:\n```\nf\u003d\".githooks/commit-msg\" ; curl -Lo $f https://gerrit-review.googlesource.com/tools/hooks/commit-msg ; chmod +x $f\n```",
+      "parentUuid": "841b1e10_99b384a5",
+      "revId": "578816644582e1c216e9219e39befc22b95803e6",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
