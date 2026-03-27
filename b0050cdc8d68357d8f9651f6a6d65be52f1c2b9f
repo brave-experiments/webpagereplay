@@ -18,6 +18,24 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5d05e969_60c47482",
+        "filename": ".githooks/pre-push",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-27T15:54:54Z",
+      "side": 1,
+      "message": "Removing in crrev.com/c/7706302",
+      "parentUuid": "7aeda89e_6ffc9b38",
+      "revId": "b0050cdc8d68357d8f9651f6a6d65be52f1c2b9f",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "842dc5ed_fd49abbe",
@@ -31,6 +49,30 @@
       "writtenOn": "2026-03-27T14:47:55Z",
       "side": 1,
       "message": "This is not needed when using PRESUBMIT 2.0 (we set that on line 13)\nhttps://chromium.googlesource.com/website/+/fb527ddd68a83a128cb15abfd4e8c718297da6a4/site/developers/how-tos/depottools/presubmit-scripts/index.md#version-1",
+      "range": {
+        "startLine": 75,
+        "startChar": 4,
+        "endLine": 75,
+        "endChar": 23
+      },
+      "revId": "b0050cdc8d68357d8f9651f6a6d65be52f1c2b9f",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3536585b_9e172621",
+        "filename": "PRESUBMIT.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-27T15:54:54Z",
+      "side": 1,
+      "message": "Removed in crrev.com/c/7705317",
+      "parentUuid": "842dc5ed_fd49abbe",
       "range": {
         "startLine": 75,
         "startChar": 4,
