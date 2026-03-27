@@ -16,6 +16,24 @@
       "message": "Please update binary_dependencies.json",
       "revId": "2c679d9a68b5b1ddb374c1739219edcf0adb1456",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "51edf82c_b0dde313",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-27T11:31:31Z",
+      "side": 1,
+      "message": "Right, I can\u0027t just leave this comment thread open, because LGTMs will be invalidated when I upload a patchset with new file... Done.",
+      "parentUuid": "508aeb3a_868d9239",
+      "revId": "2c679d9a68b5b1ddb374c1739219edcf0adb1456",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
