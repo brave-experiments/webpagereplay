@@ -18,6 +18,24 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "94b80022_ffaf2a96",
+        "filename": "src/webpagereplay/httparchive_config.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-27T15:46:31Z",
+      "side": 1,
+      "message": "We can move it to a dedicated file in another CL.",
+      "parentUuid": "2dc66d03_385ed0a1",
+      "revId": "ab449119f532b9958d193bae8c086266641d4924",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4f4d75bb_8fc9e973",
@@ -31,6 +49,30 @@
       "writtenOn": "2026-03-27T15:17:05Z",
       "side": 1,
       "message": "Do we really need reflection?",
+      "range": {
+        "startLine": 120,
+        "startChar": 7,
+        "endLine": 120,
+        "endChar": 14
+      },
+      "revId": "ab449119f532b9958d193bae8c086266641d4924",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "87a47c52_96225e33",
+        "filename": "src/webpagereplay/httparchive_config.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-27T15:46:31Z",
+      "side": 1,
+      "message": "We can address potential improvements in the aforementioned other CL.",
+      "parentUuid": "4f4d75bb_8fc9e973",
       "range": {
         "startLine": 120,
         "startChar": 7,
@@ -58,6 +100,24 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f0c24bea_34168bb7",
+        "filename": "src/wpr.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-27T15:46:31Z",
+      "side": 1,
+      "message": "Relic from an earlier approach. Undone.",
+      "parentUuid": "96868c49_17d78a4f",
+      "revId": "ab449119f532b9958d193bae8c086266641d4924",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "46d1005a_f5659cec",
@@ -71,6 +131,30 @@
       "writtenOn": "2026-03-27T15:17:05Z",
       "side": 1,
       "message": "Ditto",
+      "range": {
+        "startLine": 403,
+        "startChar": 0,
+        "endLine": 404,
+        "endChar": 34
+      },
+      "revId": "ab449119f532b9958d193bae8c086266641d4924",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a1781dc_1c5993f0",
+        "filename": "src/wpr.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-03-27T15:46:31Z",
+      "side": 1,
+      "message": "Same.",
+      "parentUuid": "46d1005a_f5659cec",
       "range": {
         "startLine": 403,
         "startChar": 0,
