@@ -34,6 +34,24 @@
       "parentUuid": "841b1e10_99b384a5",
       "revId": "578816644582e1c216e9219e39befc22b95803e6",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b09f2657_7354d85a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1328067
+      },
+      "writtenOn": "2026-03-27T14:16:03Z",
+      "side": 1,
+      "message": "I don\u0027t think I have this hook installed in any of my git folders. The `Change-Id` footer is added by `git cl upload` command from depot_tools in my case.\n\nAnyway, if there are public instructions that assume that hooks go to .git/hooks/, we should follow that assumption too (I.e. fix https://crrev.com/c/7706635 to use this folder instead of .githooks/).",
+      "parentUuid": "b6988a98_883fc93a",
+      "revId": "578816644582e1c216e9219e39befc22b95803e6",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
