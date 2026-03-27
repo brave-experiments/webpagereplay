@@ -72,10 +72,6 @@ def CheckGoTests(input_api, output_api):
     return results
 
 
-def CheckChangeOnUpload(input_api, output_api):
-    return CheckGoTests(input_api, output_api)
-
-
 def CheckPrebuiltBinaryUpdated(input_api, output_api):
     files = input_api.UnixLocalPaths()
     if (not any(f.endswith('binary_dependencies.json') for f in files) and any(
