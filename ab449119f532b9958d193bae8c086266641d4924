@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2dc66d03_385ed0a1",
+        "filename": "src/webpagereplay/httparchive_config.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-27T15:17:05Z",
+      "side": 1,
+      "message": "It\u0027s not specific to httparchive_config.go, should it live on a different file?",
+      "revId": "ab449119f532b9958d193bae8c086266641d4924",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f4d75bb_8fc9e973",
+        "filename": "src/webpagereplay/httparchive_config.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-27T15:17:05Z",
+      "side": 1,
+      "message": "Do we really need reflection?",
+      "range": {
+        "startLine": 120,
+        "startChar": 7,
+        "endLine": 120,
+        "endChar": 14
+      },
+      "revId": "ab449119f532b9958d193bae8c086266641d4924",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "96868c49_17d78a4f",
+        "filename": "src/wpr.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-27T15:17:05Z",
+      "side": 1,
+      "message": "Why do we need this change and the ones in lines 201-203?",
+      "revId": "ab449119f532b9958d193bae8c086266641d4924",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "46d1005a_f5659cec",
+        "filename": "src/wpr.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-03-27T15:17:05Z",
+      "side": 1,
+      "message": "Ditto",
+      "range": {
+        "startLine": 403,
+        "startChar": 0,
+        "endLine": 404,
+        "endChar": 34
+      },
+      "revId": "ab449119f532b9958d193bae8c086266641d4924",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
