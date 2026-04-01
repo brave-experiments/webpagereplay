@@ -215,18 +215,20 @@ func CompressBody(ae string, uncompressed []byte) ([]byte, string, error) {
 func getCSPScriptSrcDirectiveFromHeaders(header http.Header) string {
 	// There might be multiple Content-Security-Policy instances. Look for
 	// script-src across all of them first, then  default-src.
-	for _, csp := range header.Values("Content-Security-Policy") {
-		for _, directive := range strings.Split(csp, ";") {
-			directive = strings.TrimSpace(directive)
-			if strings.HasPrefix(directive, "script-src") {
-				return directive
-			}
+	directives := []string{"script-src", "default-src"}
+	for _, d := range directives {
+		if directive := getCSPDirective(header, d); directive != "" {
+			return directive
 		}
 	}
+	return ""
+}
+
+func getCSPDirective(header http.Header, name string) string {
 	for _, csp := range header.Values("Content-Security-Policy") {
 		for _, directive := range strings.Split(csp, ";") {
 			directive = strings.TrimSpace(directive)
-			if strings.HasPrefix(directive, "default-src") {
+			if strings.HasPrefix(directive, name) {
 				return directive
 			}
 		}
