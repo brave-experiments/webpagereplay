@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "87d24de4_a45ee13e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-04-01T11:31:20Z",
+      "side": 1,
+      "message": "Generally LGTM, but IIANM, this is not backwards compatible; specifically, consider cases where we recorded the to-be-injected script in the archive as `{{WPR_TIME_SEED_TIMESTAMP}}`. Let me know if I am wrong. If I am right, though, then making this backwards compatible might be as simple as replacing `{{XYZ}}` first, then `XYZ` second; the first hit has an effect (and order matters).",
+      "revId": "97f472c89dfb129289b343140be227b457dfd31b",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "593df9a3_6faa9ed4",
+        "filename": "deterministic.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-04-01T11:31:20Z",
+      "side": 1,
+      "message": "The user might or might not provide it.",
+      "range": {
+        "startLine": 12,
+        "startChar": 57,
+        "endLine": 12,
+        "endChar": 65
+      },
+      "revId": "97f472c89dfb129289b343140be227b457dfd31b",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
