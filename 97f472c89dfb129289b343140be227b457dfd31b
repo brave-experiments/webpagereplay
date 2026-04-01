@@ -18,6 +18,24 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6fb54e00_9a8184d8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-01T13:08:08Z",
+      "side": 1,
+      "message": "Good pointt! I now implemented the alternative I\u0027d mentioned in the CL description, i.e. I disabled formatting for those lines. Also updated the CL description",
+      "parentUuid": "87d24de4_a45ee13e",
+      "revId": "97f472c89dfb129289b343140be227b457dfd31b",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "593df9a3_6faa9ed4",
@@ -31,6 +49,30 @@
       "writtenOn": "2026-04-01T11:31:20Z",
       "side": 1,
       "message": "The user might or might not provide it.",
+      "range": {
+        "startLine": 12,
+        "startChar": 57,
+        "endLine": 12,
+        "endChar": 65
+      },
+      "revId": "97f472c89dfb129289b343140be227b457dfd31b",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bce12a02_0c439946",
+        "filename": "deterministic.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-01T13:08:08Z",
+      "side": 1,
+      "message": "Rephrased.",
+      "parentUuid": "593df9a3_6faa9ed4",
       "range": {
         "startLine": 12,
         "startChar": 57,
