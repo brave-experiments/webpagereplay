@@ -24,8 +24,8 @@ func TestReplaceTimeStamp(t *testing.T) {
 	timeStampMs :=
 		time.Date(2017, time.June, 1, 23, 0, 0, 0, time.UTC).Unix() * 1000
 	replacements := map[string]string{
-		"{{WPR_TIME_SEED_TIMESTAMP}}": strconv.FormatInt(timeStampMs, 10)}
-	script := []byte("var time_seed = {{WPR_TIME_SEED_TIMESTAMP}};")
+		"WPR_TIME_SEED_TIMESTAMP": strconv.FormatInt(timeStampMs, 10)}
+	script := []byte("var time_seed = WPR_TIME_SEED_TIMESTAMP;")
 	transformer, err := NewScriptInjector(script, replacements)
 	if err != nil {
 		t.Fatal(err)

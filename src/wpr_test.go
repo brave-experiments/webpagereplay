@@ -101,8 +101,8 @@ func TestGetReplacements(t *testing.T) {
 			timeSeed: 12345,
 			random:   ptr(0.5),
 			want: map[string]string{
-				"{{WPR_TIME_SEED_TIMESTAMP}}":    "12345",
-				"{{WPR_CONSTANT_RANDOM_RESULT}}": "0.5",
+				"WPR_TIME_SEED_TIMESTAMP":    "12345",
+				"WPR_CONSTANT_RANDOM_RESULT": "0.5",
 			},
 		},
 		{
@@ -111,8 +111,8 @@ func TestGetReplacements(t *testing.T) {
 			timeSeed: 12345,
 			random:   nil,
 			want: map[string]string{
-				"{{WPR_TIME_SEED_TIMESTAMP}}":    "12345",
-				"{{WPR_CONSTANT_RANDOM_RESULT}}": "null",
+				"WPR_TIME_SEED_TIMESTAMP":    "12345",
+				"WPR_CONSTANT_RANDOM_RESULT": "null",
 			},
 		},
 		{
