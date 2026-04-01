@@ -18,41 +18,9 @@ import (
 
 const injectedScript string = "var foo=1"
 
-func TestReplacements(t *testing.T) {
-	replacements := map[string]string{
-		"MAGIC_NUMBER": "42"}
-	script := []byte("const number = MAGIC_NUMBER;")
-	transformer, err := NewScriptInjector(script, replacements)
-	if err != nil {
-		t.Fatal(err)
-	}
-	req := http.Request{}
-	responseHeader := http.Header{
-		"Content-Type": []string{"text/html"}}
-	resp := http.Response{
-		StatusCode: 200,
-		Header:     responseHeader,
-		Request:    &req,
-		Body:       ioutil.NopCloser(bytes.NewReader([]byte("<html></html>")))}
-	transformer.Transform(&req, &resp)
-	body, err := ioutil.ReadAll(resp.Body)
-	resp.Body.Close()
-	if err != nil {
-		t.Fatal(err)
-	}
-	// Note the expected content is minified and thus slightly different from
-	// the original script.
-	expectedContent := []byte(
-		fmt.Sprintf("<html><script>const number=42</script></html>"))
-	if !bytes.Equal(expectedContent, body) {
-		t.Fatal(
-			fmt.Errorf("expected : %s \n actual: %s \n", expectedContent, body))
-	}
-}
-
 // Regression test for https://github.com/catapult-project/catapult/issues/3726
 func TestInjectScript(t *testing.T) {
-	transformer, err := NewScriptInjector([]byte(injectedScript), nil)
+	transformer, err := NewScriptInjector([]byte(injectedScript))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -81,7 +49,7 @@ func TestInjectScript(t *testing.T) {
 }
 
 func TestNoTagFound(t *testing.T) {
-	transformer, err := NewScriptInjector([]byte(injectedScript), nil)
+	transformer, err := NewScriptInjector([]byte(injectedScript))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -109,7 +77,7 @@ func TestNoTagFound(t *testing.T) {
 }
 
 func TestInjectScriptToGzipResponse(t *testing.T) {
-	transformer, minifyErr := NewScriptInjector([]byte(injectedScript), nil)
+	transformer, minifyErr := NewScriptInjector([]byte(injectedScript))
 	if minifyErr != nil {
 		t.Fatal(minifyErr)
 	}
@@ -150,7 +118,7 @@ func TestInjectScriptToGzipResponse(t *testing.T) {
 
 func transform(t *testing.T, inputJS, contentType string) string {
 	t.Helper()
-	transformer, err := NewScriptInjector([]byte(injectedScript), nil)
+	transformer, err := NewScriptInjector([]byte(injectedScript))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -320,7 +288,7 @@ func TestInjectScriptToResponse(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		transformer, err := NewScriptInjector([]byte(injectedScript), nil)
+		transformer, err := NewScriptInjector([]byte(injectedScript))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -350,7 +318,7 @@ func TestInjectScriptToResponse(t *testing.T) {
 }
 
 func TestInjectScriptToResponseWithCspHash(t *testing.T) {
-	transformer, err := NewScriptInjector([]byte(injectedScript), nil)
+	transformer, err := NewScriptInjector([]byte(injectedScript))
 	if err != nil {
 		t.Fatal(err)
 	}

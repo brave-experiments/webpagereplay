@@ -86,58 +86,51 @@ func TestCommonConfig_CheckArgs(t *testing.T) {
 	}
 }
 
-func TestGetReplacements(t *testing.T) {
+func TestReplaceDeterministicJsConstants(t *testing.T) {
 	ptr := func(f float64) *float64 { return &f }
 	tests := []struct {
 		name     string
 		filename string
+		content  string
 		timeSeed int64
 		random   *float64
-		want     map[string]string
+		want     string
 	}{
 		{
 			name:     "deterministic.js with random result",
 			filename: "deterministic.js",
+			content: "const timeSeed = {{WPR_TIME_SEED_TIMESTAMP}}; " +
+				"const random = {{WPR_CONSTANT_RANDOM_RESULT}};",
 			timeSeed: 12345,
 			random:   ptr(0.5),
-			want: map[string]string{
-				"{{WPR_TIME_SEED_TIMESTAMP}}":    "12345",
-				"{{WPR_CONSTANT_RANDOM_RESULT}}": "0.5",
-			},
+			want:     "const timeSeed = 12345; const random = 0.5;",
 		},
 		{
 			name:     "deterministic.js with null random result",
 			filename: "/path/to/deterministic.js",
+			content: "const timeSeed = {{WPR_TIME_SEED_TIMESTAMP}}; " +
+				"const random = {{WPR_CONSTANT_RANDOM_RESULT}};",
 			timeSeed: 12345,
 			random:   nil,
-			want: map[string]string{
-				"{{WPR_TIME_SEED_TIMESTAMP}}":    "12345",
-				"{{WPR_CONSTANT_RANDOM_RESULT}}": "null",
-			},
+			want:     "const timeSeed = 12345; const random = null;",
 		},
 		{
 			name:     "other script file",
 			filename: "other.js",
+			content: "const timeSeed = {{WPR_TIME_SEED_TIMESTAMP}}; " +
+				"const random = {{WPR_CONSTANT_RANDOM_RESULT}};",
 			timeSeed: 12345,
 			random:   ptr(0.5),
-			want:     nil,
+			want: "const timeSeed = {{WPR_TIME_SEED_TIMESTAMP}}; " +
+				"const random = {{WPR_CONSTANT_RANDOM_RESULT}};",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := getReplacements(tt.filename, tt.timeSeed, tt.random)
-			if (got == nil) != (tt.want == nil) {
-				t.Errorf("getReplacements() = %v, want %v", got, tt.want)
-				return
-			}
-			if got == nil {
-				return
-			}
-			for k, v := range tt.want {
-				if got[k] != v {
-					t.Errorf("getReplacements()[%s] = %v, want %v", k, got[k], v)
-				}
+			got := string(replaceDeterministicJsConstants(tt.filename, []byte(tt.content), tt.timeSeed, tt.random))
+			if got != tt.want {
+				t.Errorf("replaceDeterministicJsConstants(%s) = %s, want %s", tt.content, got, tt.want)
 			}
 		})
 	}
