@@ -357,8 +357,8 @@ func getReplacements(filename string, timeSeedMs int64, constantMathRandomResult
 	}
 
 	return map[string]string{
-		"{{WPR_TIME_SEED_TIMESTAMP}}":    strconv.FormatInt(timeSeedMs, 10),
-		"{{WPR_CONSTANT_RANDOM_RESULT}}": randomResultStr,
+		"WPR_TIME_SEED_TIMESTAMP":    strconv.FormatInt(timeSeedMs, 10),
+		"WPR_CONSTANT_RANDOM_RESULT": randomResultStr,
 	}
 }
 
