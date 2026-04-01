@@ -358,19 +358,7 @@ func addAll(cfg *webpagereplay.HttpArchiveConfig, archive *webpagereplay.Archive
 }
 
 func inject(cfg *webpagereplay.HttpArchiveConfig, a *webpagereplay.Archive, outfile string, scriptFile string) error {
-	timeSeedMs := a.DeterministicTimeSeedMs
-
-	randomResultStr := "null"
-	if a.ConstantMathRandomResult != nil {
-		randomResultStr = strconv.FormatFloat(*a.ConstantMathRandomResult, 'f', -1, 64)
-	}
-	replacements := map[string]string{
-		// Replaced with the time seed at the time when recording started.
-		"{{WPR_TIME_SEED_TIMESTAMP}}": strconv.FormatInt(timeSeedMs, 10),
-		// Replaced with the constant Math.random() result.
-		"{{WPR_CONSTANT_RANDOM_RESULT}}": randomResultStr,
-	}
-	si, err := webpagereplay.NewScriptInjectorFromFile(scriptFile, replacements)
+	si, err := webpagereplay.NewScriptInjectorFromFile(scriptFile, make(map[string]string))
 	if err != nil {
 		return fmt.Errorf("Error opening script %s: %v", scriptFile, err)
 	}
