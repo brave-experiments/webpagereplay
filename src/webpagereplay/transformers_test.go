@@ -11,21 +11,17 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 	"testing"
-	"time"
 
 	"github.com/kylelemons/godebug/pretty"
 )
 
 const injectedScript string = "var foo=1"
 
-func TestReplaceTimeStamp(t *testing.T) {
-	timeStampMs :=
-		time.Date(2017, time.June, 1, 23, 0, 0, 0, time.UTC).Unix() * 1000
+func TestReplacements(t *testing.T) {
 	replacements := map[string]string{
-		"{{WPR_TIME_SEED_TIMESTAMP}}": strconv.FormatInt(timeStampMs, 10)}
-	script := []byte("var time_seed = {{WPR_TIME_SEED_TIMESTAMP}};")
+		"MAGIC_NUMBER": "42"}
+	script := []byte("const number = MAGIC_NUMBER;")
 	transformer, err := NewScriptInjector(script, replacements)
 	if err != nil {
 		t.Fatal(err)
@@ -45,8 +41,7 @@ func TestReplaceTimeStamp(t *testing.T) {
 		t.Fatal(err)
 	}
 	expectedContent := []byte(
-		fmt.Sprintf("<html><script>var time_seed=%de6</script></html>",
-			timeStampMs/1e6))
+		fmt.Sprintf("<html><script>const number=42</script></html>"))
 	if !bytes.Equal(expectedContent, body) {
 		t.Fatal(
 			fmt.Errorf("expected : %s \n actual: %s \n", expectedContent, body))
