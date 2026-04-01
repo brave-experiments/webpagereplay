@@ -467,6 +467,47 @@ func TestTransformMultipleCspEntries(t *testing.T) {
 	}
 }
 
+func TestGetCSPScriptSrcDirectiveFromHeaders_NonCanonical(t *testing.T) {
+	const csp = "script-src 'nonce-12345'"
+	header := http.Header{
+		"content-security-policy": {"unrelated"},
+		"Content-security-policy": {"unrelated"},
+		"content-Security-policy": {csp},
+		"CONTENT-SECURITY-POLICY": {"unrelated"},
+		"cOnTeNt-sEcUrItY-pOlIcY": {"unrelated"},
+	}
+	got := getCSPScriptSrcDirectiveFromHeaders(header)
+	if got != csp {
+		t.Errorf("getCSPScriptSrcDirectiveFromHeaders() = %q; want %q", got, csp)
+	}
+}
+
+// Verify that getCSPScriptSrcDirectiveFromHeaders prioritizes "script-src"
+// if it exists alongside "default-src".
+func TestGetCSPScriptSrcDirectiveFromHeaders_Priority(t *testing.T) {
+	header := http.Header{
+		"Content-Security-Policy": {"default-src 'self'; script-src 'nonce-123'"},
+	}
+	got := getCSPScriptSrcDirectiveFromHeaders(header)
+	want := "script-src 'nonce-123'"
+	if got != want {
+		t.Errorf("getCSPScriptSrcDirectiveFromHeaders() priority failed got %q; want %q", got, want)
+	}
+}
+
+// Verify that if "script-src" is missing, getCSPScriptSrcDirectiveFromHeaders
+// falls back to "default-src".
+func TestGetCSPScriptSrcDirectiveFromHeaders_Fallback(t *testing.T) {
+	header := http.Header{
+		"Content-Security-Policy": {"default-src 'self'"},
+	}
+	got := getCSPScriptSrcDirectiveFromHeaders(header)
+	want := "default-src 'self'"
+	if got != want {
+		t.Errorf("getCSPScriptSrcDirectiveFromHeaders() fallback failed got %q; want %q", got, want)
+	}
+}
+
 func assertEquals(t *testing.T, actual, expected string) {
 	if expected != actual {
 		t.Errorf("Expected \"%s\" but was \"%s\"", expected, actual)

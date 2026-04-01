@@ -225,11 +225,16 @@ func getCSPScriptSrcDirectiveFromHeaders(header http.Header) string {
 }
 
 func getCSPDirective(header http.Header, name string) string {
-	for _, csp := range header.Values("Content-Security-Policy") {
-		for _, directive := range strings.Split(csp, ";") {
-			directive = strings.TrimSpace(directive)
-			if strings.HasPrefix(directive, name) {
-				return directive
+	for key, csps := range header {
+		if !strings.EqualFold(key, "Content-Security-Policy") {
+			continue
+		}
+		for _, csp := range csps {
+			for _, directive := range strings.Split(csp, ";") {
+				directive = strings.TrimSpace(directive)
+				if strings.HasPrefix(directive, name) {
+					return directive
+				}
 			}
 		}
 	}
