@@ -358,7 +358,7 @@ func addAll(cfg *webpagereplay.HttpArchiveConfig, archive *webpagereplay.Archive
 }
 
 func inject(cfg *webpagereplay.HttpArchiveConfig, a *webpagereplay.Archive, outfile string, scriptFile string) error {
-	si, err := webpagereplay.NewScriptInjectorFromFile(scriptFile, make(map[string]string))
+	si, err := webpagereplay.NewScriptInjectorFromFile(scriptFile)
 	if err != nil {
 		return fmt.Errorf("Error opening script %s: %v", scriptFile, err)
 	}
