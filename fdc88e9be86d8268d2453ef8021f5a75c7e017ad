@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ed4a0c8b_e52be3b9",
+        "filename": "scripts/binary_dependencies.json",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-04-01T13:55:50Z",
+      "side": 1,
+      "message": "Sorry for forcing you to reupload this by introducing a conflict.",
+      "revId": "fdc88e9be86d8268d2453ef8021f5a75c7e017ad",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
