@@ -15,10 +15,8 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
-	"strconv"
 	"strings"
 	"testing"
-	"time"
 )
 
 var (
@@ -41,8 +39,11 @@ func TestMain(m *testing.M) {
 	os.Exit(ret)
 }
 
-func TestDoNotSaveDeterministicJS(t *testing.T) {
-	archiveFile := filepath.Join(tmpdir, "TestDoNotSaveDeterministicjs.json")
+// Tests that when --inject_scripts is provided during recording, the scripts
+// are not saved as part of the response body (they are saved as separate
+// special field in the archive instead).
+func TestDoNotSaveInjectedScriptInResponseBody(t *testing.T) {
+	archiveFile := filepath.Join(tmpdir, "TestDoNotSaveInjected.json")
 	originalBody := "<html><head></head><p>hello!</p></html>"
 	origin := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		switch req.URL.Path {
@@ -63,13 +64,8 @@ func TestDoNotSaveDeterministicJS(t *testing.T) {
 	if err != nil {
 		t.Fatalf("OpenWritableArchive: %v", err)
 	}
-	now := time.Now().AddDate(0, 0, -1).Unix() * 1000
-	replacements := map[string]string{
-		"{{WPR_TIME_SEED_TIMESTAMP}}":    strconv.FormatInt(now, 10),
-		"{{WPR_CONSTANT_RANDOM_RESULT}}": "null",
-	}
 
-	si, err := NewScriptInjectorFromFile("../../deterministic.js", replacements)
+	si, err := NewScriptInjector([]byte("let x = 1;"), make(map[string]string))
 	if err != nil {
 		t.Fatalf("failed to create script injector: %v", err)
 	}
