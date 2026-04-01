@@ -40,29 +40,6 @@ func (r *readerWithError) Read(p []byte) (int, error) {
 	return n, err
 }
 
-func isHtmlMimeType(contentType string) bool {
-	contentType = strings.ToLower(contentType)
-	return strings.HasPrefix(contentType, "text/html")
-}
-
-func isJavascriptMimeType(contentType string) bool {
-	contentType = strings.ToLower(contentType)
-
-	if strings.HasPrefix(contentType, "application/javascript") ||
-		strings.HasPrefix(contentType, "application/x-javascript") ||
-		strings.HasPrefix(contentType, "text/javascript") {
-		// Legal MIME types referring to JS.
-		return true
-	}
-
-	if strings.HasPrefix(contentType, "javascript") {
-		// Not a legal MIME type, it sometimes occurs "in the wild."
-		return true
-	}
-
-	return false
-}
-
 // cloneHeaders clones h.
 func cloneHeaders(h http.Header) http.Header {
 	hh := make(http.Header, len(h))
@@ -437,11 +414,9 @@ func (si *scriptInjector) getScriptWithNonce(nonce string) []byte {
 }
 
 func (si *scriptInjector) Transform(_ *http.Request, resp *http.Response) {
-	contentType := resp.Header.Get("Content-Type")
-	isHTML := isHtmlMimeType(contentType)
-	isJS := isJavascriptMimeType(contentType)
-
-	if !isHTML && !isJS {
+	// Skip non-HTML non-200 responses.
+	if !strings.HasPrefix(
+		strings.ToLower(resp.Header.Get("Content-Type")), "text/html") {
 		return
 	}
 	if resp.StatusCode != http.StatusOK {
@@ -450,23 +425,9 @@ func (si *scriptInjector) Transform(_ *http.Request, resp *http.Response) {
 
 	transformResponseBody(resp, func(body []byte) []byte {
 		// Don't inject if the script has already been injected.
-		// This is not strictly necessary given `__WPR_DETERMINISTIC_INJECTED`
-		// in deterministic.js, but it doesn't hurt and is a guard against JS bloat.
 		if bytes.Contains(body, si.script) {
 			Log().Warn("ScriptInjector already injected", "url", resp.Request.URL)
 			return body
-		}
-
-		if isJS {
-			var buffer bytes.Buffer
-			buffer.Write(si.script)
-			// Note that the semicolon here is necessary to avoid minification
-			// messing up the original script.
-			buffer.Write([]byte(";\n"))
-			buffer.Write(body)
-			Log().Info("ScriptInjector successfully injected into JS",
-				"url", resp.Request.URL)
-			return buffer.Bytes()
 		}
 
 		// Find an appropriate place to inject the script, then inject.
