@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6cb4d278_d31a5de1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-01T13:49:18Z",
+      "side": 1,
+      "message": "Via [this](https://source.chromium.org/chromium/chromium/src/+/main:third_party/webpagereplay/src/webpagereplay/transformers.go;l\u003d515;drc\u003d8fe3b630b4c80e9c299a3d81518509a9633e612e) you mean? That\u0027d be user error IMO. Can you just capitalize the header in the JSON file?\n\nIf this actually happens on the web, it\u0027s fine, but please state so",
+      "range": {
+        "startLine": 13,
+        "startChar": 20,
+        "endLine": 14,
+        "endChar": 10
+      },
+      "revId": "ecd0658cd348cc97e7ebfcc947ca6fe0ac26d429",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
