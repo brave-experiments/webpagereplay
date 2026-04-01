@@ -65,8 +65,8 @@ func TestDoNotSaveDeterministicJS(t *testing.T) {
 	}
 	now := time.Now().AddDate(0, 0, -1).Unix() * 1000
 	replacements := map[string]string{
-		"{{WPR_TIME_SEED_TIMESTAMP}}":    strconv.FormatInt(now, 10),
-		"{{WPR_CONSTANT_RANDOM_RESULT}}": "null",
+		"WPR_TIME_SEED_TIMESTAMP":    strconv.FormatInt(now, 10),
+		"WPR_CONSTANT_RANDOM_RESULT": "null",
 	}
 
 	si, err := NewScriptInjectorFromFile("../../deterministic.js", replacements)
