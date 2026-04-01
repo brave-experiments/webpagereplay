@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2fb8c326_e0aef45a",
+        "filename": "src/webpagereplay/transformers_test.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-01T15:37:45Z",
+      "side": 1,
+      "message": "In case you wonder why the output doesn\u0027t have ; or spaces, it\u0027s due to minification",
+      "revId": "6e5999b592dd7acc132b0545a304d7c5614eaea5",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
