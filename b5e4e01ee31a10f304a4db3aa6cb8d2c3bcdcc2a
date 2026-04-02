@@ -18,6 +18,24 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "765ee424_41ce100f",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-02T11:26:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "075ce984_f7a17d23",
+      "revId": "b5e4e01ee31a10f304a4db3aa6cb8d2c3bcdcc2a",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "474c9d20_e65c5445",
@@ -31,6 +49,30 @@
       "writtenOn": "2026-04-02T11:15:47Z",
       "side": 1,
       "message": "Given the new name of the function, it becomes more natural to perform the test in the call site than inside of the function itself. (Possible alternative - prepending \"maybe\" to the function name.)",
+      "range": {
+        "startLine": 351,
+        "startChar": 0,
+        "endLine": 353,
+        "endChar": 2
+      },
+      "revId": "b5e4e01ee31a10f304a4db3aa6cb8d2c3bcdcc2a",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f901afe4_d6bfa801",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-02T11:26:39Z",
+      "side": 1,
+      "message": "Renamed",
+      "parentUuid": "474c9d20_e65c5445",
       "range": {
         "startLine": 351,
         "startChar": 0,
