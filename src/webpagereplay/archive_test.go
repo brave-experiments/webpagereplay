@@ -473,9 +473,6 @@ func TestArchiveClone(t *testing.T) {
 		Requests: map[string]map[string][]*ArchivedRequest{
 			"host": {"url": {&ArchivedRequest{}}},
 		},
-		Certs: map[string][]byte{
-			"host": {1, 2, 3},
-		},
 		NegotiatedProtocol: map[string]string{
 			"host": "h2",
 		},
@@ -508,7 +505,6 @@ func TestArchiveClone(t *testing.T) {
 	}
 
 	// Ensure all other fields are correctly cloned.
-	expectEqual("Certs")
 	expectEqual("NegotiatedProtocol")
 	expectEqual("DeterministicTimeSeedMs")
 	expectEqual("ConstantMathRandomResult")
@@ -532,9 +528,6 @@ func TestArchiveCloneIndependence(t *testing.T) {
 	original := Archive{
 		Requests: map[string]map[string][]*ArchivedRequest{
 			"host": {"url": {&ArchivedRequest{}}},
-		},
-		Certs: map[string][]byte{
-			"host": {1, 2, 3},
 		},
 		NegotiatedProtocol: map[string]string{
 			"host": "h2",
@@ -563,9 +556,6 @@ func TestArchiveCloneIndependence(t *testing.T) {
 
 	clone.Requests["new-host"] = map[string][]*ArchivedRequest{}
 	expectUnequal("Requests")
-
-	clone.Certs["host"][0] = 99
-	expectUnequal("Certs")
 
 	clone.NegotiatedProtocol["host"] = "http/1.1"
 	expectUnequal("NegotiatedProtocol")
