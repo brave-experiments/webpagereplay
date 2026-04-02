@@ -22,6 +22,47 @@
       },
       "revId": "ecd0658cd348cc97e7ebfcc947ca6fe0ac26d429",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5e0ed5cd_e2326ea8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-02T09:57:32Z",
+      "side": 1,
+      "message": "Golang document claims\n\u003c\u003cA Header represents the key-value pairs in an HTTP header.\nThe keys should be in canonical form, as returned by CanonicalHeaderKey.\u003e\n\n\u003c\u003c CanonicalHeaderKey returns the canonical format of the header key s. The canonicalization converts the first letter and any letter following a hyphen to upper case; the rest are converted to lowercase. For example, the canonical key for \"accept-encoding\" is \"Accept-Encoding\". If s contains a space or invalid header field bytes, it is returned without modifications. .\u003e\n\nhttps://pkg.go.dev/net/http#Header\n\n\nIn fact since this is just a struct, it all depends on where the struct is constructed (as your test proves). But assuming it comes from other go utils, the invariant should hold I believe.\n\nI would prefer dropping this change unless we come up with actual evidence of the necessity. I think the change as is also has a bug, see my other comment",
+      "parentUuid": "6cb4d278_d31a5de1",
+      "range": {
+        "startLine": 13,
+        "startChar": 20,
+        "endLine": 14,
+        "endChar": 10
+      },
+      "revId": "ecd0658cd348cc97e7ebfcc947ca6fe0ac26d429",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0678187d_8bc8ffa2",
+        "filename": "src/webpagereplay/transformers.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-02T09:57:32Z",
+      "side": 1,
+      "message": "Here, if both Content-Security-Policy and content-security-policy are present, you only look at the first one. But in the next CL, you transform both of them. It looks like a bug",
+      "revId": "ecd0658cd348cc97e7ebfcc947ca6fe0ac26d429",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
