@@ -56,6 +56,30 @@
       },
       "revId": "6f7979b7afae4400fc05010e44d9d604cbe1f8f1",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9a651f5b_0e191681",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 595,
+      "author": {
+        "id": 1328067
+      },
+      "writtenOn": "2026-04-02T16:42:45Z",
+      "side": 1,
+      "message": "I checked crossbench, it only parses the \"Starting server\" line. Not sure about catapult.",
+      "parentUuid": "a417e95a_25944567",
+      "range": {
+        "startLine": 594,
+        "startChar": 0,
+        "endLine": 595,
+        "endChar": 56
+      },
+      "revId": "6f7979b7afae4400fc05010e44d9d604cbe1f8f1",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
