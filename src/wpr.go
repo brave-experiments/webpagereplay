@@ -360,10 +360,15 @@ func replaceConstantsIfDeterministicJs(
 	}
 
 	timeSeedTimestamp := strconv.FormatInt(timeSeedMs, 10)
+	// Legacy format, kept for backwards compatibility. These must be applied first,
+	// since the new formats are substrings.
 	script =
 		bytes.Replace(script, []byte("{{WPR_TIME_SEED_TIMESTAMP}}"), []byte(timeSeedTimestamp), -1)
 	script =
 		bytes.Replace(script, []byte("{{WPR_CONSTANT_RANDOM_RESULT}}"), []byte(randomResultStr), -1)
+	// New format.
+	script = bytes.Replace(script, []byte("WPR_TIME_SEED_TIMESTAMP"), []byte(timeSeedTimestamp), -1)
+	script = bytes.Replace(script, []byte("WPR_CONSTANT_RANDOM_RESULT"), []byte(randomResultStr), -1)
 	return script
 }
 

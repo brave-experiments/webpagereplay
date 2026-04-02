@@ -99,8 +99,8 @@ func TestReplaceConstantsIfDeterministicJs(t *testing.T) {
 		{
 			name:     "deterministic.js with random result",
 			filename: "deterministic.js",
-			content: "const timeSeed = {{WPR_TIME_SEED_TIMESTAMP}}; " +
-				"const random = {{WPR_CONSTANT_RANDOM_RESULT}};",
+			content: "const timeSeed = WPR_TIME_SEED_TIMESTAMP; " +
+				"const random = WPR_CONSTANT_RANDOM_RESULT;",
 			timeSeed: 12345,
 			random:   ptr(0.5),
 			want:     "const timeSeed = 12345; const random = 0.5;",
@@ -108,8 +108,8 @@ func TestReplaceConstantsIfDeterministicJs(t *testing.T) {
 		{
 			name:     "deterministic.js with null random result",
 			filename: "/path/to/deterministic.js",
-			content: "const timeSeed = {{WPR_TIME_SEED_TIMESTAMP}}; " +
-				"const random = {{WPR_CONSTANT_RANDOM_RESULT}};",
+			content: "const timeSeed = WPR_TIME_SEED_TIMESTAMP; " +
+				"const random = WPR_CONSTANT_RANDOM_RESULT;",
 			timeSeed: 12345,
 			random:   nil,
 			want:     "const timeSeed = 12345; const random = null;",
@@ -117,12 +117,24 @@ func TestReplaceConstantsIfDeterministicJs(t *testing.T) {
 		{
 			name:     "other script file",
 			filename: "other.js",
-			content: "const timeSeed = {{WPR_TIME_SEED_TIMESTAMP}}; " +
-				"const random = {{WPR_CONSTANT_RANDOM_RESULT}};",
+			content: "const timeSeed = WPR_TIME_SEED_TIMESTAMP; " +
+				"const random = WPR_CONSTANT_RANDOM_RESULT;",
 			timeSeed: 12345,
 			random:   ptr(0.5),
-			want: "const timeSeed = {{WPR_TIME_SEED_TIMESTAMP}}; " +
-				"const random = {{WPR_CONSTANT_RANDOM_RESULT}};",
+			want: "const timeSeed = WPR_TIME_SEED_TIMESTAMP; " +
+				"const random = WPR_CONSTANT_RANDOM_RESULT;",
+		},
+		{
+			name:     "deterministic.js with legacy format",
+			filename: "deterministic.js",
+			content: "const timeSeed1 = WPR_TIME_SEED_TIMESTAMP; " +
+				"const random1 = WPR_CONSTANT_RANDOM_RESULT; " +
+				"const timeSeed2 = {{WPR_TIME_SEED_TIMESTAMP}}; " +
+				"const random2 = {{WPR_CONSTANT_RANDOM_RESULT}};",
+			timeSeed: 12345,
+			random:   ptr(0.5),
+			want: "const timeSeed1 = 12345; const random1 = 0.5; " +
+				"const timeSeed2 = 12345; const random2 = 0.5;",
 		},
 	}
 
