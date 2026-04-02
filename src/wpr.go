@@ -10,6 +10,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"log"
 	"math"
 	"net"
 	"net/http"
@@ -572,7 +573,7 @@ func startServers(tlsconfig *tls.Config, httpHandler, httpsHandler http.Handler,
 }
 
 func logServeStarted(scheme string, ln net.Listener) {
-	Log().Info("Starting server", "scheme", scheme, "addr", ln.Addr().String())
+	log.Printf("Starting server on %s://%s", scheme, ln.Addr().String())
 }
 
 func (r *RecordCommand) Run(c *cli.Context) error {
