@@ -33,6 +33,29 @@
       "message": "nit: two lines above we use `fmt.Printf`. I don\u0027t what\u0027s the difference TBH, but let\u0027s be consistent.",
       "revId": "6f7979b7afae4400fc05010e44d9d604cbe1f8f1",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a417e95a_25944567",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 595,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-04-02T16:40:23Z",
+      "side": 1,
+      "message": "Do any tools rely on either of these, do you think?",
+      "range": {
+        "startLine": 594,
+        "startChar": 0,
+        "endLine": 595,
+        "endChar": 56
+      },
+      "revId": "6f7979b7afae4400fc05010e44d9d604cbe1f8f1",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
