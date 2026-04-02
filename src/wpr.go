@@ -6,6 +6,7 @@
 package main
 
 import (
+	"bytes"
 	"crypto/tls"
 	"errors"
 	"fmt"
@@ -307,8 +308,9 @@ func (common *CommonConfig) ProcessInjectedScriptsForReplay(c *cli.Context,
 	// Replay from archive (unless --inject-scripts specified).
 	if !isSet(c, "inject-scripts") && len(archive.InjectedScripts) > 0 {
 		for name, contents := range archive.InjectedScripts {
-			replacements := getReplacements(name, timeSeedMs, constantMathRandomResult)
-			if err := common.addScriptInjector([]byte(contents), name, replacements); err != nil {
+			replacedContents := replaceConstantsIfDeterministicJs(
+				name, []byte(contents), timeSeedMs, constantMathRandomResult)
+			if err := common.addScriptInjector(replacedContents, name); err != nil {
 				return fmt.Errorf("error processing injected script %s: %v", name, err)
 			}
 		}
@@ -338,17 +340,18 @@ func (common *CommonConfig) processScripts(scripts map[string]string, timeSeedMs
 			}
 			scripts[name] = string(script)
 		}
-		replacements := getReplacements(name, timeSeedMs, constantMathRandomResult)
-		if err := common.addScriptInjector(script, name, replacements); err != nil {
+		script = replaceConstantsIfDeterministicJs(name, script, timeSeedMs, constantMathRandomResult)
+		if err := common.addScriptInjector(script, name); err != nil {
 			return fmt.Errorf("error processing injected script %s: %v", name, err)
 		}
 	}
 	return nil
 }
 
-func getReplacements(filename string, timeSeedMs int64, constantMathRandomResult *float64) map[string]string {
+func replaceConstantsIfDeterministicJs(
+	filename string, script []byte, timeSeedMs int64, constantMathRandomResult *float64) []byte {
 	if filepath.Base(filename) != "deterministic.js" {
-		return nil
+		return script
 	}
 
 	randomResultStr := "null"
@@ -356,15 +359,17 @@ func getReplacements(filename string, timeSeedMs int64, constantMathRandomResult
 		randomResultStr = strconv.FormatFloat(*constantMathRandomResult, 'f', -1, 64)
 	}
 
-	return map[string]string{
-		"{{WPR_TIME_SEED_TIMESTAMP}}":    strconv.FormatInt(timeSeedMs, 10),
-		"{{WPR_CONSTANT_RANDOM_RESULT}}": randomResultStr,
-	}
+	timeSeedTimestamp := strconv.FormatInt(timeSeedMs, 10)
+	script =
+		bytes.Replace(script, []byte("{{WPR_TIME_SEED_TIMESTAMP}}"), []byte(timeSeedTimestamp), -1)
+	script =
+		bytes.Replace(script, []byte("{{WPR_CONSTANT_RANDOM_RESULT}}"), []byte(randomResultStr), -1)
+	return script
 }
 
-func (common *CommonConfig) addScriptInjector(script []byte, scriptFile string, replacements map[string]string) error {
+func (common *CommonConfig) addScriptInjector(script []byte, scriptFile string) error {
 	Log().Info("Processing script", "path", scriptFile)
-	si, err := webpagereplay.NewScriptInjector(script, replacements)
+	si, err := webpagereplay.NewScriptInjector(script)
 	if err != nil {
 		return fmt.Errorf("error creating script injector for %s: %v", scriptFile, err)
 	}

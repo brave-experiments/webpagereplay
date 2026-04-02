@@ -372,11 +372,7 @@ type ResponseTransformer interface {
 // NewScriptInjector constructs a transformer that injects the given script
 // after the first <head>, <html>, or <!doctype html> tag. The script is
 // minified before injection.
-func NewScriptInjector(
-	script []byte, replacements map[string]string) (ResponseTransformer, error) {
-	for oldstr, newstr := range replacements {
-		script = bytes.Replace(script, []byte(oldstr), []byte(newstr), -1)
-	}
+func NewScriptInjector(script []byte) (ResponseTransformer, error) {
 	m := minify.New()
 	m.AddFunc("application/javascript", js.Minify)
 	var minifiedJsBuffer bytes.Buffer
@@ -394,14 +390,13 @@ func NewScriptInjector(
 
 // NewScriptInjectorFromFile creates a script injector from a script stored in
 // a file.
-func NewScriptInjectorFromFile(
-	filename string, replacements map[string]string) (
+func NewScriptInjectorFromFile(filename string) (
 	ResponseTransformer, error) {
 	script, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
-	return NewScriptInjector(script, replacements)
+	return NewScriptInjector(script)
 }
 
 var (
@@ -598,7 +593,7 @@ func (r *TransformerRule) compile() error {
 		r.urlRE = re
 	}
 	if r.InjectedScript != "" {
-		scriptInjector, err := NewScriptInjectorFromFile(r.InjectedScript, make(map[string]string))
+		scriptInjector, err := NewScriptInjectorFromFile(r.InjectedScript)
 		if err != nil {
 			return err
 		}
