@@ -176,12 +176,6 @@ func (common *CommonConfig) Flags() []cli.Flag {
 				"is supported.",
 			Destination: &common.paramToIgnoreInURLPath,
 		},
-		// TODO(victorvianna): Remove when crossbench and chromium are updated.
-		&cli.BoolFlag{
-			Name:        "no-archive-certificates",
-			Usage:       "DEPRECATED: this flag takes no effect anymore.",
-			Destination: &common.noArchiveCertificates,
-		},
 		&cli.Float64Flag{
 			Name: "constant-math-random-result",
 			Usage: "A float between 0.0 (inclusive) and 1.0 (exclusive) to use as " +
