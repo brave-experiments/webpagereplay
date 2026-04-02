@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c905f966_2c09d0cb",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 576,
+      "author": {
+        "id": 1328067
+      },
+      "writtenOn": "2026-04-02T16:32:51Z",
+      "side": 1,
+      "message": "Let\u0027s add a comment that this line should not be changed, because it\u0027s being parsed by downstream tools.",
+      "revId": "6f7979b7afae4400fc05010e44d9d604cbe1f8f1",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "680c876c_9f2d239c",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 576,
+      "author": {
+        "id": 1328067
+      },
+      "writtenOn": "2026-04-02T16:32:51Z",
+      "side": 1,
+      "message": "nit: two lines above we use `fmt.Printf`. I don\u0027t what\u0027s the difference TBH, but let\u0027s be consistent.",
+      "revId": "6f7979b7afae4400fc05010e44d9d604cbe1f8f1",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
