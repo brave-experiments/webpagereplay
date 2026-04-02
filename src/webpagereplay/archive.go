@@ -8,7 +8,6 @@ import (
 	"bufio"
 	"bytes"
 	"compress/gzip"
-	"crypto/x509"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -100,8 +99,6 @@ type Archive struct {
 	// The two-level mapping makes it easier to search for similar requests.
 	// There may be multiple requests for a given URL.
 	Requests map[string]map[string][]*ArchivedRequest
-	// Maps host string to DER encoded certs.
-	Certs map[string][]byte
 	// Maps host string to the negotiated protocol. eg. "http/1.1" or "h2"
 	// If absent, will default to "http/1.1".
 	// Note: the protocol could be inferred from `Requests`, so this field seems
@@ -194,14 +191,6 @@ func (a *Archive) ForEach(f func(req *http.Request, resp *http.Response) error) 
 	return nil
 }
 
-// Returns the der encoded cert.
-func (a *Archive) FindHostCertificate(host string) ([]byte, error) {
-	if cert, ok := a.Certs[host]; ok {
-		return cert, nil
-	}
-	return nil, ErrNotFound
-}
-
 func (a *Archive) FindHostNegotiatedProtocol(host string) (string, error) {
 	if negotiatedProtocol, ok := a.NegotiatedProtocol[host]; ok {
 		return negotiatedProtocol, nil
@@ -230,18 +219,6 @@ func (a *Archive) cloneFieldsExceptRequests() Archive {
 		Metadata:                             a.Metadata,
 	}
 
-	// Clone elements that DO require a deep-copy.
-	if a.Certs != nil {
-		clone.Certs = make(map[string][]byte, len(a.Certs))
-		for k, v := range a.Certs {
-			if v != nil {
-				clone.Certs[k] = make([]byte, len(v))
-				copy(clone.Certs[k], v)
-			} else {
-				clone.Certs[k] = nil
-			}
-		}
-	}
 	if a.NegotiatedProtocol != nil {
 		clone.NegotiatedProtocol = make(map[string]string, len(a.NegotiatedProtocol))
 		for k, v := range a.NegotiatedProtocol {
@@ -618,67 +595,6 @@ func (a *WritableArchive) RecordRequest(req *http.Request, resp *http.Response) 
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	return a.AddArchivedRequest(req, resp, AddModeAppend)
-}
-
-// Must only be called if FindHostCertificate() returned ErrNotFound.
-func (a *WritableArchive) RecordHostCertificate(host string, derBytes []byte) {
-	a.mu.Lock()
-	defer a.mu.Unlock()
-	if a.Certs == nil {
-		a.Certs = make(map[string][]byte)
-	}
-	prevDerBytes, ok := a.Certs[host]
-	if ok {
-		if !areEquivalentCertChains(prevDerBytes, derBytes) {
-			panic("must not record a host certificate when there's an existing one")
-		}
-		return
-	}
-	a.Certs[host] = derBytes
-}
-
-// Check whether two certificate chains are similar enough that we can consider
-// them as equivalent.
-//
-// Note that this code is quite relaxed about security, as this is never
-// expected to be used in contexts where security matters.
-func areEquivalentCertChains(der1, der2 []byte) bool {
-	if bytes.Equal(der1, der2) {
-		return true
-	}
-
-	certs1, err1 := x509.ParseCertificates(der1)
-	if err1 != nil {
-		return false
-	}
-
-	certs2, err2 := x509.ParseCertificates(der2)
-	if err2 != nil {
-		return false
-	}
-
-	if len(certs1) != len(certs2) {
-		return false
-	}
-
-	for i := range certs1 {
-		c1, c2 := certs1[i], certs2[i]
-		// We intentionally skip such fields as `SerialNumber`.
-		if c1.SignatureAlgorithm != c2.SignatureAlgorithm ||
-			c1.Issuer.String() != c2.Issuer.String() ||
-			c1.Subject.String() != c2.Subject.String() ||
-			!c1.NotBefore.Equal(c2.NotBefore) ||
-			!c1.NotAfter.Equal(c2.NotAfter) ||
-			!reflect.DeepEqual(c1.PublicKey, c2.PublicKey) ||
-			!reflect.DeepEqual(c1.DNSNames, c2.DNSNames) ||
-			!reflect.DeepEqual(c1.IPAddresses, c2.IPAddresses) ||
-			!reflect.DeepEqual(c1.ExtKeyUsage, c2.ExtKeyUsage) ||
-			c1.KeyUsage != c2.KeyUsage {
-			return false
-		}
-	}
-
-	return true
 }
 
 // Must only be called if FindHostNegotiatedProtocol() returned ErrNotFound.

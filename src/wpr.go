@@ -176,16 +176,10 @@ func (common *CommonConfig) Flags() []cli.Flag {
 				"is supported.",
 			Destination: &common.paramToIgnoreInURLPath,
 		},
+		// TODO(victorvianna): Remove when crossbench and chromium are updated.
 		&cli.BoolFlag{
-			Name: "no-archive-certificates",
-			Usage: "By default, WPR stores certificates in the archive during " +
-				"recording (minted from the root ones) and reads them during replay " +
-				"Such certificates will expire eventually, so this setup is only " +
-				"suitable when the client ignores TLS errors (e.g. due to " +
-				"--ignore-certificate-errors-spki-list in a Chromium browser), or " +
-				"for short-lived experiments. Otherwise, use this flag to prevent " +
-				"WPR from reading/writing archive certificates. New certificates " +
-				"will be generated on replay time, with caching by host.",
+			Name:        "no-archive-certificates",
+			Usage:       "DEPRECATED: this flag takes no effect anymore.",
 			Destination: &common.noArchiveCertificates,
 		},
 		&cli.Float64Flag{
@@ -609,7 +603,7 @@ func (r *RecordCommand) Run(c *cli.Context) error {
 	}
 	httpHandler := webpagereplay.NewRecordingProxy(archive, "http", r.common.transformers, r.common.paramToIgnoreInURLPath)
 	httpsHandler := webpagereplay.NewRecordingProxy(archive, "https", r.common.transformers, r.common.paramToIgnoreInURLPath)
-	tlsconfig, err := webpagereplay.RecordTLSConfig(r.common.rootCerts, archive, !r.common.noArchiveCertificates)
+	tlsconfig, err := webpagereplay.RecordTLSConfig(r.common.rootCerts, archive)
 	if err != nil {
 		Log().Error("Error creating TLSConfig", "error", err)
 		os.Exit(1)
@@ -654,7 +648,6 @@ func (r *ReplayCommand) Run(c *cli.Context) error {
 	// of requests, for performance reasons.
 	transformedArchive := webpagereplay.Archive{
 		Requests:                             make(map[string]map[string][]*webpagereplay.ArchivedRequest),
-		Certs:                                archive.Certs,
 		NegotiatedProtocol:                   archive.NegotiatedProtocol,
 		DeterministicTimeSeedMs:              archive.DeterministicTimeSeedMs,
 		ServeResponseInChronologicalSequence: archive.ServeResponseInChronologicalSequence,
@@ -675,7 +668,7 @@ func (r *ReplayCommand) Run(c *cli.Context) error {
 
 	httpHandler := webpagereplay.NewReplayingProxy(archive, "http", r.quietMode, r.common.paramToIgnoreInURLPath)
 	httpsHandler := webpagereplay.NewReplayingProxy(archive, "https", r.quietMode, r.common.paramToIgnoreInURLPath)
-	tlsconfig, err := webpagereplay.ReplayTLSConfig(r.common.rootCerts, archive, !r.common.noArchiveCertificates)
+	tlsconfig, err := webpagereplay.ReplayTLSConfig(r.common.rootCerts, archive)
 	if err != nil {
 		Log().Error("Error creating TLSConfig", "error", err)
 		os.Exit(1)
