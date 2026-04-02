@@ -36,6 +36,24 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "83de8ad9_1b1dda98",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-02T11:16:51Z",
+      "side": 1,
+      "message": "As discussed offline, I implemented the version that gets rid of the braces while keeping backwards compatibility",
+      "parentUuid": "6fb54e00_9a8184d8",
+      "revId": "97f472c89dfb129289b343140be227b457dfd31b",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "593df9a3_6faa9ed4",
