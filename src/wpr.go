@@ -572,7 +572,8 @@ func startServers(tlsconfig *tls.Config, httpHandler, httpsHandler http.Handler,
 }
 
 func logServeStarted(scheme string, ln net.Listener) {
-	Log().Info("Starting server", "scheme", scheme, "addr", ln.Addr().String())
+	// DO NOT CHANGE: this line is parsed by downstream tools like catapult and crossbench.
+	fmt.Printf("Starting server on %s://%s\n", scheme, ln.Addr().String())
 }
 
 func (r *RecordCommand) Run(c *cli.Context) error {
