@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "87d2b601_582f67d2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-02T15:09:32Z",
+      "side": 1,
+      "message": "Keeping open to prevent submission",
+      "revId": "324f4a535ea68c32771d3b7d1738621598155611",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
