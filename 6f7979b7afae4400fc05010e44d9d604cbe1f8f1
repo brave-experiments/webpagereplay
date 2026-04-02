@@ -35,6 +35,42 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "647027f6_b847e467",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 576,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-02T16:57:34Z",
+      "side": 1,
+      "message": "fmt.Printf (with \\n) -\u003e prints this to stdout\n```\nUse Ctrl-C to exit\nStarting server on https://127.0.0.1:8081\nStarting server on http://127.0.0.1:8080\n```\n\nlog.Printf (without \\n) -\u003e prints this to stderr\n```\n2026/04/02 17:40:12 Starting server on https://127.0.0.1:8081\n2026/04/02 17:40:12 Starting server on http://127.0.0.1:8080\n```\n\nCrossbench is happy with both versions\nhttps://source.chromium.org/chromium/chromium/src/+/main:third_party/crossbench-web-tests/third_party/crossbench/crossbench/network/replay/web_page_replay.py;l\u003d241-242;drc\u003d5c20c9387cea2fc4b013371ebce85dc51d5eebd4\n\nhttps://source.chromium.org/chromium/chromium/src/+/main:third_party/crossbench-web-tests/third_party/crossbench/crossbench/network/replay/web_page_replay.py;l\u003d30;drc\u003d5c20c9387cea2fc4b013371ebce85dc51d5eebd4\n\nCatapult also seems happy with both versions locally",
+      "parentUuid": "680c876c_9f2d239c",
+      "revId": "6f7979b7afae4400fc05010e44d9d604cbe1f8f1",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dd74a3bc_f8439b44",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 576,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-02T16:57:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c905f966_2c09d0cb",
+      "revId": "6f7979b7afae4400fc05010e44d9d604cbe1f8f1",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a417e95a_25944567",
@@ -72,6 +108,30 @@
       "side": 1,
       "message": "I checked crossbench, it only parses the \"Starting server\" line. Not sure about catapult.",
       "parentUuid": "a417e95a_25944567",
+      "range": {
+        "startLine": 594,
+        "startChar": 0,
+        "endLine": 595,
+        "endChar": 56
+      },
+      "revId": "6f7979b7afae4400fc05010e44d9d604cbe1f8f1",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eda82178_e57e9115",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 595,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-02T16:57:34Z",
+      "side": 1,
+      "message": "I ran at least one catapult test locally and it works. Bots will tell for real",
+      "parentUuid": "9a651f5b_0e191681",
       "range": {
         "startLine": 594,
         "startChar": 0,
