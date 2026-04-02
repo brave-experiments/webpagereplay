@@ -163,34 +163,34 @@ func TestInjectScriptToHTMLMimeType(t *testing.T) {
 	}
 }
 
-func TestInjectScriptToJSMimeType(t *testing.T) {
-	const originalJS string = "console.log('hello');"
-	const expectedJS string = injectedScript + ";\n" + originalJS
+// func TestInjectScriptToJSMimeType(t *testing.T) {
+// 	const originalJS string = "console.log('hello');"
+// 	const expectedJS string = injectedScript + ";\n" + originalJS
 
-	contentTypes := []string{
-		// Standard MIME types.
-		"application/javascript",
-		"text/javascript",
-		"application/x-javascript",
-		// Non-standard but seen in the wild.
-		"javascript",
-		// Case insensitivity.
-		"Application/JavaScript",
-		"TEXT/JAVASCRIPT",
-		"application/x-JAVASCRIPT",
-		"JavaScript",
-	}
+// 	contentTypes := []string{
+// 		// Standard MIME types.
+// 		"application/javascript",
+// 		"text/javascript",
+// 		"application/x-javascript",
+// 		// Non-standard but seen in the wild.
+// 		"javascript",
+// 		// Case insensitivity.
+// 		"Application/JavaScript",
+// 		"TEXT/JAVASCRIPT",
+// 		"application/x-JAVASCRIPT",
+// 		"JavaScript",
+// 	}
 
-	for _, contentType := range contentTypes {
-		for _, suffix := range []string{"", "; charset=utf-8"} {
-			transformationResult := transform(t, originalJS, contentType+suffix)
-			if transformationResult != expectedJS {
-				t.Errorf("For %s:\nExpected: %s\nActual: %s",
-					contentType+suffix, expectedJS, string(transformationResult))
-			}
-		}
-	}
-}
+// 	for _, contentType := range contentTypes {
+// 		for _, suffix := range []string{"", "; charset=utf-8"} {
+// 			transformationResult := transform(t, originalJS, contentType+suffix)
+// 			if transformationResult != expectedJS {
+// 				t.Errorf("For %s:\nExpected: %s\nActual: %s",
+// 					contentType+suffix, expectedJS, string(transformationResult))
+// 			}
+// 		}
+// 	}
+// }
 
 func TestInjectScriptToNonJSMimeType(t *testing.T) {
 	const originalJS string = "console.log('hello');"
@@ -218,36 +218,36 @@ func TestInjectScriptToNonJSMimeType(t *testing.T) {
 	}
 }
 
-func TestAlreadyInjected(t *testing.T) {
-	const originalJS string = "console.log('hello');"
-	const expectedJS string = injectedScript + ";\n" + originalJS
-	const contentType string = "application/javascript"
+// func TestAlreadyInjected(t *testing.T) {
+// 	const originalJS string = "console.log('hello');"
+// 	const expectedJS string = injectedScript + ";\n" + originalJS
+// 	const contentType string = "application/javascript"
 
-	// The first injection is impactful.
-	result1 := transform(t, originalJS, contentType)
-	if result1 != expectedJS {
-		t.Errorf("Expected: %s\nActual:   %s", expectedJS, result1)
-	}
+// 	// The first injection is impactful.
+// 	result1 := transform(t, originalJS, contentType)
+// 	if result1 != expectedJS {
+// 		t.Errorf("Expected: %s\nActual:   %s", expectedJS, result1)
+// 	}
 
-	// The second injection is no-op.
-	result2 := transform(t, result1, contentType)
-	if result2 != result1 {
-		t.Errorf("Expected: %s\nActual:   %s", result1, result2)
-	}
-}
+// 	// The second injection is no-op.
+// 	result2 := transform(t, result1, contentType)
+// 	if result2 != result1 {
+// 		t.Errorf("Expected: %s\nActual:   %s", result1, result2)
+// 	}
+// }
 
-func TestDefensiveSemicolon(t *testing.T) {
-	// Many minified JS files start with a parenthesis.
-	const originalJS string = "(function(){})();"
-	const expectedJS string = injectedScript + ";\n" + originalJS
-	const contentType string = "application/javascript"
+// func TestDefensiveSemicolon(t *testing.T) {
+// 	// Many minified JS files start with a parenthesis.
+// 	const originalJS string = "(function(){})();"
+// 	const expectedJS string = injectedScript + ";\n" + originalJS
+// 	const contentType string = "application/javascript"
 
-	result := transform(t, originalJS, contentType)
-	if result != expectedJS {
-		t.Errorf("Defensive semicolon missing or incorrect.\nExpected: %s\nActual: %s",
-			expectedJS, result)
-	}
-}
+// 	result := transform(t, originalJS, contentType)
+// 	if result != expectedJS {
+// 		t.Errorf("Defensive semicolon missing or incorrect.\nExpected: %s\nActual: %s",
+// 			expectedJS, result)
+// 	}
+// }
 
 func TestInjectScriptToResponse(t *testing.T) {
 	tests := []struct {

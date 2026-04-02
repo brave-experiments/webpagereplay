@@ -454,17 +454,17 @@ func (si *scriptInjector) Transform(_ *http.Request, resp *http.Response) {
 			return body
 		}
 
-		if isJS {
-			var buffer bytes.Buffer
-			buffer.Write(si.script)
-			// Note that the semicolon here is necessary to avoid minification
-			// messing up the original script.
-			buffer.Write([]byte(";\n"))
-			buffer.Write(body)
-			Log().Info("ScriptInjector successfully injected into JS",
-				"url", resp.Request.URL)
-			return buffer.Bytes()
-		}
+		// if isJS {
+		// 	var buffer bytes.Buffer
+		// 	buffer.Write(si.script)
+		// 	// Note that the semicolon here is necessary to avoid minification
+		// 	// messing up the original script.
+		// 	buffer.Write([]byte(";\n"))
+		// 	buffer.Write(body)
+		// 	Log().Info("ScriptInjector successfully injected into JS",
+		// 		"url", resp.Request.URL)
+		// 	return buffer.Bytes()
+		// }
 
 		// Find an appropriate place to inject the script, then inject.
 		idx := headRE.FindIndex(body)
