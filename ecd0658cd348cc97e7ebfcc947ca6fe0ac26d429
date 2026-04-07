@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "35ff276b_6f0fbf3d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-04-07T13:24:22Z",
+      "side": 1,
+      "message": "\u003e But assuming it comes from other go utils, the invariant should hold I believe.\n\nShould we not guard such an assumption with unit tests? Is it not useful to employ defensive programming and recover from potential such mistakes, past or future, or incorrectly-hand-manipulated archives?",
+      "parentUuid": "5e0ed5cd_e2326ea8",
+      "range": {
+        "startLine": 13,
+        "startChar": 20,
+        "endLine": 14,
+        "endChar": 10
+      },
+      "revId": "ecd0658cd348cc97e7ebfcc947ca6fe0ac26d429",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0678187d_8bc8ffa2",
         "filename": "src/webpagereplay/transformers.go",
         "patchSetId": 1
@@ -61,6 +85,24 @@
       "writtenOn": "2026-04-02T09:57:32Z",
       "side": 1,
       "message": "Here, if both Content-Security-Policy and content-security-policy are present, you only look at the first one. But in the next CL, you transform both of them. It looks like a bug",
+      "revId": "ecd0658cd348cc97e7ebfcc947ca6fe0ac26d429",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1bf9957f_5711014b",
+        "filename": "src/webpagereplay/transformers.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-04-07T13:24:22Z",
+      "side": 1,
+      "message": "I don\u0027t think that\u0027s a bug; at least not in this code. The new code employs more defensive programming than previously, but stops short of unnecessarily expensive checks, such as iterating over the Header to guarantee that there is 0-1 values that match the query. That seems like the correct balance to me.",
+      "parentUuid": "0678187d_8bc8ffa2",
       "revId": "ecd0658cd348cc97e7ebfcc947ca6fe0ac26d429",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
