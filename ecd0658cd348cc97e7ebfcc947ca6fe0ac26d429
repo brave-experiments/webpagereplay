@@ -98,6 +98,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "aff169c5_d0bc5834",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-08T09:13:48Z",
+      "side": 1,
+      "message": "Ha, and turns out the CL as is doesn\u0027t do exactly what you want. Golang normalizes the header values when iterating with `range header` too. If you launch the python server I linked above, netcat gives you 2 different casings, but golang normalizes them\n```\n$ echo -e \"GET / HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n\" | nc localhost 8000\nHTTP/1.0 200 OK\nServer: BaseHTTP/0.6 Python/3.11.10\nDate: Wed, 08 Apr 2026 09:07:29 GMT\nContent-Type: text/html\nContent-Security-Policy: script-src MY_HASH1\ncontent-security-policy: script-src MY_HASH2\n\n\n        \u003c!DOCTYPE html\u003e\n        \u003chtml\u003e\n        \u003chead\u003e\n            \u003ctitle\u003eCSP Header Case Test\u003c/title\u003e\n        \u003c/head\u003e\n        \u003cbody\u003e\n            \u003ch1\u003eTesting Dual CSP Headers\u003c/h1\u003e\n            \u003cp\u003eCheck the DevTools Console (F12) to see what happened.\u003c/p\u003e\n        \u003c/body\u003e\n        \u003c/html\u003e\n```\n\nhttps://paste.googleplex.com/5830018728067072\n```\n$ go run client.go\nKey Server\nValue [BaseHTTP/0.6 Python/3.11.10]\nKey Date\nValue [Wed, 08 Apr 2026 09:11:02 GMT]\nKey Content-Type\nValue [text/html]\nKey Content-Security-Policy\nValue [script-src MY_HASH1 script-src MY_HASH2]\n```",
+      "parentUuid": "c1a5dbe2_ba1c42e1",
+      "range": {
+        "startLine": 13,
+        "startChar": 20,
+        "endLine": 14,
+        "endChar": 10
+      },
+      "revId": "ecd0658cd348cc97e7ebfcc947ca6fe0ac26d429",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0678187d_8bc8ffa2",
         "filename": "src/webpagereplay/transformers.go",
         "patchSetId": 1
