@@ -120,6 +120,30 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ec0dc970_571664aa",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-04-08T09:24:39Z",
+      "side": 1,
+      "message": "\u003e I believe this is a case of YAGNI \n\nI can see both sides. Since this is not an important, proven issue, and there is no consensus on the next step, best just table this discussion.\n\n\u003e I am feeling strongly and I won\u0027t approve\n\nThat reviewers should not LGTM if there are outstanding technical disagreements goes without saying.\n\n\u003e If you still want to pursue this change, feel free to add Mika\n\nI don\u0027t feel strongly at all about this CL. But even if I did, my preferred approach would be to resolve our technical disagreement, not to change reviewers.",
+      "parentUuid": "c1a5dbe2_ba1c42e1",
+      "range": {
+        "startLine": 13,
+        "startChar": 20,
+        "endLine": 14,
+        "endChar": 10
+      },
+      "revId": "ecd0658cd348cc97e7ebfcc947ca6fe0ac26d429",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0678187d_8bc8ffa2",
