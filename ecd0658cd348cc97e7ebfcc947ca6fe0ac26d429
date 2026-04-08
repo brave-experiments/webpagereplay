@@ -74,6 +74,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c1a5dbe2_ba1c42e1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-08T08:45:04Z",
+      "side": 1,
+      "message": "Sorry, I believe this is a case of YAGNI and that the change is detrimental to the understanding of the code (as in, one has to wonder if this treatment should be applied to all `header.Values` calls from now on, and wonder about how to treat repeated values like we discuss in the other thread). I am feeling strongly and I won\u0027t approve. Here are some snippets that show that header.Values() already merges the header lines with case insensitivity\n\nhttps://paste.googleplex.com/5973443859316736\nhttps://paste.googleplex.com/6043522961637376\nDoing `go run` on the 2nd script yields\n```\nContent-Security-Policy: [script-src MY_HASH1 script-src MY_HASH2]\n```\n\nIf you still want to pursue this change, feel free to add Mika",
+      "parentUuid": "35ff276b_6f0fbf3d",
+      "range": {
+        "startLine": 13,
+        "startChar": 20,
+        "endLine": 14,
+        "endChar": 10
+      },
+      "revId": "ecd0658cd348cc97e7ebfcc947ca6fe0ac26d429",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0678187d_8bc8ffa2",
         "filename": "src/webpagereplay/transformers.go",
         "patchSetId": 1
@@ -103,6 +127,24 @@
       "side": 1,
       "message": "I don\u0027t think that\u0027s a bug; at least not in this code. The new code employs more defensive programming than previously, but stops short of unnecessarily expensive checks, such as iterating over the Header to guarantee that there is 0-1 values that match the query. That seems like the correct balance to me.",
       "parentUuid": "0678187d_8bc8ffa2",
+      "revId": "ecd0658cd348cc97e7ebfcc947ca6fe0ac26d429",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "97c49688_98663613",
+        "filename": "src/webpagereplay/transformers.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-08T08:45:04Z",
+      "side": 1,
+      "message": "My concern was in the difference of treatment between this CL and the next one - as in, \"is there any harm in calling transformCSPHeader() for both Content-Security-Policy and content-security-policy\"? After reading the code and playing with the snippets above, I\u0027ve concluded this part is fine. Chrome applies the intersection of \"Content-Security-Policy\" and \"content-security-policy\" lines, so allowlisting the script in each of these lines is not a problem",
+      "parentUuid": "1bf9957f_5711014b",
       "revId": "ecd0658cd348cc97e7ebfcc947ca6fe0ac26d429",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
