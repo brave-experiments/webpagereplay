@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "57f1d20c_500898e4",
+        "filename": "infra/config/main.star",
+        "patchSetId": 5
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-08T11:08:24Z",
+      "side": 1,
+      "message": ".",
+      "revId": "ef5976f78e91d592305e965585e913f3d2d61932",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "01ea4ce0_842f3f7d",
+        "filename": "infra/config/main.star",
+        "patchSetId": 5
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-08T11:08:24Z",
+      "side": 1,
+      "message": ".",
+      "revId": "ef5976f78e91d592305e965585e913f3d2d61932",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f398b424_65b77b5e",
+        "filename": "infra/config/main.star",
+        "patchSetId": 5
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-08T11:08:24Z",
+      "side": 1,
+      "message": ".",
+      "revId": "ef5976f78e91d592305e965585e913f3d2d61932",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
