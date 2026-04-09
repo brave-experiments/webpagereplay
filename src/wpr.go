@@ -305,19 +305,22 @@ func (common *CommonConfig) ProcessInjectedScriptsForReplay(c *cli.Context,
 		constantMathRandomResult = flagValue
 	}
 
-	// Replay from archive (unless --inject-scripts specified).
-	if !isSet(c, "inject-scripts") && len(archive.InjectedScripts) > 0 {
+	injectArchiveScripts :=
+		!isSet(c, "inject-archive-scripts") || c.String("inject-archive-scripts") == "true"
+
+	scriptsMap := make(map[string]string)
+	if injectArchiveScripts && len(archive.InjectedScripts) > 0 {
 		for name, contents := range archive.InjectedScripts {
+			scriptsMap[name] = contents
 			replacedContents := replaceConstantsIfDeterministicJs(
 				name, []byte(contents), timeSeedMs, constantMathRandomResult)
 			if err := common.addScriptInjector(replacedContents, name); err != nil {
 				return fmt.Errorf("error processing injected script %s: %v", name, err)
 			}
 		}
-		return nil
 	}
 
-	return common.processScripts(nil, timeSeedMs, constantMathRandomResult)
+	return common.processScripts(scriptsMap, timeSeedMs, constantMathRandomResult)
 }
 
 var (
@@ -409,6 +412,11 @@ func (r *RecordCommand) CheckArgsAndSetLogLevel(c *cli.Context) error {
 
 func (r *ReplayCommand) Flags() []cli.Flag {
 	return append(r.common.Flags(),
+		&cli.StringFlag{
+			Name:  "inject-archive-scripts",
+			Value: "true",
+			Usage: "Inject scripts stored in the archive on replay. Defaults to true.",
+		},
 		&cli.StringFlag{
 			Name:        "rules-file",
 			Value:       "",

@@ -283,6 +283,10 @@ func TestProcessInjectedScriptsForReplay_DiskOverride(t *testing.T) {
 	if err := flagSet.Set("inject-scripts", scriptPath); err != nil {
 		t.Fatalf("failed to set flag: %v", err)
 	}
+	flagSet.String("inject-archive-scripts", "false", "")
+	if err := flagSet.Set("inject-archive-scripts", "false"); err != nil {
+		t.Fatalf("Failed to set flag: %v", err)
+	}
 	c := cli.NewContext(nil, flagSet, nil)
 
 	if err := common.ProcessInjectedScriptsForReplay(c, archive); err != nil {
@@ -291,6 +295,121 @@ func TestProcessInjectedScriptsForReplay_DiskOverride(t *testing.T) {
 
 	if len(common.transformers) != 1 {
 		t.Errorf("expected 1 transformer, got %d", len(common.transformers))
+	}
+}
+
+func TestProcessInjectedScriptsForReplay_ArchiveAndDisk(t *testing.T) {
+	tempDir := t.TempDir()
+	scriptPath := filepath.Join(tempDir, "override.js")
+	scriptContent := "console.log('override');"
+	if err := os.WriteFile(scriptPath, []byte(scriptContent), 0644); err != nil {
+		t.Fatalf("Failed to write temp script: %v", err)
+	}
+
+	archive := &webpagereplay.Archive{
+		InjectedScripts: map[string]string{
+			"archived.js": "console.log('archived');",
+		},
+	}
+	common := &CommonConfig{
+		injectScripts: scriptPath,
+	}
+	flagSet := flag.NewFlagSet("test", flag.ContinueOnError)
+	flagSet.String("inject-scripts", scriptPath, "")
+	if err := flagSet.Set("inject-scripts", scriptPath); err != nil {
+		t.Fatalf("Failed to set flag: %v", err)
+	}
+	c := cli.NewContext(nil, flagSet, nil)
+
+	if err := common.ProcessInjectedScriptsForReplay(c, archive); err != nil {
+		t.Fatalf("ProcessInjectedScriptsForReplay failed: %v", err)
+	}
+
+	// Expecting 2: one from archive, one from disk.
+	if len(common.transformers) != 2 {
+		t.Errorf("Expected 2 transformers, got %d", len(common.transformers))
+	}
+}
+
+func verifyScriptNameCollision(t *testing.T, injectArchiveScripts string, expectError bool, expectedTransformers int) {
+	tempDir := t.TempDir()
+	scriptPath := filepath.Join(tempDir, "collision.js")
+	scriptContent := "console.log('collision');"
+	if err := os.WriteFile(scriptPath, []byte(scriptContent), 0644); err != nil {
+		t.Fatalf("Failed to write temp script: %v", err)
+	}
+
+	archive := &webpagereplay.Archive{
+		InjectedScripts: map[string]string{
+			"collision.js": "console.log('archived collision');",
+		},
+	}
+	common := &CommonConfig{
+		injectScripts: scriptPath,
+	}
+	flagSet := flag.NewFlagSet("test", flag.ContinueOnError)
+	flagSet.String("inject-scripts", scriptPath, "")
+	if err := flagSet.Set("inject-scripts", scriptPath); err != nil {
+		t.Fatalf("Failed to set flag: %v", err)
+	}
+
+	if injectArchiveScripts != "" {
+		flagSet.String("inject-archive-scripts", injectArchiveScripts, "")
+		if err := flagSet.Set("inject-archive-scripts", injectArchiveScripts); err != nil {
+			t.Fatalf("Failed to set flag: %v", err)
+		}
+	}
+
+	c := cli.NewContext(nil, flagSet, nil)
+
+	err := common.ProcessInjectedScriptsForReplay(c, archive)
+
+	if expectError {
+		if err == nil {
+			t.Fatal("Expected error due to duplicate script names, got nil.")
+		}
+		if !errors.Is(err, ErrDuplicateScriptName) {
+			t.Errorf("Expected error %v, got %v", ErrDuplicateScriptName, err)
+		}
+	} else {
+		if err != nil {
+			t.Fatalf("ProcessInjectedScriptsForReplay failed: %v", err)
+		}
+		if len(common.transformers) != expectedTransformers {
+			t.Errorf("Expected %d transformers, got %d", expectedTransformers, len(common.transformers))
+		}
+	}
+}
+
+func TestProcessInjectedScriptsForReplay_ScriptNameCollision(t *testing.T) {
+	tests := []struct {
+		name                 string
+		injectArchiveScripts string // "true", "false", or "" (default)
+		expectError          bool
+		expectedTransformers int
+	}{
+		{
+			name:                 "Collision errors by default",
+			injectArchiveScripts: "",
+			expectError:          true,
+		},
+		{
+			name:                 "Collision errors if explicitly enabled",
+			injectArchiveScripts: "true",
+			expectError:          true,
+		},
+		{
+			name:                 "No collision error if disabled",
+			injectArchiveScripts: "false",
+			expectError:          false,
+			expectedTransformers: 1,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			verifyScriptNameCollision(t, tt.injectArchiveScripts, tt.expectError, tt.expectedTransformers)
+		})
 	}
 }
 
