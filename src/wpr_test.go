@@ -5,8 +5,11 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"flag"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -409,6 +412,134 @@ func TestProcessInjectedScriptsForReplay_ScriptNameCollision(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			verifyScriptNameCollision(t, tt.injectArchiveScripts, tt.expectError, tt.expectedTransformers)
+		})
+	}
+}
+
+func TestProcessInjectedScriptsForReplay_RulesFile(t *testing.T) {
+	tempDir := t.TempDir()
+
+	scriptPath1 := filepath.Join(tempDir, "script1.js")
+	if err := os.WriteFile(scriptPath1, []byte("console.log('script1');"), 0644); err != nil {
+		t.Fatalf("Failed to write temp script: %v", err)
+	}
+
+	scriptPath2 := filepath.Join(tempDir, "script2.js")
+	if err := os.WriteFile(scriptPath2, []byte("console.log('script2');"), 0644); err != nil {
+		t.Fatalf("Failed to write temp script: %v", err)
+	}
+
+	tests := []struct {
+		name              string
+		rules             string
+		expectError       bool
+		testURL           string
+		expectedScripts   []string
+		unexpectedScripts []string
+	}{
+		{
+			name: "1. Existing file to a regular host",
+			rules: `[
+				{"URL": "https://example.com/", "InjectedScript": "` + scriptPath1 + `"}
+			]`,
+			expectError:       false,
+			testURL:           "https://example.com/",
+			expectedScripts:   []string{"script1"},
+			unexpectedScripts: []string{"script2"},
+		},
+		{
+			name: "2. Existing file to a regex host",
+			rules: `[
+				{"URLPattern": "^https?://example\\.com/.*", "InjectedScript": "` + scriptPath1 + `"}
+			]`,
+			expectError:       false,
+			testURL:           "https://example.com/foo",
+			expectedScripts:   []string{"script1"},
+			unexpectedScripts: []string{"script2"},
+		},
+		{
+			name: "3. Multiple files to the same host",
+			rules: `[
+				{"URLPattern": "^host$", "InjectedScript": "` + scriptPath1 + `"},
+				{"URLPattern": "^host$", "InjectedScript": "` + scriptPath2 + `"}
+			]`,
+			expectError:       false,
+			testURL:           "host",
+			expectedScripts:   []string{"script1", "script2"},
+			unexpectedScripts: []string{},
+		},
+		{
+			name: "4. Non-existent file",
+			rules: `[
+				{"URLPattern": "^host$", "InjectedScript": "/non/existent/file.js"}
+			]`,
+			expectError: true,
+		},
+		{
+			name: "5. Same file to multiple hosts",
+			rules: `[
+				{"URLPattern": "^host1$", "InjectedScript": "` + scriptPath1 + `"},
+				{"URLPattern": "^host2$", "InjectedScript": "` + scriptPath1 + `"}
+			]`,
+			expectError:       false,
+			testURL:           "host1",
+			expectedScripts:   []string{"script1"},
+			unexpectedScripts: []string{"script2"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			rulesFilePath := filepath.Join(t.TempDir(), "rules.json")
+			if err := os.WriteFile(rulesFilePath, []byte(tt.rules), 0644); err != nil {
+				t.Fatalf("Failed to write rules file: %v", err)
+			}
+
+			archive := &webpagereplay.Archive{}
+			common := &CommonConfig{}
+
+			flagSet := flag.NewFlagSet("test", flag.ContinueOnError)
+			flagSet.String("rules-file", "", "")
+			if err := flagSet.Set("rules-file", rulesFilePath); err != nil {
+				t.Fatalf("Failed to set flag: %v", err)
+			}
+
+			c := cli.NewContext(nil, flagSet, nil)
+
+			err := common.ProcessInjectedScriptsForReplay(c, archive)
+			if (err != nil) != tt.expectError {
+				t.Errorf("Expected error: %v, got: %v", tt.expectError, err)
+			}
+
+			if !tt.expectError && tt.testURL != "" {
+				if len(common.transformers) != 1 {
+					t.Fatalf("Expected 1 transformer, got %d", len(common.transformers))
+				}
+				rbt := common.transformers[0]
+
+				req, _ := http.NewRequest("GET", tt.testURL, nil)
+				resp := &http.Response{
+					Header:     make(http.Header),
+					Body:       io.NopCloser(bytes.NewReader([]byte("<html><head></head></html>"))),
+					StatusCode: http.StatusOK,
+					Request:    req,
+				}
+				resp.Header.Set("Content-Type", "text/html")
+
+				rbt.Transform(req, resp)
+
+				body, _ := io.ReadAll(resp.Body)
+				for _, expected := range tt.expectedScripts {
+					if !bytes.Contains(body, []byte(expected)) {
+						t.Errorf("Expected script %q to be injected, body: %s", expected, body)
+					}
+				}
+				for _, unexpected := range tt.unexpectedScripts {
+					if bytes.Contains(body, []byte(unexpected)) {
+						t.Errorf("Did not expect script %q to be injected, body: %s", unexpected, body)
+					}
+				}
+			}
 		})
 	}
 }
