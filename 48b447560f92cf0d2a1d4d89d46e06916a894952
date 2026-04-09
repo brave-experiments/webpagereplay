@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e00bbafb_f7f6d9a8",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-09T15:47:41Z",
+      "side": 1,
+      "message": "Ideally we\u0027d use BoolFlag in line 415. From code read it looks like it should be able to parse --inject-archive-scripts\u003dtrue, but you\u0027d need to test\nhttps://github.com/urfave/cli/blob/a9261cf1832b278c1c195c91f9ee961f5fc9554e/flag_bool.go#L60\n\nFailing that, we can use strconv.ParseBool() instead of comparing the raw value with \"true\" (so we throw an error if the user does --inject-archive-scripts\u003d3)",
+      "range": {
+        "startLine": 309,
+        "startChar": 76,
+        "endLine": 309,
+        "endChar": 85
+      },
+      "revId": "48b447560f92cf0d2a1d4d89d46e06916a894952",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
