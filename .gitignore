@@ -4,3 +4,6 @@
 # Submodules.
 buildtools
 third_party/clang-format
+
+# General macOS spam.
+*.DS_Store
