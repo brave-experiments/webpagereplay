@@ -510,10 +510,10 @@ func (si *scriptInjector) Transform(_ *http.Request, resp *http.Response) {
 	})
 }
 
-// NewRuleBasedTransformer creates a transformer that is controlled by a rules
+// NewRuleBasedTransformerFromFile creates a transformer that is controlled by a rules
 // file.
 // Rules are specified as a JSON-encoded array of TransformerRule objects.
-func NewRuleBasedTransformer(filename string) (ResponseTransformer, error) {
+func NewRuleBasedTransformerFromFile(filename string) (ResponseTransformer, error) {
 	raw, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
@@ -530,7 +530,16 @@ func NewRuleBasedTransformer(filename string) (ResponseTransformer, error) {
 		if r.InjectedScript != "" && !filepath.IsAbs(r.InjectedScript) {
 			r.InjectedScript = filepath.Join(rulesDir, r.InjectedScript)
 		}
+	}
+	return NewRuleBasedTransformer(rules)
+}
 
+// NewRuleBasedTransformer creates a transformer from a list of rules.
+func NewRuleBasedTransformer(rules []*TransformerRule) (ResponseTransformer, error) {
+	// Note: We do not check for duplicate rules (e.g. same URL/pattern and
+	// script) because regular expressions make it infeasible to reliably
+	// deduplicate them in the general case.
+	for _, r := range rules {
 		if err := r.compile(); err != nil {
 			return nil, err
 		}

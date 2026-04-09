@@ -331,7 +331,14 @@ func (common *CommonConfig) ProcessInjectedScriptsForReplay(c *cli.Context,
 		}
 	}
 
-	return common.processScripts(scriptsMap, timeSeedMs, constantMathRandomResult)
+	// Process scripts that were added from the archive and/or from the command line using
+	// the --inject-scripts flag.
+	if err := common.processScripts(scriptsMap, timeSeedMs, constantMathRandomResult); err != nil {
+		return err
+	}
+
+	// Specified through --rules-file.
+	return common.processRulesFile(c)
 }
 
 var (
@@ -359,6 +366,20 @@ func (common *CommonConfig) processScripts(scripts map[string]string, timeSeedMs
 			return fmt.Errorf("error processing injected script %s: %v", name, err)
 		}
 	}
+	return nil
+}
+
+func (common *CommonConfig) processRulesFile(c *cli.Context) error {
+	rulesFile := c.String("rules-file")
+	if rulesFile == "" {
+		return nil
+	}
+	t, err := webpagereplay.NewRuleBasedTransformerFromFile(rulesFile)
+	if err != nil {
+		return err
+	}
+	common.transformers = append(common.transformers, t)
+	Log().Info("Loaded replay rules", "path", rulesFile)
 	return nil
 }
 
@@ -657,16 +678,6 @@ func (r *ReplayCommand) Run(c *cli.Context) error {
 	if err := r.common.ProcessInjectedScriptsForReplay(c, archive); err != nil {
 		Log().Error("Error processing injected scripts", "error", err)
 		os.Exit(1)
-	}
-
-	if r.rulesFile != "" {
-		t, err := webpagereplay.NewRuleBasedTransformer(r.rulesFile)
-		if err != nil {
-			Log().Error("Error opening rules file", "path", r.rulesFile, "error", err)
-			os.Exit(1)
-		}
-		r.common.transformers = append(r.common.transformers, t)
-		Log().Info("Loaded replay rules", "path", r.rulesFile)
 	}
 
 	// When recording, transformations are applied at request time, because that's
