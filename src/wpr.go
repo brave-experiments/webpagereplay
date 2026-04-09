@@ -308,6 +308,17 @@ func (common *CommonConfig) ProcessInjectedScriptsForReplay(c *cli.Context,
 	injectArchiveScripts :=
 		!isSet(c, "inject-archive-scripts") || c.String("inject-archive-scripts") == "true"
 
+	// If the user didn't explicitly request a script, and the archive already
+	// contains 'deterministic.js', we skip loading the default 'deterministic.js'
+	// from the file system. This avoids duplicate script errors and ensures we
+	// use the version stored in the archive, preserving replay fidelity.
+	if !isSet(c, "inject-scripts") && common.injectScripts == "deterministic.js" {
+		if _, ok := archive.InjectedScripts["deterministic.js"]; ok {
+			Log().Info("Archive contains deterministic.js, skipping default injection")
+			common.injectScripts = ""
+		}
+	}
+
 	scriptsMap := make(map[string]string)
 	if injectArchiveScripts && len(archive.InjectedScripts) > 0 {
 		for name, contents := range archive.InjectedScripts {
