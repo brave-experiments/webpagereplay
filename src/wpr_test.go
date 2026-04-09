@@ -438,3 +438,67 @@ func TestProcessInjectedScriptsForReplay_Fallback(t *testing.T) {
 		t.Errorf("expected 1 transformer, got %d", len(common.transformers))
 	}
 }
+
+func TestProcessInjectedScriptsForReplay_SkipDiskDefaultWhenInArchive(t *testing.T) {
+	archive := &webpagereplay.Archive{
+		InjectedScripts: map[string]string{
+			"deterministic.js": "console.log('archived deterministic');",
+		},
+	}
+
+	// Simulate the default state where 'inject-scripts' flag is not explicitly
+	// set but defaults to "deterministic.js".
+	common := &CommonConfig{
+		injectScripts: "deterministic.js",
+	}
+
+	// Create an empty FlagSet and Context to simulate that the flag was not set.
+	flagSet := flag.NewFlagSet("test", flag.ContinueOnError)
+	c := cli.NewContext(nil, flagSet, nil)
+
+	err := common.ProcessInjectedScriptsForReplay(c, archive)
+
+	if err != nil {
+		t.Fatalf("ProcessInjectedScriptsForReplay failed: %v", err)
+	}
+
+	// We expect exactly 1 transformer (from the archive script). The default
+	// script from the file system should have been skipped.
+	if len(common.transformers) != 1 {
+		t.Errorf("Expected 1 transformer (from archive), got %d", len(common.transformers))
+	}
+}
+
+func TestProcessInjectedScriptsForReplay_ExplicitFlagCollidesWithArchive(t *testing.T) {
+	tempDir := t.TempDir()
+	scriptPath := filepath.Join(tempDir, "deterministic.js")
+	os.WriteFile(scriptPath, []byte("console.log('disk');"), 0644)
+
+	archive := &webpagereplay.Archive{
+		InjectedScripts: map[string]string{
+			"deterministic.js": "console.log('archived');",
+		},
+	}
+
+	common := &CommonConfig{
+		injectScripts: scriptPath,
+	}
+
+	// Simulate the user explicitly setting the 'inject-scripts' flag.
+	// We must register the flag with the FlagSet before we can set its value.
+	flagSet := flag.NewFlagSet("test", flag.ContinueOnError)
+	flagSet.String("inject-scripts", "", "")
+	flagSet.Set("inject-scripts", scriptPath)
+
+	c := cli.NewContext(nil, flagSet, nil)
+
+	err := common.ProcessInjectedScriptsForReplay(c, archive)
+
+	if err == nil {
+		t.Fatal("Expected error due to duplicate script names, got nil.")
+	}
+
+	if !errors.Is(err, ErrDuplicateScriptName) {
+		t.Errorf("Expected error %v, got %v", ErrDuplicateScriptName, err)
+	}
+}
