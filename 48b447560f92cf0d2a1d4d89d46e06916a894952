@@ -22,6 +22,30 @@
       },
       "revId": "48b447560f92cf0d2a1d4d89d46e06916a894952",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f8e109f2_6b4504ad",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-04-09T15:56:20Z",
+      "side": 1,
+      "message": "I was looking into this area because I disliked how it tests `!isSet || setValue` instead of doing something along the lines of `getValue()` which would be independent of whether the value is explicit or the default. But I figured this is better for a follow-up that possible fixes up `isSet`; better not introduce more idioms to the codebase atm.",
+      "parentUuid": "e00bbafb_f7f6d9a8",
+      "range": {
+        "startLine": 309,
+        "startChar": 76,
+        "endLine": 309,
+        "endChar": 85
+      },
+      "revId": "48b447560f92cf0d2a1d4d89d46e06916a894952",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
