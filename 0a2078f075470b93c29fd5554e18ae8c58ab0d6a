@@ -16,6 +16,24 @@
       "message": "(It\u0027s worth noting that preceding work in this CL chain ensures that the injection can be done only into the relevant request, avoiding spamming the recorded site with MutationObservers, whose impact on benchmarking might be non-negligible when deployed at scale.)",
       "revId": "0a2078f075470b93c29fd5554e18ae8c58ab0d6a",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1ea02df0_5141e2c4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-04-10T00:35:07Z",
+      "side": 1,
+      "message": "Correction - it was possible with `--rules-file` and/or `httparchive inhect`, but now it\u0027s a bit more ergonomic to use these as one-offs.",
+      "parentUuid": "e593f96f_7487fa47",
+      "revId": "0a2078f075470b93c29fd5554e18ae8c58ab0d6a",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
