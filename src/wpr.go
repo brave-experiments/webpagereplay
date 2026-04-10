@@ -338,7 +338,16 @@ func (common *CommonConfig) ProcessInjectedScriptsForReplay(c *cli.Context,
 	}
 
 	// Specified through --rules-file.
-	return common.processRulesFile(c)
+	if err := common.processRulesFile(c); err != nil {
+		return err
+	}
+
+	// Specified through --inject-scripts-by-host.
+	if err := common.processInjectScriptsByHost(c); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 var (
@@ -381,6 +390,44 @@ func (common *CommonConfig) processRulesFile(c *cli.Context) error {
 	common.transformers = append(common.transformers, t)
 	Log().Info("Loaded replay rules", "path", rulesFile)
 	return nil
+}
+
+func (common *CommonConfig) processInjectScriptsByHost(c *cli.Context) error {
+	byHost := c.StringSlice("inject-scripts-by-host")
+	if len(byHost) == 0 {
+		return nil
+	}
+	rules, err := parseInjectScriptsByHost(byHost)
+	if err != nil {
+		return err
+	}
+	t, err := webpagereplay.NewRuleBasedTransformer(rules)
+	if err != nil {
+		return err
+	}
+	common.transformers = append(common.transformers, t)
+	return nil
+}
+
+func parseInjectScriptsByHost(byHost []string) ([]*webpagereplay.TransformerRule, error) {
+	var rules []*webpagereplay.TransformerRule
+	for _, s := range byHost {
+		// Use "::" as separator to avoid ambiguity with colons in URLs (scheme/port)
+		// and to be consistent with --param-to-ignore-in-url-path.
+		parts := strings.SplitN(s, "::", 2)
+		if len(parts) != 2 {
+			return nil, fmt.Errorf("invalid inject-scripts-by-host format: %s", s)
+		}
+		urlStr := parts[0]
+		scriptPath := parts[1] // Path validated later in the pipeline.
+
+		rule := &webpagereplay.TransformerRule{
+			InjectedScript: scriptPath,
+		}
+		rule.URLPattern = urlStr
+		rules = append(rules, rule)
+	}
+	return rules, nil
 }
 
 func replaceConstantsIfDeterministicJs(
@@ -448,6 +495,10 @@ func (r *ReplayCommand) Flags() []cli.Flag {
 			Name:  "inject-archive-scripts",
 			Value: "true",
 			Usage: "Inject scripts stored in the archive on replay. Defaults to true.",
+		},
+		&cli.StringSliceFlag{
+			Name:  "inject-scripts-by-host",
+			Usage: "Inject scripts by host. Format: host::path/to/script.",
 		},
 		&cli.StringFlag{
 			Name:        "rules-file",
