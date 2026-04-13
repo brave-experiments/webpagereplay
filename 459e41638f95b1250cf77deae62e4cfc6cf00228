@@ -33,6 +33,24 @@
       "message": "The reason you have to do c.String(\"rules-file\") here instead of c.rulesFile is that --rules-file is a replay-only flag. Should this flag apply to recording too?",
       "revId": "459e41638f95b1250cf77deae62e4cfc6cf00228",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "004ad927_189c931f",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-04-13T10:56:04Z",
+      "side": 1,
+      "message": "Applying it to recording too would be in the context of changing behaviour, not refactoring existing behaviour. If we decide to do it, we should do it separately.",
+      "parentUuid": "fcfe24b9_128ae6a1",
+      "revId": "459e41638f95b1250cf77deae62e4cfc6cf00228",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
