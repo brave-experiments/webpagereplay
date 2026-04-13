@@ -105,6 +105,24 @@
       "parentUuid": "24ca6f10_0e5ff5e9",
       "revId": "42f327949bbf128f2a609a2b0780440cc25f8454",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f31a82d3_a97e1f0f",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-04-13T12:06:54Z",
+      "side": 1,
+      "message": "I\u0027ll send a follow-up CL with these suggestions later today.",
+      "parentUuid": "e7c6c101_d516c110",
+      "revId": "42f327949bbf128f2a609a2b0780440cc25f8454",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
