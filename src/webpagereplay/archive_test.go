@@ -702,6 +702,64 @@ func TestArchiveJSON_InjectedScripts(t *testing.T) {
 	}
 }
 
+func TestListScripts(t *testing.T) {
+	tests := []struct {
+		name            string
+		injectedScripts map[string]string
+		wantOutput      []string
+	}{
+		{
+			name:            "Nil map",
+			injectedScripts: nil,
+			wantOutput:      []string{},
+		},
+		{
+			name:            "Empty map",
+			injectedScripts: map[string]string{},
+			wantOutput:      []string{},
+		},
+		{
+			name:            "One embedded script",
+			injectedScripts: map[string]string{"script1.js": "content1"},
+			wantOutput:      []string{"script1.js"},
+		},
+		{
+			name: "Multiple embedded scripts",
+			injectedScripts: map[string]string{
+				"script1.js": "content1",
+				"script2.js": "content2",
+			},
+			wantOutput: []string{"script1.js", "script2.js"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			a := Archive{
+				InjectedScripts: tt.injectedScripts,
+			}
+			got := a.ListScripts()
+
+			if len(got) != len(tt.wantOutput) {
+				t.Errorf("ListScripts() returned %d scripts, want %d", len(got), len(tt.wantOutput))
+			}
+
+			for _, want := range tt.wantOutput {
+				found := false
+				for _, g := range got {
+					if g == want {
+						found = true
+						break
+					}
+				}
+				if !found {
+					t.Errorf("Expected script %q not found in result %v", want, got)
+				}
+			}
+		})
+	}
+}
+
 func TestTrim(t *testing.T) {
 	a := newArchive()
 

@@ -595,6 +595,15 @@ func (a *Archive) Serialize(w io.Writer) error {
 	return gz.Close()
 }
 
+// ListScripts returns the names of all injected scripts in the archive.
+func (a *Archive) ListScripts() []string {
+	scripts := make([]string, 0, len(a.InjectedScripts))
+	for name := range a.InjectedScripts {
+		scripts = append(scripts, name)
+	}
+	return scripts
+}
+
 // WriteableArchive wraps an Archive with writable methods for recording.
 // The file is not flushed until Close is called. All methods are thread-safe.
 type WritableArchive struct {

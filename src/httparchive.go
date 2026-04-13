@@ -544,6 +544,19 @@ func main() {
 				return editMetadata(loadArchiveOrDie(c, 0), c.Args().Get(1))
 			},
 		},
+		&cli.Command{
+			Name:      "ls-scripts",
+			Usage:     "List scripts embedded in an archive by name",
+			ArgsUsage: "archive",
+			Before:    checkArgs(1),
+			Action: func(c *cli.Context) error {
+				archive := loadArchiveOrDie(c, 0)
+				for name := range archive.InjectedScripts {
+					fmt.Println(name)
+				}
+				return nil
+			},
+		},
 	}
 	for _, cmd := range app.Commands {
 		webpagereplay.AddLegacyAliases(&cmd.Flags)
