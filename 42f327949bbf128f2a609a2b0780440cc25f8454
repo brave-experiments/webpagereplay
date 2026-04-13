@@ -51,6 +51,24 @@
       "parentUuid": "db8ab9d9_ee272371",
       "revId": "42f327949bbf128f2a609a2b0780440cc25f8454",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d08b271_fd797691",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 1328067
+      },
+      "writtenOn": "2026-04-13T11:05:58Z",
+      "side": 1,
+      "message": "\u003e How about just changing --inject-archive-scripts behavior to prefer scripts stored in the archive in case of conflict \n\nI\u0027d prefer not to do this. IMO a flag explicitly specified by the user should always override all other settings.",
+      "parentUuid": "1649d115_be79b7fb",
+      "revId": "42f327949bbf128f2a609a2b0780440cc25f8454",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
