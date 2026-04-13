@@ -20,6 +20,52 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0757b836_7e1fbf2b",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-13T13:34:11Z",
+      "side": 1,
+      "message": ":: can appear in URLs - https://example.com/api::v1/resource\nGemini claims | is a better option",
+      "range": {
+        "startLine": 417,
+        "startChar": 30,
+        "endLine": 417,
+        "endChar": 32
+      },
+      "revId": "71ee5562d89de5efa1f3f0f859b2c92dcac3100d",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3e3000a3_adc18862",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-13T13:34:11Z",
+      "side": 1,
+      "message": "Host is a different thing. \n\nName: inject-scripts-by-url\nUsage: Inject scripts by URL. Format: url_pattern|path/to/script. This will inject the script into any requests whose URL contains a substring matching url_pattern. Regexes are accepted.\n\ns/host/url in the helper functions too.\n\nhttps://source.chromium.org/chromium/chromium/src/+/main:third_party/webpagereplay/src/webpagereplay/transformers.go;l\u003d617-622?q\u003dURLPattern%20-f:(%5Eout)%20f:webpagereplay\u0026ss\u003dchromium%2Fchromium%2Fsrc",
+      "range": {
+        "startLine": 500,
+        "startChar": 29,
+        "endLine": 500,
+        "endChar": 33
+      },
+      "revId": "71ee5562d89de5efa1f3f0f859b2c92dcac3100d",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f7b5b73a_3ebdbe13",
         "filename": "src/wpr_test.go",
         "patchSetId": 1
