@@ -208,6 +208,30 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "afe29264_a45aaf67",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-04-13T15:48:43Z",
+      "side": 1,
+      "message": "There are two ways of getting this right.\n\nThe light-weight version is to have breaklines between the command and its description. Like [so](https://screenshot.googleplex.com/6mFMWpH4TUaeUej). While lines overflow, it\u0027s immediately obvious where the command is, and where the description is; they don\u0027t get mixed up visually.\n\nThe heavy-weight version is to follow the example set by `man`. See [here](https://screenshot.googleplex.com/AbJx4MpthzTUZEv) compared to [here](https://screenshot.googleplex.com/8w5aZggMyK4UUsR). Note that you need to close `man` between invocations, it does not react to resizing dynamically, unfortunately.\n\nI\u0027d prefer the light-weight version here.",
+      "parentUuid": "d6158b30_0292f144",
+      "range": {
+        "startLine": 500,
+        "startChar": 29,
+        "endLine": 500,
+        "endChar": 33
+      },
+      "revId": "71ee5562d89de5efa1f3f0f859b2c92dcac3100d",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f7b5b73a_3ebdbe13",
