@@ -338,7 +338,16 @@ func (common *CommonConfig) ProcessInjectedScriptsForReplay(c *cli.Context,
 	}
 
 	// Specified through --rules-file.
-	return common.processRulesFile(c)
+	if err := common.processRulesFile(c); err != nil {
+		return err
+	}
+
+	// Specified through --inject-scripts-by-url.
+	if err := common.processInjectScriptsByUrl(c); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 var (
@@ -381,6 +390,45 @@ func (common *CommonConfig) processRulesFile(c *cli.Context) error {
 	common.transformers = append(common.transformers, t)
 	Log().Info("Loaded replay rules", "path", rulesFile)
 	return nil
+}
+
+func (common *CommonConfig) processInjectScriptsByUrl(c *cli.Context) error {
+	byUrl := c.StringSlice("inject-scripts-by-url")
+	if len(byUrl) == 0 {
+		return nil
+	}
+	rules, err := parseInjectScriptsByUrl(byUrl)
+	if err != nil {
+		return err
+	}
+	t, err := webpagereplay.NewRuleBasedTransformer(rules)
+	if err != nil {
+		return err
+	}
+	common.transformers = append(common.transformers, t)
+	return nil
+}
+
+func parseInjectScriptsByUrl(byUrl []string) ([]*webpagereplay.TransformerRule, error) {
+	var rules []*webpagereplay.TransformerRule
+	for _, s := range byUrl {
+		// Use "::" as separator. Why it could appear in some file-path,
+		// it's not very common, and the user can fix that issue by choosing
+		// another path.
+		parts := strings.SplitN(s, "::", 2)
+		if len(parts) != 2 {
+			return nil, fmt.Errorf("invalid inject-scripts-by-url format: %s", s)
+		}
+		scriptPath := parts[0] // Path validated later in the pipeline.
+		urlStr := parts[1]
+
+		rule := &webpagereplay.TransformerRule{
+			InjectedScript: scriptPath,
+		}
+		rule.URLPattern = urlStr
+		rules = append(rules, rule)
+	}
+	return rules, nil
 }
 
 func replaceConstantsIfDeterministicJs(
@@ -448,6 +496,10 @@ func (r *ReplayCommand) Flags() []cli.Flag {
 			Name:  "inject-archive-scripts",
 			Value: "true",
 			Usage: "Inject scripts stored in the archive on replay. Defaults to true.",
+		},
+		&cli.StringSliceFlag{
+			Name:  "inject-scripts-by-url",
+			Usage: "Inject scripts by URL. Format: path/to/script::URL.",
 		},
 		&cli.StringFlag{
 			Name:        "rules-file",
