@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "044399ee_e4b07a1b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-13T14:40:56Z",
+      "side": 1,
+      "message": "update here and below",
+      "range": {
+        "startLine": 7,
+        "startChar": 24,
+        "endLine": 7,
+        "endChar": 28
+      },
+      "revId": "6b3a3e07a552137d4d3be64e825e93fae0e2795f",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "968d47ad_ad7f30c3",
+        "filename": "scripts/binary_dependencies.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-13T14:40:56Z",
+      "side": 1,
+      "message": "It didn\u0027t change in patchset 2, don\u0027t forget to update before submitting",
+      "revId": "6b3a3e07a552137d4d3be64e825e93fae0e2795f",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c5e6cc97_6c3d0e48",
+        "filename": "src/wpr.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-13T14:40:56Z",
+      "side": 1,
+      "message": "While ?",
+      "range": {
+        "startLine": 415,
+        "startChar": 28,
+        "endLine": 415,
+        "endChar": 31
+      },
+      "revId": "6b3a3e07a552137d4d3be64e825e93fae0e2795f",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
