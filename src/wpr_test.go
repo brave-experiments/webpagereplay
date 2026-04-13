@@ -416,6 +416,125 @@ func TestProcessInjectedScriptsForReplay_ScriptNameCollision(t *testing.T) {
 	}
 }
 
+func TestProcessInjectedScriptsForReplay_InjectScriptsByURL(t *testing.T) {
+	d := t.TempDir()
+	s1, s2 := filepath.Join(d, "s1.js"), filepath.Join(d, "s2.js")
+	os.WriteFile(s1, []byte("s1"), 0644)
+	os.WriteFile(s2, []byte("s2"), 0644)
+
+	tests := []struct {
+		name, url, script string
+		flags             []string
+		err               bool
+	}{
+		{
+			name:   "example",
+			flags:  []string{s1 + "::example.com"},
+			url:    "https://example.com/",
+			script: "s1",
+		},
+		{
+			name:   "google",
+			flags:  []string{s2 + "::google.com"},
+			url:    "https://google.com/",
+			script: "s2",
+		},
+		{name: "error", flags: []string{"/no/file::URL"}, err: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			fs := flag.NewFlagSet("test", flag.ContinueOnError)
+			ss := &cli.StringSlice{}
+			fs.Var(ss, "inject-script-by-url", "")
+			for _, f := range tt.flags {
+				fs.Set("inject-script-by-url", f)
+			}
+
+			cc := &CommonConfig{}
+			err := cc.ProcessInjectedScriptsForReplay(cli.NewContext(nil, fs, nil), &webpagereplay.Archive{})
+
+			if tt.err {
+				if err == nil {
+					t.Fatal("Expected error")
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			req, _ := http.NewRequest("GET", tt.url, nil)
+			resp := &http.Response{
+				Header:     http.Header{"Content-Type": []string{"text/html"}},
+				Body:       io.NopCloser(bytes.NewReader([]byte("<html><head> </head><body></body></html>"))),
+				StatusCode: http.StatusOK,
+				Request:    req,
+			}
+			cc.transformers[0].Transform(req, resp)
+			body, _ := io.ReadAll(resp.Body)
+			if !bytes.Contains(body, []byte(tt.script)) {
+				t.Errorf("Expected %s in %s", tt.script, body)
+			}
+		})
+	}
+}
+
+func TestParseInjectScriptsByUrl(t *testing.T) {
+	tests := []struct {
+		name        string
+		byUrl       []string
+		expectError bool
+	}{
+		{
+			name: "Valid normal URL",
+			byUrl: []string{
+				"/path/to/script.js::https://example.com",
+			},
+			expectError: false,
+		},
+		{
+			name: "Valid regex URL",
+			byUrl: []string{
+				"/path/to/script.js::^https?://example\\.com/.*",
+			},
+			expectError: false,
+		},
+		{
+			name: "Multiple files to same URL",
+			byUrl: []string{
+				"file1.js::URL",
+				"file2.js::URL",
+			},
+			expectError: false,
+		},
+		{
+			name: "Same file to multiple URLs",
+			byUrl: []string{
+				"file.js::URL1",
+				"file.js::URL2",
+			},
+			expectError: false,
+		},
+		{
+			name: "Invalid format",
+			byUrl: []string{
+				"invalid_format",
+			},
+			expectError: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := parseInjectScriptsByUrl(tt.byUrl)
+			if (err != nil) != tt.expectError {
+				t.Errorf("Expected error: %v, got: %v", tt.expectError, err)
+			}
+		})
+	}
+}
+
 func TestProcessInjectedScriptsForReplay_RulesFile(t *testing.T) {
 	tempDir := t.TempDir()
 
@@ -542,6 +661,64 @@ func TestProcessInjectedScriptsForReplay_RulesFile(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestProcessInjectedScriptsForReplay_InjectScriptsByURLAndRulesFile(t *testing.T) {
+	d := t.TempDir()
+	s1 := filepath.Join(d, "s1.js")
+	s2 := filepath.Join(d, "s2.js")
+	os.WriteFile(s1, []byte("s1"), 0644)
+	os.WriteFile(s2, []byte("s2"), 0644)
+
+	rulesFilePath := filepath.Join(d, "rules.json")
+	rulesContent := `[
+		{"URL": "https://rules.com/", "InjectedScript": "` + s1 + `"},
+		{"URL": "https://both.com/", "InjectedScript": "` + s1 + `"}
+	]`
+	os.WriteFile(rulesFilePath, []byte(rulesContent), 0644)
+
+	fs := flag.NewFlagSet("test", flag.ContinueOnError)
+	fs.String("rules-file", "", "")
+	fs.Set("rules-file", rulesFilePath)
+
+	ss := &cli.StringSlice{}
+	fs.Var(ss, "inject-script-by-url", "")
+	fs.Set("inject-script-by-url", s2+"::https://url.com/")
+	fs.Set("inject-script-by-url", s2+"::https://both.com/")
+
+	cc := &CommonConfig{}
+	err := cc.ProcessInjectedScriptsForReplay(cli.NewContext(nil, fs, nil), &webpagereplay.Archive{})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(cc.transformers) != 2 {
+		t.Fatalf("Expected 2 transformers, got %d", len(cc.transformers))
+	}
+
+	verifyInjection := func(url string, expectedScripts []string) {
+		t.Helper()
+		req, _ := http.NewRequest("GET", url, nil)
+		resp := &http.Response{
+			Header:     http.Header{"Content-Type": []string{"text/html"}},
+			Body:       io.NopCloser(bytes.NewReader([]byte("<html><head></head></html>"))),
+			StatusCode: http.StatusOK,
+			Request:    req,
+		}
+		for _, tr := range cc.transformers {
+			tr.Transform(req, resp)
+		}
+		body, _ := io.ReadAll(resp.Body)
+		for _, expected := range expectedScripts {
+			if !bytes.Contains(body, []byte(expected)) {
+				t.Errorf("Expected script %q to be injected for %s, body: %s", expected, url, body)
+			}
+		}
+	}
+
+	verifyInjection("https://rules.com/", []string{"s1"})
+	verifyInjection("https://url.com/", []string{"s2"})
+	verifyInjection("https://both.com/", []string{"s1", "s2"})
 }
 
 func TestProcessInjectedScriptsForReplay_Fallback(t *testing.T) {
