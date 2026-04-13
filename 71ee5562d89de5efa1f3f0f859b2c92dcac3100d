@@ -16,6 +16,23 @@
       "message": "WANT_LGTM\u003deither",
       "revId": "71ee5562d89de5efa1f3f0f859b2c92dcac3100d",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f7b5b73a_3ebdbe13",
+        "filename": "src/wpr_test.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 1328067
+      },
+      "writtenOn": "2026-04-13T11:49:53Z",
+      "side": 1,
+      "message": "nit: can you add a test where both --inject-scripts-by-host and --rules-file are specified? I mean, for the same host but with different scripts, to check that both are injected.",
+      "revId": "71ee5562d89de5efa1f3f0f859b2c92dcac3100d",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
