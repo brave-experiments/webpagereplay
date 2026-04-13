@@ -69,6 +69,24 @@
       "parentUuid": "1649d115_be79b7fb",
       "revId": "42f327949bbf128f2a609a2b0780440cc25f8454",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "24ca6f10_0e5ff5e9",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-13T11:27:19Z",
+      "side": 1,
+      "message": "\u003e a) This doesn\u0027t handle --inject-scripts\u003ddeterministic.js,foo.js\n\nOh, I see, the fix is specifically about the case when the --inject-scripts flag is omitted. Can you turn the `common.injectScripts \u003d\u003d \"deterministic.js\"` part into an assert then?\n\n\u003e I\u0027d prefer not to do this. IMO a flag explicitly specified by the user should always override all other settings\n\nThat\u0027s a fair point.\n\n\nIt\u0027s weird to me that --help claims --inject-scripts\u003ddeterministic.js and --inject-archive-scripts\u003dtrue by default but then if the user explicitly passes those same values they get a different behavior...  I don\u0027t think I can propose an alternative that\u0027s simple enough. Sad LGTM",
+      "parentUuid": "7d08b271_fd797691",
+      "revId": "42f327949bbf128f2a609a2b0780440cc25f8454",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
