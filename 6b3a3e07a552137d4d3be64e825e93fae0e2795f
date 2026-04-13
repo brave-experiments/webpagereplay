@@ -24,6 +24,53 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a35984fb_0c9c0b23",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-04-13T15:27:09Z",
+      "side": 1,
+      "message": "I know, but thank you for the reminder. (But don\u0027t worry about skipping these going forward.)",
+      "parentUuid": "044399ee_e4b07a1b",
+      "range": {
+        "startLine": 7,
+        "startChar": 24,
+        "endLine": 7,
+        "endChar": 28
+      },
+      "revId": "6b3a3e07a552137d4d3be64e825e93fae0e2795f",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "95d7a924_7ca1c3bd",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-04-13T15:27:09Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by Spellchecker: \"occassionally\" is a possible misspelling of \"occasionally\".\n\nTo bypass Spellche...\n\n\"occassionally\" is a possible misspelling of \"occasionally\".\n\nTo bypass Spellchecker, add a footer with DISABLE_SPELLCHECKER",
+      "range": {
+        "startLine": 14,
+        "startChar": 38,
+        "endLine": 14,
+        "endChar": 51
+      },
+      "revId": "6b3a3e07a552137d4d3be64e825e93fae0e2795f",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "968d47ad_ad7f30c3",
@@ -41,6 +88,24 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d32ec48_d54faf05",
+        "filename": "scripts/binary_dependencies.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-04-13T15:27:09Z",
+      "side": 1,
+      "message": "Ditto.",
+      "parentUuid": "968d47ad_ad7f30c3",
+      "revId": "6b3a3e07a552137d4d3be64e825e93fae0e2795f",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c5e6cc97_6c3d0e48",
@@ -54,6 +119,30 @@
       "writtenOn": "2026-04-13T14:40:56Z",
       "side": 1,
       "message": "While ?",
+      "range": {
+        "startLine": 415,
+        "startChar": 28,
+        "endLine": 415,
+        "endChar": 31
+      },
+      "revId": "6b3a3e07a552137d4d3be64e825e93fae0e2795f",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d1946d4_87eb04dc",
+        "filename": "src/wpr.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-04-13T15:27:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c5e6cc97_6c3d0e48",
       "range": {
         "startLine": 415,
         "startChar": 28,
