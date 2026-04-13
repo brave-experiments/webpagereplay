@@ -16,6 +16,23 @@
       "message": "WANT_LGTM\u003deither",
       "revId": "459e41638f95b1250cf77deae62e4cfc6cf00228",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fcfe24b9_128ae6a1",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-13T07:55:00Z",
+      "side": 1,
+      "message": "The reason you have to do c.String(\"rules-file\") here instead of c.rulesFile is that --rules-file is a replay-only flag. Should this flag apply to recording too?",
+      "revId": "459e41638f95b1250cf77deae62e4cfc6cf00228",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
