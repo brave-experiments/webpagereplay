@@ -87,6 +87,24 @@
       "parentUuid": "7d08b271_fd797691",
       "revId": "42f327949bbf128f2a609a2b0780440cc25f8454",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e7c6c101_d516c110",
+        "filename": "src/wpr.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 1328067
+      },
+      "writtenOn": "2026-04-13T11:36:12Z",
+      "side": 1,
+      "message": "Should we fix the help text then? Something along the lines of `By default deterministic.js is injected, unless a script with that name is already present in the archive`.",
+      "parentUuid": "24ca6f10_0e5ff5e9",
+      "revId": "42f327949bbf128f2a609a2b0780440cc25f8454",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
