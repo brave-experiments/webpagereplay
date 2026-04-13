@@ -828,8 +828,8 @@ func main() {
 	}
 	app.Usage = "Web Page Replay"
 	app.UsageText = fmt.Sprintf(longUsage, progName, progName)
-	app.HideVersion = true
-	app.Version = ""
+	app.HideVersion = false
+	app.Version = "1.01"
 	app.Writer = os.Stderr
 	app.RunAndExitOnError()
 }
