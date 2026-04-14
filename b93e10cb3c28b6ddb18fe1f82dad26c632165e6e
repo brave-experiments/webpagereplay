@@ -18,6 +18,24 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fafd603b_17fe5f6a",
+        "filename": "src/httparchive.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 547,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-04-14T11:48:07Z",
+      "side": 1,
+      "message": "At the moment all I want is to have a way to check an archive and get a rough estimation of what\u0027s there. In the (not unlikely) case that I\u0027d also want to see what\u0027s inside the script, I would indeed add cat-script.",
+      "parentUuid": "6dbbc847_b3cede35",
+      "revId": "b93e10cb3c28b6ddb18fe1f82dad26c632165e6e",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4b5f15c9_635bb9e7",
@@ -43,6 +61,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "59af16b3_36881d4e",
+        "filename": "src/httparchive.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 554,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-04-14T11:48:07Z",
+      "side": 1,
+      "message": "\u003e I think you want to null check here.\n\nIs this an issue you can reproduce in practice?\n\n\u003e should we make the output different for these 2 cases? [...]\n\nCan you think of a case where this distinction is meaningful?",
+      "parentUuid": "4b5f15c9_635bb9e7",
+      "range": {
+        "startLine": 554,
+        "startChar": 30,
+        "endLine": 554,
+        "endChar": 45
+      },
+      "revId": "b93e10cb3c28b6ddb18fe1f82dad26c632165e6e",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "cde2e63f_f0f1df3e",
         "filename": "src/webpagereplay/archive.go",
         "patchSetId": 2
@@ -54,6 +96,24 @@
       "writtenOn": "2026-04-14T07:37:14Z",
       "side": 1,
       "message": "This is a thin wrapper on top of a public field and called in a single test file, so it\u0027s not worth introducing. If you want to simplify the one test caller, you can do this directly\n```\nimport \"maps\"\nimport \"slices\"\n\n// maps.Keys returns an iterator; use slices.Collect to turn it into a slice\nkeys :\u003d slices.Collect(maps.Keys(myMap))\n```",
+      "revId": "b93e10cb3c28b6ddb18fe1f82dad26c632165e6e",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a7ad392d_65c40726",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-04-14T11:48:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cde2e63f_f0f1df3e",
       "revId": "b93e10cb3c28b6ddb18fe1f82dad26c632165e6e",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
