@@ -305,8 +305,7 @@ func (common *CommonConfig) ProcessInjectedScriptsForReplay(c *cli.Context,
 		constantMathRandomResult = flagValue
 	}
 
-	injectArchiveScripts :=
-		!isSet(c, "inject-archive-scripts") || c.String("inject-archive-scripts") == "true"
+	injectArchiveScripts := c.String("inject-archive-scripts") == "true"
 
 	// If the user didn't explicitly request a script, and the archive already
 	// contains 'deterministic.js', we skip loading the default 'deterministic.js'
@@ -494,8 +493,8 @@ func (r *ReplayCommand) Flags() []cli.Flag {
 	return append(r.common.Flags(),
 		&cli.StringFlag{
 			Name:  "inject-archive-scripts",
-			Value: "true",
-			Usage: "Inject scripts stored in the archive on replay. Defaults to true.",
+			Value: "false",
+			Usage: "Inject scripts stored in the archive on replay. Defaults to false.",
 		},
 		&cli.StringSliceFlag{
 			Name:  "inject-script-by-url",

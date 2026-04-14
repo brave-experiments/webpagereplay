@@ -234,6 +234,8 @@ func TestProcessInjectedScriptsForReplay_SingleScriptInArchive(t *testing.T) {
 	}
 	common := &CommonConfig{}
 	flagSet := flag.NewFlagSet("test", flag.ContinueOnError)
+	flagSet.String("inject-archive-scripts", "true", "")
+	flagSet.Set("inject-archive-scripts", "true")
 	c := cli.NewContext(nil, flagSet, nil)
 
 	if err := common.ProcessInjectedScriptsForReplay(c, archive); err != nil {
@@ -254,6 +256,8 @@ func TestProcessInjectedScriptsForReplay_MultipleScriptsInArchive(t *testing.T) 
 	}
 	common := &CommonConfig{}
 	flagSet := flag.NewFlagSet("test", flag.ContinueOnError)
+	flagSet.String("inject-archive-scripts", "true", "")
+	flagSet.Set("inject-archive-scripts", "true")
 	c := cli.NewContext(nil, flagSet, nil)
 
 	if err := common.ProcessInjectedScriptsForReplay(c, archive); err != nil {
@@ -322,6 +326,8 @@ func TestProcessInjectedScriptsForReplay_ArchiveAndDisk(t *testing.T) {
 	if err := flagSet.Set("inject-scripts", scriptPath); err != nil {
 		t.Fatalf("Failed to set flag: %v", err)
 	}
+	flagSet.String("inject-archive-scripts", "true", "")
+	flagSet.Set("inject-archive-scripts", "true")
 	c := cli.NewContext(nil, flagSet, nil)
 
 	if err := common.ProcessInjectedScriptsForReplay(c, archive); err != nil {
@@ -392,9 +398,10 @@ func TestProcessInjectedScriptsForReplay_ScriptNameCollision(t *testing.T) {
 		expectedTransformers int
 	}{
 		{
-			name:                 "Collision errors by default",
+			name:                 "No collision by default",
 			injectArchiveScripts: "",
-			expectError:          true,
+			expectError:          false,
+			expectedTransformers: 1,
 		},
 		{
 			name:                 "Collision errors if explicitly enabled",
@@ -762,6 +769,8 @@ func TestProcessInjectedScriptsForReplay_SkipDiskDefaultWhenInArchive(t *testing
 
 	// Create an empty FlagSet and Context to simulate that the flag was not set.
 	flagSet := flag.NewFlagSet("test", flag.ContinueOnError)
+	flagSet.String("inject-archive-scripts", "true", "")
+	flagSet.Set("inject-archive-scripts", "true")
 	c := cli.NewContext(nil, flagSet, nil)
 
 	err := common.ProcessInjectedScriptsForReplay(c, archive)
@@ -797,6 +806,8 @@ func TestProcessInjectedScriptsForReplay_ExplicitFlagCollidesWithArchive(t *test
 	flagSet := flag.NewFlagSet("test", flag.ContinueOnError)
 	flagSet.String("inject-scripts", "", "")
 	flagSet.Set("inject-scripts", scriptPath)
+	flagSet.String("inject-archive-scripts", "true", "")
+	flagSet.Set("inject-archive-scripts", "true")
 
 	c := cli.NewContext(nil, flagSet, nil)
 
