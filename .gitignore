@@ -7,3 +7,6 @@ third_party/clang-format
 
 # General macOS spam.
 *.DS_Store
+
+# Python stuff.
+__pycache__/
