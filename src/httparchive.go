@@ -67,7 +67,7 @@ func list(cfg *webpagereplay.HttpArchiveConfig, a *webpagereplay.Archive, printF
 }
 
 func readMetadata(a *webpagereplay.Archive) error {
-	fmt.Printf(a.Metadata)
+	fmt.Print(a.Metadata)
 	if a.Metadata != "" && !strings.HasSuffix(a.Metadata, "\n") {
 		fmt.Printf("\n")
 	}

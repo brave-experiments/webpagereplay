@@ -56,13 +56,18 @@ def CheckGoTests(input_api, output_api):
                     'cwd':
                     str(pathlib.Path(input_api.PresubmitLocalPath()) / 'src')
                 },
-                message=output_api.PresubmitError)
-        ]))
-    results.extend(
-        input_api.RunTests([
+                message=output_api.PresubmitError),
             input_api.Command(
                 name='wpr.go tests',
                 cmd=['go', 'test', 'wpr.go', 'wpr_test.go'],
+                kwargs={
+                    'cwd':
+                    str(pathlib.Path(input_api.PresubmitLocalPath()) / 'src')
+                },
+                message=output_api.PresubmitError),
+            input_api.Command(
+                name='httparchive tests',
+                cmd=['go', 'test', 'httparchive.go', 'httparchive_test.go'],
                 kwargs={
                     'cwd':
                     str(pathlib.Path(input_api.PresubmitLocalPath()) / 'src')

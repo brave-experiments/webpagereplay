@@ -2,17 +2,18 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package webpagereplay
+package main
 
 import (
 	"strings"
 	"testing"
 
 	"github.com/urfave/cli/v2"
+	"go.chromium.org/webpagereplay/src/webpagereplay"
 )
 
 func TestFlags(t *testing.T) {
-	cfg := &HttpArchiveConfig{}
+	cfg := &webpagereplay.HttpArchiveConfig{}
 
 	// Primary flags (dashes).
 	baseFlags := []string{"decode-response-body", "command", "host", "full-path",
@@ -80,7 +81,7 @@ func TestFlags(t *testing.T) {
 	for name, tt := range cases {
 		t.Run(name, func(t *testing.T) {
 			flags := append([]cli.Flag{}, tt.flags...)
-			AddLegacyAliases(&flags)
+			webpagereplay.AddLegacyAliases(&flags)
 			if len(tt.wantFlags) != len(flags) {
 				t.Fatalf("Incorrect '%s' flags returned, wanted:%d, actual:%d",
 					name, len(tt.wantFlags), len(flags))
