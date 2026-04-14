@@ -70,6 +70,24 @@
       "parentUuid": "fad4d684_1ff982e5",
       "revId": "8af9ec2851fe9119fd39ee862f1eebc72e3ce408",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c2da2146_56cbb8ef",
+        "filename": "src/httparchive.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-14T14:34:26Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "80c1784a_4a67f453",
+      "revId": "8af9ec2851fe9119fd39ee862f1eebc72e3ce408",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
