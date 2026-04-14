@@ -107,6 +107,30 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "436e0187_650127a1",
+        "filename": "src/httparchive.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 554,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-04-14T15:04:47Z",
+      "side": 1,
+      "message": "\u003e you might still want to output \"No injected scripts\" when there are none, just to prevent the user from thinking the command failed because it produced no output\n\nI think general UNIX philosophy is to be loud with errors (command failed) and silent with successes.",
+      "parentUuid": "3345a202_a96a9b7b",
+      "range": {
+        "startLine": 554,
+        "startChar": 30,
+        "endLine": 554,
+        "endChar": 45
+      },
+      "revId": "b93e10cb3c28b6ddb18fe1f82dad26c632165e6e",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cde2e63f_f0f1df3e",
