@@ -85,6 +85,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3345a202_a96a9b7b",
+        "filename": "src/httparchive.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 554,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-14T14:33:39Z",
+      "side": 1,
+      "message": "Ha, I convinced myself it\u0027s impossible for this to be null here because newArchive() creates an empty map\nhttps://source.chromium.org/chromium/chromium/src/+/main:third_party/webpagereplay/src/webpagereplay/archive.go;l\u003d165;drc\u003d99a9003c9cbae6edccb4ec6023294bde3b126028\n\nhttps://source.chromium.org/chromium/chromium/src/+/main:third_party/webpagereplay/src/webpagereplay/archive.go;l\u003d138;drc\u003d99a9003c9cbae6edccb4ec6023294bde3b126028\n\n\u003e Can you think of a case where this distinction is meaningful?\n\nGiven the 2 states are being treated exactly the same everywhere in the code, no\n\noptional: you might still want to output \"No injected scripts\" when there are none, just to prevent the user from thinking the command failed because it produced no output",
+      "parentUuid": "59af16b3_36881d4e",
+      "range": {
+        "startLine": 554,
+        "startChar": 30,
+        "endLine": 554,
+        "endChar": 45
+      },
+      "revId": "b93e10cb3c28b6ddb18fe1f82dad26c632165e6e",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "cde2e63f_f0f1df3e",
         "filename": "src/webpagereplay/archive.go",
         "patchSetId": 2
