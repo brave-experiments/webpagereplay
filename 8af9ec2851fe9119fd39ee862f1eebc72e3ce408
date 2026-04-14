@@ -34,6 +34,24 @@
       "parentUuid": "8d240bbd_482c0c37",
       "revId": "8af9ec2851fe9119fd39ee862f1eebc72e3ce408",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fad4d684_1ff982e5",
+        "filename": "src/httparchive.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-14T13:28:46Z",
+      "side": 1,
+      "message": "Because it has nothing to do with the subject of the CL AFAICT",
+      "parentUuid": "d0b0b76f_01749ee0",
+      "revId": "8af9ec2851fe9119fd39ee862f1eebc72e3ce408",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
