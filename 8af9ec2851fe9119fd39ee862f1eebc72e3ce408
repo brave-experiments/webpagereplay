@@ -16,6 +16,24 @@
       "message": "Is this intentional? If yes, mention in the CL description. If not, revert.",
       "revId": "8af9ec2851fe9119fd39ee862f1eebc72e3ce408",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d0b0b76f_01749ee0",
+        "filename": "src/httparchive.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-04-14T13:27:39Z",
+      "side": 1,
+      "message": "This is intentional, but why would this technicality merit a mention in the CL description?",
+      "parentUuid": "8d240bbd_482c0c37",
+      "revId": "8af9ec2851fe9119fd39ee862f1eebc72e3ce408",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
