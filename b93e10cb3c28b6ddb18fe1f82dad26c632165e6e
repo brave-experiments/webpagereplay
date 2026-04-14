@@ -20,6 +20,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4b5f15c9_635bb9e7",
+        "filename": "src/httparchive.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 554,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-14T07:47:13Z",
+      "side": 1,
+      "message": "I think you want to null check here. Also, should we make the output different for these 2 cases?\n- nil map (predates introduction of the field)\n- empty map (recording happened after introduction of the field but no scripts were injected during recording)",
+      "range": {
+        "startLine": 554,
+        "startChar": 30,
+        "endLine": 554,
+        "endChar": 45
+      },
+      "revId": "b93e10cb3c28b6ddb18fe1f82dad26c632165e6e",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "cde2e63f_f0f1df3e",
         "filename": "src/webpagereplay/archive.go",
         "patchSetId": 2
