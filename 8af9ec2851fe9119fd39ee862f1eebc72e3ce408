@@ -52,6 +52,24 @@
       "parentUuid": "d0b0b76f_01749ee0",
       "revId": "8af9ec2851fe9119fd39ee862f1eebc72e3ce408",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "80c1784a_4a67f453",
+        "filename": "src/httparchive.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-04-14T13:31:57Z",
+      "side": 1,
+      "message": "It just fixes this issue from the presubmit:\n```\n./httparchive.go:70:13: non-constant format string in call to fmt.Printf\n```\nWhich only appears now.\n\nI don\u0027t think this is significant enough to merit calling attention to in the CL description. Seems like it would just be distracting. This is a technical step in service of the overall goal that is summarised in the CL description.",
+      "parentUuid": "fad4d684_1ff982e5",
+      "revId": "8af9ec2851fe9119fd39ee862f1eebc72e3ce408",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
