@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6dbbc847_b3cede35",
+        "filename": "src/httparchive.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 547,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-14T07:37:14Z",
+      "side": 1,
+      "message": "What\u0027s your plan for next CLs? (so I can see how it all fits together). Are you gonna introduce cat-script that takes the script name and prints it?",
+      "revId": "b93e10cb3c28b6ddb18fe1f82dad26c632165e6e",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cde2e63f_f0f1df3e",
+        "filename": "src/webpagereplay/archive.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-14T07:37:14Z",
+      "side": 1,
+      "message": "This is a thin wrapper on top of a public field and called in a single test file, so it\u0027s not worth introducing. If you want to simplify the one test caller, you can do this directly\n```\nimport \"maps\"\nimport \"slices\"\n\n// maps.Keys returns an iterator; use slices.Collect to turn it into a slice\nkeys :\u003d slices.Collect(maps.Keys(myMap))\n```",
+      "revId": "b93e10cb3c28b6ddb18fe1f82dad26c632165e6e",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
