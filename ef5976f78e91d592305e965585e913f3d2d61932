@@ -18,6 +18,24 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "207bd39e_231e927b",
+        "filename": "infra/config/main.star",
+        "patchSetId": 5
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-16T15:23:31Z",
+      "side": 1,
+      "message": "Dropping in favor of crrev.com/c/7768617",
+      "parentUuid": "57f1d20c_500898e4",
+      "revId": "ef5976f78e91d592305e965585e913f3d2d61932",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "01ea4ce0_842f3f7d",
@@ -35,6 +53,24 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8048d7c6_3169a208",
+        "filename": "infra/config/main.star",
+        "patchSetId": 5
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-16T15:23:31Z",
+      "side": 1,
+      "message": "Dropping in favor of crrev.com/c/7768617",
+      "parentUuid": "01ea4ce0_842f3f7d",
+      "revId": "ef5976f78e91d592305e965585e913f3d2d61932",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f398b424_65b77b5e",
@@ -48,6 +84,24 @@
       "writtenOn": "2026-04-08T11:08:24Z",
       "side": 1,
       "message": ".",
+      "revId": "ef5976f78e91d592305e965585e913f3d2d61932",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d70c510e_dab689a7",
+        "filename": "infra/config/main.star",
+        "patchSetId": 5
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-16T15:23:31Z",
+      "side": 1,
+      "message": "Dropping in favor of crrev.com/c/7768617",
+      "parentUuid": "f398b424_65b77b5e",
       "revId": "ef5976f78e91d592305e965585e913f3d2d61932",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
