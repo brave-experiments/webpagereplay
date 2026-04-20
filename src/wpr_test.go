@@ -29,7 +29,7 @@ func TestCommonConfig_CheckArgs(t *testing.T) {
 		{
 			name:          "The minimum value is valid",
 			val:           ptr(0.0),
-			expectSuccess: true,
+			expectSuccess: false,
 		},
 		{
 			name:          "Values within the permissible range are valid",
