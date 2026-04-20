@@ -1,5 +1,6 @@
 # UUID                                  	Group Name
 #
-7ac92b39c018ca18bbfe535744b6a19f7489999c	project-webpagereplay-committers
+7cfe5a4794ae5899a53f921168cf005d02e329c9	catapult-scoped@luci-project-accounts.iam.gserviceaccount.com
+cria:project-catapult-committers        	cria/project-catapult-committers
 global:Change-Owner                     	Change Owner
 mdb:chrome-git-admins                   	mdb/chrome-git-admins
