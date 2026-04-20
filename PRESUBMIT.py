@@ -7,6 +7,7 @@ See http://dev.chromium.org/developers/how-tos/depottools/presubmit-scripts
 for more details about the presubmit API built into depot_tools.
 """
 
+import os
 import pathlib
 import tempfile
 
@@ -14,7 +15,17 @@ PRESUBMIT_VERSION = '2.0.0'
 USE_PYTHON3 = True
 
 
+# TODO(crbug.com/495366518): The presubmit bot doesn't contain `go`, so
+# go-related checks are failing. We should fix by moving these tests to a
+# separate builder or installing go in the builder. For now, this check attempts
+# tries to ensure the tests are run locally by the author and skipped on bots.
+def _IsRunningOnBot():
+    return 'BUILDBUCKET_BUILD_ID' in os.environ
+
 def CheckBuildpWpr(input_api, output_api):
+    if not _IsRunningOnBot():
+        return []
+
     # Note: CheckGoTests() doesn't build the main function, that's why this
     # separate check exists.
     cmd_name = 'Test wpr builds'
@@ -29,6 +40,9 @@ def CheckBuildpWpr(input_api, output_api):
 
 
 def CheckBuildHttpArchive(input_api, output_api):
+    if not _IsRunningOnBot():
+        return []
+
     # Note: CheckGoTests() doesn't build the main function, that's why this
     # separate check exists.
     cmd_name = 'Test httparchive builds'
@@ -43,6 +57,9 @@ def CheckBuildHttpArchive(input_api, output_api):
 
 
 def CheckGoTests(input_api, output_api):
+    if not _IsRunningOnBot():
+        return []
+
     cmd_name = 'WebPageReplay go tests'
     if input_api.verbose:
         print(f'Running {cmd_name}')
@@ -110,6 +127,9 @@ def CheckPythonAndJavascriptFormat(input_api, output_api):
 
 
 def CheckGoFormat(input_api, output_api):
+    if not _IsRunningOnBot():
+        return []
+
     cmd_name = 'Checking go format'
     test_cmd = input_api.Command(
         name=cmd_name,
