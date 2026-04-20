@@ -141,6 +141,30 @@
       },
       "revId": "2c2b50142241ac4972cc8e897610e9a797760c8d",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "043ece93_3015e182",
+        "filename": "project.config",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1002539
+      },
+      "writtenOn": "2026-04-20T22:20:11Z",
+      "side": 1,
+      "message": "I\u0027m still not sure why it is needed (probably I\u0027m missing some details, since I see this permission is present in many other projects), but granting it to \"cria/project-catapult-committers\" should be fine either way.",
+      "parentUuid": "827d3327_d8a89973",
+      "range": {
+        "startLine": 18,
+        "startChar": 2,
+        "endLine": 18,
+        "endChar": 53
+      },
+      "revId": "2c2b50142241ac4972cc8e897610e9a797760c8d",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
