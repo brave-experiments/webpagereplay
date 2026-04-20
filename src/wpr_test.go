@@ -27,7 +27,7 @@ func TestCommonConfig_CheckArgs(t *testing.T) {
 		expectSuccess bool
 	}{
 		{
-			name:          "The minimum value is valid",
+			name:          "The minimum value is valid - blah",
 			val:           ptr(0.0),
 			expectSuccess: true,
 		},
