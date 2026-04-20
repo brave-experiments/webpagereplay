@@ -72,6 +72,30 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "34f30a79_3a36e1ec",
+        "filename": "project.config",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-20T22:15:46Z",
+      "side": 1,
+      "message": "I restricted to committers.",
+      "parentUuid": "09a3c611_c3baf879",
+      "range": {
+        "startLine": 16,
+        "startChar": 2,
+        "endLine": 16,
+        "endChar": 58
+      },
+      "revId": "2c2b50142241ac4972cc8e897610e9a797760c8d",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2e28cff4_1aadc940",
@@ -85,6 +109,30 @@
       "writtenOn": "2026-04-20T21:47:15Z",
       "side": 1,
       "message": "this is weird, why do we allow anyone to impersonate anyone else?",
+      "range": {
+        "startLine": 18,
+        "startChar": 2,
+        "endLine": 18,
+        "endChar": 53
+      },
+      "revId": "2c2b50142241ac4972cc8e897610e9a797760c8d",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "827d3327_d8a89973",
+        "filename": "project.config",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-20T22:15:46Z",
+      "side": 1,
+      "message": "I got the line from the catapult config, I don\u0027t really know what it means. Maybe it\u0027s so that reviewers can submit the CL for authors that set Auto-Submit?\nIf you think it\u0027s not necessary I can also remove that line",
+      "parentUuid": "2e28cff4_1aadc940",
       "range": {
         "startLine": 18,
         "startChar": 2,
