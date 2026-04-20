@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "09a3c611_c3baf879",
+        "filename": "project.config",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1002539
+      },
+      "writtenOn": "2026-04-20T21:59:47Z",
+      "side": 1,
+      "message": "project-webpagereplay-committers is a pure Gerrit group: https://chromium-review.git.corp.google.com/admin/groups/7ac92b39c018ca18bbfe535744b6a19f7489999c,members\n\nci.chromium.org group would have been \"cria/project-webpagereplay-committers\" (\"cria\" stands for \"chrome-infra-auth\").",
+      "parentUuid": "3b3a8433_fd39a2f4",
+      "range": {
+        "startLine": 16,
+        "startChar": 2,
+        "endLine": 16,
+        "endChar": 58
+      },
+      "revId": "2c2b50142241ac4972cc8e897610e9a797760c8d",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2e28cff4_1aadc940",
         "filename": "project.config",
         "patchSetId": 2
