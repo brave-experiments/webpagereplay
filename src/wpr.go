@@ -48,7 +48,7 @@ const longUsage = `
      2. Load recorded pages in a web browser. A 404 will be served for any pages or
         resources not in the recorded archive.
 
-   After: Remove the test root CA.
+   After: Remove the test root CA. Blah blah
      $ GOPATH=$PWD go run src/wpr.go removeroot`
 
 type CertConfig struct {
