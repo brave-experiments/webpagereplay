@@ -71,6 +71,8 @@ type CommonConfig struct {
 	noArchiveCertificates                    bool
 	constantMathRandomResult                 float64
 	skipCertLoadingForTesting                bool
+	htmlInjection                            bool
+	jsInjection                              bool
 
 	// Computed state.
 	rootCerts    []tls.Certificate
@@ -197,6 +199,18 @@ func (common *CommonConfig) Flags() []cli.Flag {
 				"values across runs because the calls to Math.random() might get " +
 				"reordered due to external factors.",
 			Destination: &common.constantMathRandomResult,
+		},
+		&cli.BoolFlag{
+			Name:        "html-injection",
+			Value:       true,
+			Usage:       "Inject scripts into HTML responses. Defaults to true.",
+			Destination: &common.htmlInjection,
+		},
+		&cli.BoolFlag{
+			Name:        "js-injection",
+			Value:       false,
+			Usage:       "Inject scripts into JavaScript responses. Defaults to false.",
+			Destination: &common.jsInjection,
 		},
 	)
 }
@@ -456,7 +470,10 @@ func replaceConstantsIfDeterministicJs(
 
 func (common *CommonConfig) addScriptInjector(script []byte, scriptFile string) error {
 	Log().Info("Processing script", "path", scriptFile)
-	si, err := webpagereplay.NewScriptInjector(script)
+	si, err := webpagereplay.NewScriptInjector(script, webpagereplay.ScriptInjectorConfig{
+		HtmlInjection: common.htmlInjection,
+		JsInjection:   common.jsInjection,
+	})
 	if err != nil {
 		return fmt.Errorf("error creating script injector for %s: %v", scriptFile, err)
 	}
