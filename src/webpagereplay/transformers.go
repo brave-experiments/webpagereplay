@@ -369,10 +369,22 @@ type ResponseTransformer interface {
 	Transform(req *http.Request, resp *http.Response)
 }
 
+type ScriptInjectorConfig struct {
+	HtmlInjection bool
+	JsInjection   bool
+}
+
+func DefaultScriptInjectorConfig() ScriptInjectorConfig {
+	return ScriptInjectorConfig{
+		HtmlInjection: true,
+		JsInjection:   false,
+	}
+}
+
 // NewScriptInjector constructs a transformer that injects the given script
 // after the first <head>, <html>, or <!doctype html> tag. The script is
 // minified before injection.
-func NewScriptInjector(script []byte) (ResponseTransformer, error) {
+func NewScriptInjector(script []byte, config ScriptInjectorConfig) (ResponseTransformer, error) {
 	m := minify.New()
 	m.AddFunc("application/javascript", js.Minify)
 	var minifiedJsBuffer bytes.Buffer
@@ -385,7 +397,11 @@ func NewScriptInjector(script []byte) (ResponseTransformer, error) {
 	// script execute permission.
 	sha256Bytes := sha256.Sum256(minifiedJsBuffer.Bytes())
 	sha256String := base64.URLEncoding.EncodeToString(sha256Bytes[:])
-	return &scriptInjector{minifiedJsBuffer.Bytes(), sha256String}, nil
+	return &scriptInjector{
+		script:          minifiedJsBuffer.Bytes(),
+		sha256:          sha256String,
+		injectionConfig: config,
+	}, nil
 }
 
 // NewScriptInjectorFromFile creates a script injector from a script stored in
@@ -396,7 +412,7 @@ func NewScriptInjectorFromFile(filename string) (
 	if err != nil {
 		return nil, err
 	}
-	return NewScriptInjector(script)
+	return NewScriptInjector(script, DefaultScriptInjectorConfig())
 }
 
 var (
@@ -409,8 +425,9 @@ var (
 )
 
 type scriptInjector struct {
-	script []byte
-	sha256 string
+	script          []byte
+	sha256          string
+	injectionConfig ScriptInjectorConfig
 }
 
 // Given a nonce, getScriptWithNonce returns the injected script text with the
@@ -438,9 +455,13 @@ func (si *scriptInjector) Transform(_ *http.Request, resp *http.Response) {
 	isHTML := isHtmlMimeType(contentType)
 	isJS := isJavascriptMimeType(contentType)
 
-	if !isHTML && !isJS {
+	shouldInject := (isHTML && si.injectionConfig.HtmlInjection) ||
+		(isJS && si.injectionConfig.JsInjection)
+
+	if !shouldInject {
 		return
 	}
+
 	if resp.StatusCode != http.StatusOK {
 		return
 	}
