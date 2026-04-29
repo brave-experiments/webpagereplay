@@ -42,13 +42,12 @@ def check_go_version():
     except subprocess.CalledProcessError:
         out = 'no go binary found'
     match = re.findall(r'go(\d+).(\d+)', out)
-    assert len(match) > 0, ('Unable to parse go version from "%s"' % out)
+    assert len(match) > 0, f'Unable to parse go version from "{out}"'
     version = [int(match[0][0]), int(match[0][1])]
-    assert (version[0] > _MIN_GO_VERSION[0]
-            or (version[0] == _MIN_GO_VERSION[0]
-                and version[1] >= _MIN_GO_VERSION[1])), (
-                    'Require go version %s or higher. Found: %s' %
-                    (_MIN_GO_VERSION, version))
+    assert (
+        version[0] > _MIN_GO_VERSION[0] or
+        (version[0] == _MIN_GO_VERSION[0] and version[1] >= _MIN_GO_VERSION[1])
+    ), f'Require go version {_MIN_GO_VERSION} or higher. Found: {version}'
 
 
 # GOARCH in the build command expects values that differ from the keys in
@@ -93,13 +92,12 @@ def compute_go_os(os_name):
 
 def build_and_upload_go_binary(binary_name, os_name, os_arch):
     if (os_name, os_arch) not in _SUPPORTED_PLATFORMS:
-        raise NotImplementedError('OS = %s, ARCH = %s is not supported' %
-                                  (os_name, os_arch))
+        raise NotImplementedError(
+            f'OS = {os_name}, ARCH = {os_arch} is not supported')
 
     check_go_version()
 
-    print('Build %s binary for OS %s, ARCH: %s' %
-          (binary_name, os_name, os_arch))
+    print(f'Build {binary_name} binary for OS {os_name}, ARCH: {os_arch}')
     try:
         # We want to build wpr go binaries from the local source. We do this by
         # making a temporary GOPATH that symlinks to our local directory.
@@ -114,26 +112,26 @@ def build_and_upload_go_binary(binary_name, os_name, os_arch):
         env['GOARCH'] = compute_go_arch(os_arch)
         env['CGO_ENABLED'] = '0'
 
-        print('GOPATH=%s' % go_path_dir)
-        print('CWD=%s' % _WPR_GO_DIR)
+        print(f'GOPATH={go_path_dir}')
+        print(f'CWD={_WPR_GO_DIR}')
 
         get_cmd = ['go', 'get', '-d', './...']
-        print('Running get command: %s' % ' '.join(get_cmd))
+        print(f'Running get command: {" ".join(get_cmd)}')
         subprocess.check_call(get_cmd, env=env, cwd=_WPR_GO_DIR)
 
         # Build in `go_path_dir`, so the binaries are deleted by the end.
-        binary_file = (os.path.join(go_path_dir, '%s.exe' %
-                                    binary_name) if os_name == 'win' else
-                       os.path.join(go_path_dir, binary_name))
+        binary_file = (os.path.join(go_path_dir, f'{binary_name}.exe')
+                       if os_name == 'win' else os.path.join(
+                           go_path_dir, binary_name))
         build_cmd = [
             'go', 'build', '-v', '-trimpath', '-o', binary_file,
-            '%s.go' % binary_name
+            f'{binary_name}.go'
         ]
-        print('Running build command: %s' % ' '.join(build_cmd))
+        print(f'Running build command: {" ".join(build_cmd)}')
         subprocess.check_call(build_cmd, env=env, cwd=_WPR_GO_DIR)
 
         clean_cmd = ['go', 'clean', '-modcache']
-        print('Running clean command: %s' % ' '.join(clean_cmd))
+        print(f'Running clean command: {" ".join(clean_cmd)}')
         subprocess.check_call(clean_cmd, env=env, cwd=_WPR_GO_DIR)
 
     except:
@@ -141,9 +139,8 @@ def build_and_upload_go_binary(binary_name, os_name, os_arch):
             shutil.rmtree(go_path_dir)
         raise
 
-    print('Upload %s binary dependency for OS %s, ARCH: %s' %
-          (binary_name, os_name, os_arch))
-    upload_dependency('%s_go' % binary_name,
+    print(f'Upload {binary_name} dependency for OS {os_name}, ARCH: {os_arch}')
+    upload_dependency(f'{binary_name}_go',
                       binary_file,
                       os_name=os_name,
                       os_arch=os_arch)
