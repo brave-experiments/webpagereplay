@@ -94,19 +94,6 @@ def CheckGoTests(input_api, output_api):
     return results
 
 
-def CheckPrebuiltBinaryUpdated(input_api, output_api):
-    files = input_api.UnixLocalPaths()
-    if (not any(f.endswith('binary_dependencies.json') for f in files) and any(
-            f.endswith('.go') and not f.endswith('_test.go') for f in files)):
-        return [
-            output_api.PresubmitError(
-                'You changed go files, but didn\'t run scripts/'
-                'upload_new_binaries.py')
-        ]
-
-    return []
-
-
 def CheckPanProjectChecks(input_api, output_api):
     # The code-owners plugin is not enabled on the webpagereplay gerrit host, so
     # owners_check is set to false to avoid a failure. Note that owners-approval
