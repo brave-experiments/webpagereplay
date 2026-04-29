@@ -137,3 +137,13 @@ def CheckGoFormat(input_api, output_api):
         kwargs={'cwd': input_api.PresubmitLocalPath()},
         message=output_api.PresubmitError)
     return input_api.RunTests([test_cmd])
+
+
+def CheckRuff(input_api, output_api):
+    cmd_name = 'Checking ruff format'
+    test_cmd = input_api.Command(
+        name=cmd_name,
+        cmd=['vpython3', '-m', 'ruff', 'check', '--select', 'E,F,W,B,I,UP'],
+        kwargs={'cwd': input_api.PresubmitLocalPath()},
+        message=output_api.PresubmitError)
+    return input_api.RunTests([test_cmd])
