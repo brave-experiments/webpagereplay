@@ -25,6 +25,7 @@ _SRC_DIR = _REPO_DIR / 'src'
 _SUPPORTED_PLATFORMS = (('win', 'x86'), ('mac', 'arm64'), ('mac', 'x86_64'),
                         ('linux', 'x86_64'), ('win', 'AMD64'),
                         ('linux', 'armv7l'), ('linux', 'aarch64'))
+_CHECK_ONLY_FLAG = '--check-only'
 
 
 # GOARCH in the build command expects values that differ from the keys in
@@ -102,6 +103,10 @@ def _build_go_binary(binary_name, os_name, os_arch, go_path_dir):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        _CHECK_ONLY_FLAG,
+        action='store_true',
+        help='Check if binaries are up to date without uploading')
     parser.add_argument('--verbose',
                         action='store_true',
                         help='Enable verbose logging')
@@ -134,6 +139,13 @@ def main():
                 if deps_data[bin_key][platform_key][hash_key] == out_hash:
                     continue
 
+                if args.check_only:
+                    logging.error(
+                        f'{binary_name} outdated for {os_name} {os_arch}. Run '
+                        f'{pathlib.Path(__file__).name} without '
+                        f'{_CHECK_ONLY_FLAG} to update.')
+                    return 1
+
                 cmd = ['gsutil.py']
                 if not args.verbose:
                     cmd.append('-q')
@@ -146,9 +158,10 @@ def main():
                 _run(cmd)
                 deps_data[bin_key][platform_key][hash_key] = out_hash
 
-    with open(json_path, 'w') as file:
-        json.dump(deps_data, file, indent=2)
-        file.write('\n')
+    if not args.check_only:
+        with open(json_path, 'w') as file:
+            json.dump(deps_data, file, indent=2)
+            file.write('\n')
 
     return 0
 
