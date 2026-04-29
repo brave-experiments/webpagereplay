@@ -3,10 +3,10 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import argparse
 import hashlib
 import json
 import os
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -16,22 +16,6 @@ _WPR_GO_DIR = os.path.join(_REPO_DIR, 'src')
 _SUPPORTED_PLATFORMS = (('win', 'x86'), ('mac', 'arm64'), ('mac', 'x86_64'),
                         ('linux', 'x86_64'), ('win', 'AMD64'),
                         ('linux', 'armv7l'), ('linux', 'aarch64'))
-
-
-def _upload_dependency(dependency, dep_local_path, os_name, os_arch):
-    with open(dep_local_path, 'rb') as file:
-        hash = hashlib.sha1(file.read()).hexdigest()
-    subprocess.check_call([
-        'gsutil.py', 'cp', dep_local_path,
-        f'gs://chromium-telemetry/binary_dependencies/{dependency}_{hash}'
-    ])
-    json_path = os.path.join(_REPO_DIR, 'scripts', 'binary_dependencies.json')
-    with open(json_path) as file:
-        deps_data = json.load(file)
-    deps_data[dependency][f'{os_name}_{os_arch}']['cloud_storage_hash'] = hash
-    with open(json_path, 'w') as file:
-        json.dump(deps_data, file, indent=2)
-        file.write('\n')
 
 
 # GOARCH in the build command expects values that differ from the keys in
@@ -74,62 +58,83 @@ def _compute_go_os(os_name):
     return os_name
 
 
-def _build_and_upload_go_binary(binary_name, os_name, os_arch):
+# Returns whether the dependencies JSON is up-to-date once the function is done.
+def _build_go_binary(binary_name, os_name, os_arch, go_path_dir):
     print(f'Build {binary_name} binary for OS {os_name}, ARCH: {os_arch}')
-    try:
-        # We want to build wpr go binaries from the local source. We do this by
-        # making a temporary GOPATH that symlinks to our local directory.
-        go_path_dir = tempfile.mkdtemp()
-        repo_dir = os.path.join(go_path_dir, 'src/go.chromium.org')
-        os.makedirs(repo_dir)
-        os.symlink(_REPO_DIR, os.path.join(repo_dir, 'webpagereplay'))
+    repo_dir = os.path.join(go_path_dir, 'src/go.chromium.org')
+    os.makedirs(repo_dir)
+    os.symlink(_REPO_DIR, os.path.join(repo_dir, 'webpagereplay'))
 
-        env = os.environ.copy()
-        env['GOPATH'] = go_path_dir
-        env['GOOS'] = _compute_go_os(os_name)
-        env['GOARCH'] = _compute_go_arch(os_arch)
-        env['CGO_ENABLED'] = '0'
+    env = os.environ.copy()
+    env['GOPATH'] = go_path_dir
+    env['GOOS'] = _compute_go_os(os_name)
+    env['GOARCH'] = _compute_go_arch(os_arch)
+    env['CGO_ENABLED'] = '0'
 
-        print(f'GOPATH={go_path_dir}')
-        print(f'CWD={_WPR_GO_DIR}')
+    print(f'GOPATH={go_path_dir}')
+    print(f'CWD={_WPR_GO_DIR}')
 
-        get_cmd = ['go', 'get', '-d', './...']
-        print(f'Running get command: {" ".join(get_cmd)}')
-        subprocess.check_call(get_cmd, env=env, cwd=_WPR_GO_DIR)
+    get_cmd = ['go', 'get', '-d', './...']
+    print(f'Running get command: {" ".join(get_cmd)}')
+    subprocess.check_call(get_cmd, env=env, cwd=_WPR_GO_DIR)
 
-        # Build in `go_path_dir`, so the binaries are deleted by the end.
-        binary_file = (os.path.join(go_path_dir, f'{binary_name}.exe')
-                       if os_name == 'win' else os.path.join(
-                           go_path_dir, binary_name))
-        build_cmd = [
-            'go', 'build', '-v', '-trimpath', '-o', binary_file,
-            f'{binary_name}.go'
-        ]
-        print(f'Running build command: {" ".join(build_cmd)}')
-        subprocess.check_call(build_cmd, env=env, cwd=_WPR_GO_DIR)
-    except:
-        if go_path_dir:
-            shutil.rmtree(go_path_dir)
-        raise
-
-    print(f'Upload {binary_name} dependency for OS {os_name}, ARCH: {os_arch}')
-    _upload_dependency(f'{binary_name}_go',
-                       binary_file,
-                       os_name=os_name,
-                       os_arch=os_arch)
-    shutil.rmtree(go_path_dir)
+    binary_file = (os.path.join(go_path_dir, f'{binary_name}.exe') if os_name
+                   == 'win' else os.path.join(go_path_dir, binary_name))
+    build_cmd = [
+        'go', 'build', '-v', '-trimpath', '-o', binary_file,
+        f'{binary_name}.go'
+    ]
+    print(f'Running build command: {" ".join(build_cmd)}')
+    subprocess.check_call(build_cmd, env=env, cwd=_WPR_GO_DIR)
+    return binary_file
 
 
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--check-only',
+        action='store_true',
+        help='Check if binaries are up to date without uploading')
+    args = parser.parse_args()
+
+    json_path = os.path.join(_REPO_DIR, 'scripts', 'binary_dependencies.json')
+    with open(json_path) as file:
+        deps_data = json.load(file)
     for os_name, os_arch in _SUPPORTED_PLATFORMS:
         # wpr is the wpr binary for recording and replaying network traffic to
         # allow for consistent and hermetic tests.
-        _build_and_upload_go_binary('wpr', os_name, os_arch)
         # httparchive is the wpr binary for interrogating and editing a wpr
         # archive that was previously recorded.
-        _build_and_upload_go_binary('httparchive', os_name, os_arch)
+        for binary_name in ('wpr', 'httparchive'):
+            with tempfile.TemporaryDirectory() as go_path_dir:
+                binary_file = _build_go_binary(binary_name, os_name, os_arch,
+                                               go_path_dir)
+                with open(binary_file, 'rb') as file:
+                    hash = hashlib.sha1(file.read()).hexdigest()
+                bin_key = f'{binary_name}_go'
+                platform_key = f'{os_name}_{os_arch}'
+                hash_key = 'cloud_storage_hash'
+                if not args.check_only:
+                    print(f'Uploading {binary_name} for {os_name} {os_arch}')
+                    subprocess.check_call([
+                        'gsutil.py', 'cp', binary_file,
+                        'gs://chromium-telemetry/binary_dependencies/'
+                        f'{bin_key}_{hash}'
+                    ])
+                    deps_data[bin_key][platform_key][hash_key] = hash
+                    continue
+
+                if hash != deps_data[bin_key][platform_key][hash_key]:
+                    print(f'Outdated {binary_name} for {os_name}, {os_arch}')
+                    return 1
+
+    if not args.check_only:
+        with open(json_path, 'w') as file:
+            json.dump(deps_data, file, indent=2)
+            file.write('\n')
+
     return 0
 
 
