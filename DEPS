@@ -110,5 +110,14 @@ deps = {
       },
     ],
   },
+  'third_party/golang': {
+    'packages': [
+      {
+        'package': 'infra/3pp/tools/go/${{platform}}',
+        'version': 'version:3@1.26.2',
+      },
+    ],
+    'dep_type': 'cipd',
+  },
   'third_party/clang-format/script': '{clang_format_git}@{clang_format_revision}',
 }

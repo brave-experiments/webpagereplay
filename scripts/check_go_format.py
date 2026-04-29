@@ -13,7 +13,7 @@ def check_gofmt():
     them and exits with an error.
     """
     try:
-        result = subprocess.run(['gofmt', '-l', '.'],
+        result = subprocess.run(['gofmt', '-l', 'src'],
                                 capture_output=True,
                                 text=True,
                                 check=False)

@@ -22,6 +22,7 @@ import tempfile
 
 _REPO_DIR = pathlib.Path(__file__).resolve().parents[1]
 _SRC_DIR = _REPO_DIR / 'src'
+_GO_COMPILER_PATH = _REPO_DIR / 'third_party' / 'golang' / 'bin' / 'go'
 _SUPPORTED_PLATFORMS = (('win', 'x86'), ('mac', 'arm64'), ('mac', 'x86_64'),
                         ('linux', 'x86_64'), ('win', 'AMD64'),
                         ('linux', 'armv7l'), ('linux', 'aarch64'))
@@ -89,7 +90,7 @@ def _build_go_binary(binary_name, os_name, os_arch, go_path_dir):
         binary_file = binary_file.with_suffix('.exe')
     _run(
         [
-            'go', 'build', '-C',
+            str(_GO_COMPILER_PATH), 'build', '-C',
             str(_SRC_DIR), '-trimpath', '-o',
             str(binary_file), f'{binary_name}.go'
         ], {
@@ -124,7 +125,8 @@ def main():
         # that's the one set to DEVNULL here instead of stdout.
         # TODO(crbug.com/495366518): We still want real errors to be displayed
         # by default. Figure out a replacement.
-        _run(['go', 'get', '-C', str(_SRC_DIR), './...'],
+        _run([str(_GO_COMPILER_PATH), 'get', '-C',
+              str(_SRC_DIR), './...'],
              env={'GOPATH': str(go_path_dir)},
              stderr=None if args.verbose else subprocess.DEVNULL)
         for os_name, os_arch in _SUPPORTED_PLATFORMS:
