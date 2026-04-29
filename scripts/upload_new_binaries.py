@@ -3,6 +3,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import argparse
 import hashlib
 import json
 import os
@@ -16,22 +17,6 @@ _WPR_GO_DIR = os.path.join(_REPO_DIR, 'src')
 _SUPPORTED_PLATFORMS = (('win', 'x86'), ('mac', 'arm64'), ('mac', 'x86_64'),
                         ('linux', 'x86_64'), ('win', 'AMD64'),
                         ('linux', 'armv7l'), ('linux', 'aarch64'))
-
-
-def _upload_dependency(dependency, dep_local_path, os_name, os_arch):
-    with open(dep_local_path, 'rb') as file:
-        hash = hashlib.sha1(file.read()).hexdigest()
-    subprocess.check_call([
-        'gsutil.py', 'cp', dep_local_path,
-        f'gs://chromium-telemetry/binary_dependencies/{dependency}_{hash}'
-    ])
-    json_path = os.path.join(_REPO_DIR, 'scripts', 'binary_dependencies.json')
-    with open(json_path) as file:
-        deps_data = json.load(file)
-    deps_data[dependency][f'{os_name}_{os_arch}']['cloud_storage_hash'] = hash
-    with open(json_path, 'w') as file:
-        json.dump(deps_data, file, indent=2)
-        file.write('\n')
 
 
 # GOARCH in the build command expects values that differ from the keys in
@@ -74,7 +59,9 @@ def _compute_go_os(os_name):
     return os_name
 
 
-def _build_and_upload_go_binary(binary_name, os_name, os_arch):
+# Returns whether the dependencies JSON is up-to-date once the function is done.
+def _build_and_maybe_upload_go_binary(binary_name, os_name, os_arch,
+                                      check_only):
     print(f'Build {binary_name} binary for OS {os_name}, ARCH: {os_arch}')
     try:
         # We want to build wpr go binaries from the local source. We do this by
@@ -112,26 +99,48 @@ def _build_and_upload_go_binary(binary_name, os_name, os_arch):
             shutil.rmtree(go_path_dir)
         raise
 
+    with open(binary_file, 'rb') as file:
+        hash = hashlib.sha1(file.read()).hexdigest()
+    json_path = os.path.join(_REPO_DIR, 'scripts', 'binary_dependencies.json')
+    with open(json_path) as file:
+        deps_data = json.load(file)
+    bin_key = f'{binary_name}_go'
+    platform_key = f'{os_name}_{os_arch}'
+    if check_only:
+        existing_hash = deps_data[bin_key][platform_key]['cloud_storage_hash']
+        if existing_hash == hash:
+            return True
+        print(f'Expected hash {hash} for {binary_name}, got {existing_hash}')
+        return False
+
     print(f'Upload {binary_name} dependency for OS {os_name}, ARCH: {os_arch}')
-    _upload_dependency(f'{binary_name}_go',
-                       binary_file,
-                       os_name=os_name,
-                       os_arch=os_arch)
+    subprocess.check_call([
+        'gsutil.py', 'cp', binary_file,
+        f'gs://chromium-telemetry/binary_dependencies/{bin_key}_{hash}'
+    ])
+    deps_data[bin_key][platform_key]['cloud_storage_hash'] = hash
+    with open(json_path, 'w') as file:
+        json.dump(deps_data, file, indent=2)
+        file.write('\n')
     shutil.rmtree(go_path_dir)
 
 
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--check-only',
+        action='store_true',
+        help='Check if binaries are up to date without uploading')
+    args = parser.parse_args()
     for os_name, os_arch in _SUPPORTED_PLATFORMS:
-        # wpr is the wpr binary for recording and replaying network traffic to
-        # allow for consistent and hermetic tests.
-        _build_and_upload_go_binary('wpr', os_name, os_arch)
-        # httparchive is the wpr binary for interrogating and editing a wpr
-        # archive that was previously recorded.
-        _build_and_upload_go_binary('httparchive', os_name, os_arch)
+        for binary_name in ('wpr', 'httparchive'):
+            up_to_date = _build_and_maybe_upload_go_binary(
+                binary_name, os_name, os_arch, args.check_only)
+            if args.check_only and not up_to_date:
+                return 1
     return 0
-
 
 if __name__ == '__main__':
     sys.exit(main())
