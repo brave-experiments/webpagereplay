@@ -6,13 +6,10 @@
 import hashlib
 import json
 import os
-import re
 import shutil
 import subprocess
-import sys
 import tempfile
 
-_MIN_GO_VERSION = [1, 21]
 _REPO_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _WPR_GO_DIR = os.path.join(_REPO_DIR, 'src')
 _SUPPORTED_PLATFORMS = (('win', 'x86'), ('mac', 'arm64'), ('mac', 'x86_64'),
@@ -34,20 +31,6 @@ def _upload_dependency(dependency, dep_local_path, os_name, os_arch):
     with open(json_path, 'w') as file:
         json.dump(deps_data, file, indent=2)
         file.write('\n')
-
-
-def _check_go_version():
-    try:
-        out = subprocess.check_output(['go', 'version']).decode()
-    except subprocess.CalledProcessError:
-        out = 'no go binary found'
-    match = re.findall(r'go(\d+).(\d+)', out)
-    assert len(match) > 0, f'Unable to parse go version from "{out}"'
-    version = [int(match[0][0]), int(match[0][1])]
-    assert (
-        version[0] > _MIN_GO_VERSION[0] or
-        (version[0] == _MIN_GO_VERSION[0] and version[1] >= _MIN_GO_VERSION[1])
-    ), f'Require go version {_MIN_GO_VERSION} or higher. Found: {version}'
 
 
 # GOARCH in the build command expects values that differ from the keys in
@@ -91,12 +74,6 @@ def _compute_go_os(os_name):
 
 
 def _build_and_upload_go_binary(binary_name, os_name, os_arch):
-    if (os_name, os_arch) not in _SUPPORTED_PLATFORMS:
-        raise NotImplementedError(
-            f'OS = {os_name}, ARCH = {os_arch} is not supported')
-
-    _check_go_version()
-
     print(f'Build {binary_name} binary for OS {os_name}, ARCH: {os_arch}')
     try:
         # We want to build wpr go binaries from the local source. We do this by
@@ -160,4 +137,4 @@ def main():
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    main()
