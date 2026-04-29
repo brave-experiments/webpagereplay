@@ -3,35 +3,28 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+"""Script to build and upload WebPageReplay Go binaries to Cloud Storage.
+
+It builds binaries for all supported platforms, computes their hashes,
+and uploads them to Cloud Storage if they differ from the hashes recorded
+in binary_dependencies.json.
+"""
+
+import argparse
 import hashlib
 import json
+import logging
 import os
-import shutil
+import pathlib
 import subprocess
 import sys
 import tempfile
 
-_REPO_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_WPR_GO_DIR = os.path.join(_REPO_DIR, 'src')
+_REPO_DIR = pathlib.Path(__file__).resolve().parents[1]
+_SRC_DIR = _REPO_DIR / 'src'
 _SUPPORTED_PLATFORMS = (('win', 'x86'), ('mac', 'arm64'), ('mac', 'x86_64'),
                         ('linux', 'x86_64'), ('win', 'AMD64'),
                         ('linux', 'armv7l'), ('linux', 'aarch64'))
-
-
-def _upload_dependency(dependency, dep_local_path, os_name, os_arch):
-    with open(dep_local_path, 'rb') as file:
-        hash = hashlib.sha1(file.read()).hexdigest()
-    subprocess.check_call([
-        'gsutil.py', 'cp', dep_local_path,
-        f'gs://chromium-telemetry/binary_dependencies/{dependency}_{hash}'
-    ])
-    json_path = os.path.join(_REPO_DIR, 'scripts', 'binary_dependencies.json')
-    with open(json_path) as file:
-        deps_data = json.load(file)
-    deps_data[dependency][f'{os_name}_{os_arch}']['cloud_storage_hash'] = hash
-    with open(json_path, 'w') as file:
-        json.dump(deps_data, file, indent=2)
-        file.write('\n')
 
 
 # GOARCH in the build command expects values that differ from the keys in
@@ -74,62 +67,89 @@ def _compute_go_os(os_name):
     return os_name
 
 
-def _build_and_upload_go_binary(binary_name, os_name, os_arch):
-    print(f'Build {binary_name} binary for OS {os_name}, ARCH: {os_arch}')
-    try:
-        # We want to build wpr go binaries from the local source. We do this by
-        # making a temporary GOPATH that symlinks to our local directory.
-        go_path_dir = tempfile.mkdtemp()
-        repo_dir = os.path.join(go_path_dir, 'src/go.chromium.org')
-        os.makedirs(repo_dir)
-        os.symlink(_REPO_DIR, os.path.join(repo_dir, 'webpagereplay'))
-
-        env = os.environ.copy()
-        env['GOPATH'] = go_path_dir
-        env['GOOS'] = _compute_go_os(os_name)
-        env['GOARCH'] = _compute_go_arch(os_arch)
-        env['CGO_ENABLED'] = '0'
-
-        print(f'GOPATH={go_path_dir}')
-        print(f'CWD={_WPR_GO_DIR}')
-
-        get_cmd = ['go', 'get', '-d', './...']
-        print(f'Running get command: {" ".join(get_cmd)}')
-        subprocess.check_call(get_cmd, env=env, cwd=_WPR_GO_DIR)
-
-        # Build in `go_path_dir`, so the binaries are deleted by the end.
-        binary_file = (os.path.join(go_path_dir, f'{binary_name}.exe')
-                       if os_name == 'win' else os.path.join(
-                           go_path_dir, binary_name))
-        build_cmd = [
-            'go', 'build', '-v', '-trimpath', '-o', binary_file,
-            f'{binary_name}.go'
-        ]
-        print(f'Running build command: {" ".join(build_cmd)}')
-        subprocess.check_call(build_cmd, env=env, cwd=_WPR_GO_DIR)
-    except:
-        if go_path_dir:
-            shutil.rmtree(go_path_dir)
-        raise
-
-    print(f'Upload {binary_name} dependency for OS {os_name}, ARCH: {os_arch}')
-    _upload_dependency(f'{binary_name}_go',
-                       binary_file,
-                       os_name=os_name,
-                       os_arch=os_arch)
-    shutil.rmtree(go_path_dir)
+def _run(cmd, env=None, stdout=None, stderr=None):
+    if env is None:
+        env = {}
+    env_str = " ".join([f"{k}={v}" for k, v in env.items()])
+    cmd_str = " ".join(cmd)
+    logging.info(f'{env_str} {cmd_str}')
+    subprocess.check_call(cmd,
+                          env=os.environ.copy() | env,
+                          stdout=stdout,
+                          stderr=stderr)
 
 
+def _build_go_binary(binary_name, os_name, os_arch, go_path_dir):
+    out_dir = go_path_dir / f'{os_name}_{os_arch}'
+    # exist_ok=True because there's more than one binary_name per (OS, arch).
+    out_dir.mkdir(exist_ok=True)
+    binary_file = out_dir / binary_name
+    if os_name == 'win':
+        binary_file = binary_file.with_suffix('.exe')
+    _run(
+        [
+            'go', 'build', '-C',
+            str(_SRC_DIR), '-trimpath', '-o',
+            str(binary_file), f'{binary_name}.go'
+        ], {
+            'GOPATH': str(go_path_dir),
+            'GOOS': _compute_go_os(os_name),
+            'GOARCH': _compute_go_arch(os_arch),
+            'CGO_ENABLED': '0',
+        })
+    return binary_file
 
 
 def main():
-    for os_name, os_arch in _SUPPORTED_PLATFORMS:
-        # wpr is the wpr binary for recording and replaying network traffic to
-        # allow for consistent and hermetic tests.
-        _build_and_upload_go_binary('wpr', os_name, os_arch)
-        # httparchive is the wpr binary for interrogating and editing a wpr
-        # archive that was previously recorded.
-        _build_and_upload_go_binary('httparchive', os_name, os_arch)
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--verbose',
+                        action='store_true',
+                        help='Enable verbose logging')
+    args = parser.parse_args()
+    logging.basicConfig(level=logging.INFO if args.verbose else logging.ERROR)
+    json_path = _REPO_DIR / 'scripts' / 'binary_dependencies.json'
+    with open(json_path) as file:
+        deps_data = json.load(file)
+    with tempfile.TemporaryDirectory() as go_path_str:
+        go_path_dir = pathlib.Path(go_path_str)
+        repo_symlink_dir = go_path_dir / 'src' / 'go.chromium.org'
+        repo_symlink_dir.mkdir(parents=True)
+        (repo_symlink_dir / 'webpagereplay').symlink_to(_REPO_DIR)
+        # `go get` prints useless "downloading..." to stderr, so that's why
+        # that's the one set to DEVNULL here instead of stdout.
+        # TODO(crbug.com/495366518): We still want real errors to be displayed
+        # by default. Figure out a replacement.
+        _run(['go', 'get', '-C', str(_SRC_DIR), './...'],
+             env={'GOPATH': str(go_path_dir)},
+             stderr=None if args.verbose else subprocess.DEVNULL)
+        for os_name, os_arch in _SUPPORTED_PLATFORMS:
+            for binary_name in ('wpr', 'httparchive'):
+                binary_file = _build_go_binary(binary_name, os_name, os_arch,
+                                               go_path_dir)
+                with open(binary_file, 'rb') as file:
+                    out_hash = hashlib.sha1(file.read()).hexdigest()
+                bin_key = f'{binary_name}_go'
+                platform_key = f'{os_name}_{os_arch}'
+                hash_key = 'cloud_storage_hash'
+                if deps_data[bin_key][platform_key][hash_key] == out_hash:
+                    continue
+
+                cmd = ['gsutil.py']
+                if not args.verbose:
+                    cmd.append('-q')
+                cmd.extend([
+                    'cp',
+                    str(binary_file),
+                    'gs://chromium-telemetry/binary_dependencies/'
+                    f'{bin_key}_{out_hash}'
+                ])
+                _run(cmd)
+                deps_data[bin_key][platform_key][hash_key] = out_hash
+
+    with open(json_path, 'w') as file:
+        json.dump(deps_data, file, indent=2)
+        file.write('\n')
+
     return 0
 
 
