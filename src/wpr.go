@@ -446,9 +446,6 @@ func parseInjectScriptsByUrl(byUrl []string) ([]*webpagereplay.TransformerRule, 
 
 func replaceConstantsIfDeterministicJs(
 	filename string, script []byte, timeSeedMs int64, constantMathRandomResult *float64) []byte {
-	if filepath.Base(filename) != "deterministic.js" {
-		return script
-	}
 
 	randomResultStr := "null"
 	if constantMathRandomResult != nil {

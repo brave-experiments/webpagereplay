@@ -124,8 +124,7 @@ func TestReplaceConstantsIfDeterministicJs(t *testing.T) {
 				"const random = WPR_CONSTANT_RANDOM_RESULT;",
 			timeSeed: 12345,
 			random:   ptr(0.5),
-			want: "const timeSeed = WPR_TIME_SEED_TIMESTAMP; " +
-				"const random = WPR_CONSTANT_RANDOM_RESULT;",
+			want:     "const timeSeed = 12345; const random = 0.5;",
 		},
 		{
 			name:     "deterministic.js with legacy format",
