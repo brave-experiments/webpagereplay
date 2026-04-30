@@ -52,6 +52,24 @@
       "parentUuid": "5d2e8916_72278310",
       "revId": "c6952af47a231bc828f107d9dec0d3a29c54a870",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2725ff5b_b25e6f1d",
+        "filename": "PRESUBMIT.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-30T14:33:03Z",
+      "side": 0,
+      "message": "That comment predates this CL by elad crrev.com/c/7706635. Before I only ran ./webpagereplay, but now we compile the 2 main functions too (see also crrev.com/c/7761327)",
+      "parentUuid": "2512b7cf_2b4b0bfb",
+      "revId": "c6952af47a231bc828f107d9dec0d3a29c54a870",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
