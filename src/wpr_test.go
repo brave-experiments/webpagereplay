@@ -89,7 +89,7 @@ func TestCommonConfig_CheckArgs(t *testing.T) {
 	}
 }
 
-func TestReplaceConstantsIfDeterministicJs(t *testing.T) {
+func TestReplaceConstants(t *testing.T) {
 	ptr := func(f float64) *float64 { return &f }
 	tests := []struct {
 		name     string
@@ -124,8 +124,7 @@ func TestReplaceConstantsIfDeterministicJs(t *testing.T) {
 				"const random = WPR_CONSTANT_RANDOM_RESULT;",
 			timeSeed: 12345,
 			random:   ptr(0.5),
-			want: "const timeSeed = WPR_TIME_SEED_TIMESTAMP; " +
-				"const random = WPR_CONSTANT_RANDOM_RESULT;",
+			want:     "const timeSeed = 12345; const random = 0.5;",
 		},
 		{
 			name:     "deterministic.js with legacy format",
@@ -143,10 +142,10 @@ func TestReplaceConstantsIfDeterministicJs(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := string(replaceConstantsIfDeterministicJs(
+			got := string(replaceConstants(
 				tt.filename, []byte(tt.content), tt.timeSeed, tt.random))
 			if got != tt.want {
-				t.Errorf("replaceConstantsIfDeterministicJs(%s) = %s, want %s", tt.content, got, tt.want)
+				t.Errorf("replaceConstants(%s) = %s, want %s", tt.content, got, tt.want)
 			}
 		})
 	}
