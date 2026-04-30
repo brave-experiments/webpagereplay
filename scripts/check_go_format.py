@@ -13,7 +13,7 @@ def check_gofmt():
     them and exits with an error.
     """
     try:
-        result = subprocess.run(['gofmt', '-l', 'src'],
+        result = subprocess.run(['third_party/golang/bin/gofmt', '-l', 'src'],
                                 capture_output=True,
                                 text=True,
                                 check=False)
@@ -27,8 +27,7 @@ def check_gofmt():
             print("All Go files are correctly formatted.")
             sys.exit(0)
     except FileNotFoundError:
-        print("Error: The 'gofmt' command was not found. Please ensure Go is "
-              "installed and in your system's PATH.")
+        print("Error: The 'gofmt' command was not found. Run `gclient sync`")
         sys.exit(1)
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
