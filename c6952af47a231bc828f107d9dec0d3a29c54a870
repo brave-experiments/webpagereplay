@@ -34,6 +34,24 @@
       "parentUuid": "563abd86_0dca5cbb",
       "revId": "c6952af47a231bc828f107d9dec0d3a29c54a870",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2512b7cf_2b4b0bfb",
+        "filename": "PRESUBMIT.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1328067
+      },
+      "writtenOn": "2026-04-30T14:30:02Z",
+      "side": 0,
+      "message": "I just noticed that the comment below (`Note: CheckGoTests() doesn\u0027t build the main function`) assumes that there\u0027s value in building the binary alongside running tests. So I was curious whether it\u0027s still the case.",
+      "parentUuid": "5d2e8916_72278310",
+      "revId": "c6952af47a231bc828f107d9dec0d3a29c54a870",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
