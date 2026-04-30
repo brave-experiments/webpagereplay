@@ -336,7 +336,7 @@ func (common *CommonConfig) ProcessInjectedScriptsForReplay(c *cli.Context,
 	if injectArchiveScripts && len(archive.InjectedScripts) > 0 {
 		for name, contents := range archive.InjectedScripts {
 			scriptsMap[name] = contents
-			replacedContents := replaceConstantsIfDeterministicJs(
+			replacedContents := replaceConstants(
 				name, []byte(contents), timeSeedMs, constantMathRandomResult)
 			if err := common.addScriptInjector(replacedContents, name); err != nil {
 				return fmt.Errorf("error processing injected script %s: %v", name, err)
@@ -383,7 +383,7 @@ func (common *CommonConfig) processScripts(scripts map[string]string, timeSeedMs
 			}
 			scripts[name] = string(script)
 		}
-		script = replaceConstantsIfDeterministicJs(name, script, timeSeedMs, constantMathRandomResult)
+		script = replaceConstants(name, script, timeSeedMs, constantMathRandomResult)
 		if err := common.addScriptInjector(script, name); err != nil {
 			return fmt.Errorf("error processing injected script %s: %v", name, err)
 		}
@@ -444,11 +444,8 @@ func parseInjectScriptsByUrl(byUrl []string) ([]*webpagereplay.TransformerRule, 
 	return rules, nil
 }
 
-func replaceConstantsIfDeterministicJs(
+func replaceConstants(
 	filename string, script []byte, timeSeedMs int64, constantMathRandomResult *float64) []byte {
-	if filepath.Base(filename) != "deterministic.js" {
-		return script
-	}
 
 	randomResultStr := "null"
 	if constantMathRandomResult != nil {
