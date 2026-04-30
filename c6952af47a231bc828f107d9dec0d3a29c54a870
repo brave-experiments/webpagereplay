@@ -16,6 +16,24 @@
       "message": "Maybe we still need this, to catch compilation errors earlier? (IIUC, without this check, we would only build the binaries on final submit).",
       "revId": "c6952af47a231bc828f107d9dec0d3a29c54a870",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5d2e8916_72278310",
+        "filename": "PRESUBMIT.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-30T13:41:24Z",
+      "side": 0,
+      "message": "\u003e IUC, without this check, we would only build the binaries on final submit\n\nNo? The presubmit 2.0 rule is\n- Checks that end in \"OnUpload\" run only on upload\n- Checks that end in \"OnCommit\" run only on submission\n- Other tests run on both.\n\nSo `git cl upload` should still run CheckGoTests(), which builds the code. We can verify by breaking a test expectation and trying `git cl upload`",
+      "parentUuid": "563abd86_0dca5cbb",
+      "revId": "c6952af47a231bc828f107d9dec0d3a29c54a870",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
