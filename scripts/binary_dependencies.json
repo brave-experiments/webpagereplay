@@ -1,41 +1,41 @@
 {
   "httparchive_go": {
     "linux_aarch64": {
-      "cloud_storage_hash": "1e3f26d4161122252eb45066f3eeb52a4c49cb34",
+      "cloud_storage_hash": "d4a811bc4dc0978acc8c152df0d1ff518ccdbaf6",
       "download_path": "bin/linux/aarch64/httparchive"
     },
     "linux_armv7l": {
-      "cloud_storage_hash": "6faa498c2fb0c3605d07538c9829f25f992b0c4a",
+      "cloud_storage_hash": "401770cdab57fbe6ca9af0b5cc891d5173d4ed6e",
       "download_path": "bin/linux/armv7l/httparchive"
     },
     "linux_x86_64": {
-      "cloud_storage_hash": "c261d1b201975ee1642bc927acd1c6490aff7318",
+      "cloud_storage_hash": "b62adb5c254a522336af34ef70979d2dd4e12986",
       "download_path": "bin/linux/x86_64/httparchive"
     },
     "mac_arm64": {
-      "cloud_storage_hash": "4cacc348e0abb4d64d29e58e63f6710b0a0e934c",
+      "cloud_storage_hash": "28ffcc41d1391e1125e2f1b21cff4d3fcc7fbb2d",
       "download_path": "bin/mac/arm64/httparchive"
     },
     "mac_x86_64": {
-      "cloud_storage_hash": "df57ddc908d8f9eabb2f070f5b2524c599e78adb",
+      "cloud_storage_hash": "2924398318857549dd979645c35ab6719e5b1c95",
       "download_path": "bin/mac/x86_64/httparchive"
     },
     "win_AMD64": {
-      "cloud_storage_hash": "b89a66cec833f239a0c81875686f5c3a279cc192",
+      "cloud_storage_hash": "cb2639aecb9a737fbc7f0009bf67e583642960b4",
       "download_path": "bin/win/AMD64/httparchive.exe"
     },
     "win_x86": {
-      "cloud_storage_hash": "03b0ea3499453c8d9196cc9d1fcbdd9c71467aa0",
+      "cloud_storage_hash": "27c6acc566e790071ee06abe5d68fd889ad80efb",
       "download_path": "bin/win/x86/httparchive.exe"
     }
   },
   "wpr_go": {
     "linux_aarch64": {
-      "cloud_storage_hash": "c7cc5bbeefeb7e3b98393a39075728169f288402",
+      "cloud_storage_hash": "c166dea5b10642ac9618cd5b80a7951dec10385d",
       "download_path": "bin/linux/aarch64/wpr"
     },
     "linux_armv7l": {
-      "cloud_storage_hash": "6058e50e6892ee09418451717b40e63a1b9d804a",
+      "cloud_storage_hash": "80bd62b8b3354643bc51bb39c3b72f3602840955",
       "download_path": "bin/linux/armv7l/wpr"
     },
     "linux_mips": {
@@ -43,23 +43,23 @@
       "download_path": "bin/linux/mips/wpr"
     },
     "linux_x86_64": {
-      "cloud_storage_hash": "b1c3cf5c8f3db6253a81e14ecd867d4ee4629f80",
+      "cloud_storage_hash": "68adaf836bf1564c3693c8f1cf724d0a5eaf5171",
       "download_path": "bin/linux/x86_64/wpr"
     },
     "mac_arm64": {
-      "cloud_storage_hash": "1f6f1ea09c6e763e809f691bf7e7b5f97a838274",
+      "cloud_storage_hash": "6c96744211a33e324250853d1b5a67b2c80babd5",
       "download_path": "bin/mac/arm64/wpr"
     },
     "mac_x86_64": {
-      "cloud_storage_hash": "bf7c87b11d361d8a7f7b7574052ad249a1e12224",
+      "cloud_storage_hash": "caab0938964b7a23bbbefae9f7eba0edd143313d",
       "download_path": "bin/mac/x86_64/wpr"
     },
     "win_AMD64": {
-      "cloud_storage_hash": "ff1b2f2463a48499b888b5413d6b54cab81e3ee4",
+      "cloud_storage_hash": "9ca9e6022ea419b30b2c50d029c6428aa204d516",
       "download_path": "bin/win/AMD64/wpr.exe"
     },
     "win_x86": {
-      "cloud_storage_hash": "2801f7e0d2c2d2e8334a100a24b8c3f6a6114fc6",
+      "cloud_storage_hash": "cffdaa2c2f41b2b1587899df966ecba85d4eff2a",
       "download_path": "bin/win/x86/wpr.exe"
     }
   }
