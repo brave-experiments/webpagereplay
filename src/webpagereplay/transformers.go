@@ -526,7 +526,7 @@ func (si *scriptInjector) Transform(_ *http.Request, resp *http.Response) {
 		// execute.
 		transformCSPHeader(resp.Header, si.sha256)
 
-		Log().Info("ScriptInjector succesfully injected", "url", resp.Request.URL)
+		Log().Info("ScriptInjector successfully injected", "url", resp.Request.URL)
 		return buffer.Bytes()
 	})
 }
