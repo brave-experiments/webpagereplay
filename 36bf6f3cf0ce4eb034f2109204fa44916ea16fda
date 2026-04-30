@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3763dd7e_c57c5da3",
+        "filename": "PRESUBMIT.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-04-30T10:07:39Z",
+      "side": 1,
+      "message": "Keeping open to prevent submission until we do a real (non-led) test in CQ",
+      "revId": "36bf6f3cf0ce4eb034f2109204fa44916ea16fda",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
