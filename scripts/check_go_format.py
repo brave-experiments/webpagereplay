@@ -11,9 +11,13 @@ def check_gofmt():
     """
     Checks for unformatted Go files using `gofmt -l`. If any are found, prints
     them and exits with an error.
+
+    Why not invoke gofmt directly in PRESUBMIT.py instead of having this script?
+    Well, input_api.Command() relies on exit codes to signal success, but
+    `gofmt -l` exits with 0 even when files are unformatted.
     """
     try:
-        result = subprocess.run(['gofmt', '-l', 'src'],
+        result = subprocess.run(['third_party/golang/bin/gofmt', '-l', 'src'],
                                 capture_output=True,
                                 text=True,
                                 check=False)
@@ -27,8 +31,7 @@ def check_gofmt():
             print("All Go files are correctly formatted.")
             sys.exit(0)
     except FileNotFoundError:
-        print("Error: The 'gofmt' command was not found. Please ensure Go is "
-              "installed and in your system's PATH.")
+        print("Error: The 'gofmt' command was not found. Run `gclient sync`")
         sys.exit(1)
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
