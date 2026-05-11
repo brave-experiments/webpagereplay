@@ -7,6 +7,8 @@ See http://dev.chromium.org/developers/how-tos/depottools/presubmit-scripts
 for more details about the presubmit API built into depot_tools.
 """
 
+from __future__ import annotations
+
 import pathlib
 
 PRESUBMIT_VERSION = '2.0.0'
@@ -119,7 +121,7 @@ def CheckRuff(input_api, output_api):
         input_api.Command(name='Checking ruff format',
                           cmd=[
                               'vpython3', '-m', 'ruff', 'check', '--select',
-                              'E,F,W,B,I,UP'
+                              'E,F,W,B,I,UP', '--config', 'exclude=[]'
                           ],
                           kwargs={'cwd': input_api.PresubmitLocalPath()},
                           message=output_api.PresubmitError)
