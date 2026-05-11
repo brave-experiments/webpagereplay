@@ -10,6 +10,8 @@ and uploads them to Cloud Storage if they differ from the hashes recorded
 in binary_dependencies.json.
 """
 
+from __future__ import annotations
+
 import argparse
 import hashlib
 import json
