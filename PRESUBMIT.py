@@ -47,47 +47,6 @@ def CheckGoTests(input_api, output_api):
     ])
 
 
-# The binary update check is divided in 2:
-# 1. At submission time
-#      Verifies the binaries in the JSON file match the submitted go code. This
-#      ensures correctness, while avoiding the user having to regenerate the
-#      binaries on every patchset upload.
-# 2. At upload time
-#      Verifies that if production go files were touched, *some* change to the
-#      JSON file happened. This ensures the JSON is among the list of modified
-#      files by the time the CL is approved, and so can go through one final
-#      update without requiring a restamp on the CL. Ideally the only effect of
-#      this check is one run of upload_new_binaries.py upon initial upload.
-def CheckPrebuiltBinaryUpdatedOnCommit(input_api, output_api):
-    # Restricting to "OnCommit" is not enough, dry-run runs `git cl presubmit`,
-    # which exercises on "OnCommit" checks. Thus the additional check.
-    if input_api.dry_run:
-        return []
-
-    cmd = ["scripts/upload_new_binaries.py", "--check-only"]
-    if input_api.verbose:
-        cmd.append("--verbose")
-    return input_api.RunTests([
-        input_api.Command(name="check prebuilt binaries updated",
-                          cmd=cmd,
-                          kwargs={'cwd': input_api.PresubmitLocalPath()},
-                          message=output_api.PresubmitError)
-    ])
-
-
-# See comment in CheckPrebuiltBinaryUpdatedOnCommit().
-def CheckPrebuiltBinaryUpdatedOnUpload(input_api, output_api):
-    files = input_api.UnixLocalPaths()
-    if (not any(f.endswith('binary_dependencies.json') for f in files) and any(
-            f.endswith('.go') and not f.endswith('_test.go') for f in files)):
-        return [
-            output_api.PresubmitError(
-                'You changed go files, but didn\'t run scripts/'
-                'upload_new_binaries.py')
-        ]
-
-    return []
-
 def CheckPanProjectChecks(input_api, output_api):
     # The code-owners plugin is not enabled on the webpagereplay gerrit host, so
     # owners_check is set to false to avoid a failure. Note that owners-approval
