@@ -2,7 +2,7 @@
 # Copyright 2026 The Chromium Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
-"""Script to build WebPageReplay Go binaries."""
+"""Script to build WebPageReplay Go binaries with the bundled go toolchain."""
 
 from __future__ import annotations
 
@@ -13,9 +13,10 @@ import pathlib
 import subprocess
 import sys
 
+import go_utils
+
 _REPO_DIR = pathlib.Path(__file__).resolve().parents[1]
 _SRC_DIR = _REPO_DIR / "src"
-_GO_COMPILER_PATH = _REPO_DIR / "third_party" / "golang" / "bin" / "go"
 
 
 def _compute_go_arch(os_arch):
@@ -69,7 +70,7 @@ def main():
                         required=True,
                         help="Output directory for the binary")
     parser.add_argument("--binary",
-                        required=True,
+                        default="wpr",
                         help="Binary to build (wpr or httparchive)")
     parser.add_argument("--verbose",
                         action="store_true",
@@ -80,7 +81,7 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
     _run(
         [
-            str(_GO_COMPILER_PATH),
+            str(go_utils.get_go_compiler_path()),
             "build",
             "-C",
             str(_SRC_DIR),
