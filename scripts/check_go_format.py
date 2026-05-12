@@ -8,6 +8,8 @@ from __future__ import annotations
 import subprocess
 import sys
 
+import go_utils
+
 
 def check_gofmt():
     """
@@ -19,7 +21,7 @@ def check_gofmt():
     `gofmt -l` exits with 0 even when files are unformatted.
     """
     try:
-        result = subprocess.run(['third_party/golang/bin/gofmt', '-l', 'src'],
+        result = subprocess.run([str(go_utils.get_gofmt_path()), '-l', 'src'],
                                 capture_output=True,
                                 text=True,
                                 check=False)

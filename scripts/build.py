@@ -13,9 +13,10 @@ import pathlib
 import subprocess
 import sys
 
+import go_utils
+
 _REPO_DIR = pathlib.Path(__file__).resolve().parents[1]
 _SRC_DIR = _REPO_DIR / "src"
-_GO_COMPILER_PATH = _REPO_DIR / "third_party" / "golang" / "bin" / "go"
 
 
 def _compute_go_arch(os_arch):
@@ -80,7 +81,7 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
     _run(
         [
-            str(_GO_COMPILER_PATH),
+            str(go_utils.get_go_compiler_path()),
             "build",
             "-C",
             str(_SRC_DIR),
