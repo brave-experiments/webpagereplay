@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d8346ef1_ffe4e856",
+        "filename": "PRESUBMIT.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-05-13T03:53:07Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Modifying `sys.path` alters it globally for the Python process running the presubmit checks. It\u0027s safer to remove `scripts_path` from `sys.path` after importing `go_utils` to avoid side effects on other checks (or use `sys.path.append` and `sys.path.pop()`).",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 0
+      },
+      "revId": "54309cb4f40ede34ea72ae60f70ddcad99f1b54f",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bccf4d2b_7d482ea7",
+        "filename": "scripts/build.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-05-13T03:53:07Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Configuring the root logger inside a library function (`build()`) is a bad practice because it alters the logging configuration for any caller that imports it (e.g., `run_wpr.py`). It is better to move `logging.basicConfig(...)` into `main()`.",
+      "range": {
+        "startLine": 64,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 0
+      },
+      "revId": "54309cb4f40ede34ea72ae60f70ddcad99f1b54f",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f39617c5_ac601691",
+        "filename": "scripts/build.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-05-13T03:53:07Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: If the target OS is Windows (either cross-compiling with `--os win` or using a Windows host natively), `go build` will automatically append `.exe` to the output file name if it\u0027s omitted. \n\nIt might be better to explicitly append `.exe` to `binary` here if the target is Windows, so that the expected file path accurately reflects the actual file on disk.",
+      "range": {
+        "startLine": 85,
+        "startChar": 0,
+        "endLine": 85,
+        "endChar": 0
+      },
+      "revId": "54309cb4f40ede34ea72ae60f70ddcad99f1b54f",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "86ee6f8f_c512e30f",
+        "filename": "scripts/run_wpr.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-05-13T03:53:07Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: On Windows, `build.build()` will generate `wpr.exe` (since Go automatically appends the suffix). Relying on `subprocess.call` to implicitly resolve the `.exe` extension works because of Windows `CreateProcess`, but it would be cleaner to explicitly use `\"wpr.exe\"` when `platform.system() \u003d\u003d \"Windows\"`.",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 45,
+        "endChar": 0
+      },
+      "revId": "54309cb4f40ede34ea72ae60f70ddcad99f1b54f",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
