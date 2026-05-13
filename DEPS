@@ -39,6 +39,7 @@ git_dependencies = 'SYNC'
 use_relative_paths = True
 
 vars = {
+  'golang_version': '1.26.2',
   'clang_format_git': 'https://chromium.googlesource.com/external/github.com/llvm/llvm-project/clang/tools/clang-format.git',
 
   # Three lines of non-changing comments so that
@@ -110,14 +111,47 @@ deps = {
       },
     ],
   },
-  'third_party/golang': {
+  'third_party/golang/linux/{host_cpu}': {
     'packages': [
       {
         'package': 'infra/3pp/tools/go/${{platform}}',
-        'version': 'version:3@1.26.2',
+        'version': 'version:3@{golang_version}',
       },
     ],
     'dep_type': 'cipd',
+    'condition': 'host_os == "linux"',
+  },
+  'third_party/golang/win/{host_cpu}': {
+    'packages': [
+      {
+        'package': 'infra/3pp/tools/go/${{platform}}',
+        'version': 'version:3@{golang_version}',
+      },
+    ],
+    'dep_type': 'cipd',
+    'condition': 'host_os == "win"',
+  },
+  # Mac checks out both architectures because some bots are composed of a modern
+  # Arm orchestrator and a x64 test runner.
+  'third_party/golang/mac/x64': {
+    'packages': [
+      {
+        'package': 'infra/3pp/tools/go/mac-amd64',
+        'version': 'version:3@{golang_version}',
+      },
+    ],
+    'dep_type': 'cipd',
+    'condition': 'host_os == "mac"',
+  },
+  'third_party/golang/mac/arm64': {
+    'packages': [
+      {
+        'package': 'infra/3pp/tools/go/mac-arm64',
+        'version': 'version:3@{golang_version}',
+      },
+    ],
+    'dep_type': 'cipd',
+    'condition': 'host_os == "mac"',
   },
   'third_party/clang-format/script': '{clang_format_git}@{clang_format_revision}',
 }
