@@ -10,39 +10,33 @@ for more details about the presubmit API built into depot_tools.
 from __future__ import annotations
 
 import pathlib
+import sys
 
 PRESUBMIT_VERSION = '2.0.0'
 USE_PYTHON3 = True
 
 
 def CheckGoTests(input_api, output_api):
-    # All commands below are run from the src/ directory, this path is relative
-    # to that.
-    go_path = '../third_party/golang/bin/go'
+    sys.path.append(
+        str(pathlib.Path(input_api.PresubmitLocalPath()) / 'scripts'))
+    import go_utils
+    sys.path.pop()
+
+    go_path = str(go_utils.get_go_compiler_path())
+    src_path = str(pathlib.Path(input_api.PresubmitLocalPath()) / 'src')
     return input_api.RunTests([
-        input_api.Command(
-            name='webpagereplay package tests',
-            cmd=[go_path, 'test', './webpagereplay'],
-            kwargs={
-                'cwd':
-                str(pathlib.Path(input_api.PresubmitLocalPath()) / 'src')
-            },
-            message=output_api.PresubmitError),
-        input_api.Command(
-            name='wpr.go tests',
-            cmd=[go_path, 'test', 'wpr.go', 'wpr_test.go'],
-            kwargs={
-                'cwd':
-                str(pathlib.Path(input_api.PresubmitLocalPath()) / 'src')
-            },
-            message=output_api.PresubmitError),
+        input_api.Command(name='webpagereplay package tests',
+                          cmd=[go_path, 'test', './webpagereplay'],
+                          kwargs={'cwd': src_path},
+                          message=output_api.PresubmitError),
+        input_api.Command(name='wpr.go tests',
+                          cmd=[go_path, 'test', 'wpr.go', 'wpr_test.go'],
+                          kwargs={'cwd': src_path},
+                          message=output_api.PresubmitError),
         input_api.Command(
             name='httparchive tests',
             cmd=[go_path, 'test', 'httparchive.go', 'httparchive_test.go'],
-            kwargs={
-                'cwd':
-                str(pathlib.Path(input_api.PresubmitLocalPath()) / 'src')
-            },
+            kwargs={'cwd': src_path},
             message=output_api.PresubmitError)
     ])
 
