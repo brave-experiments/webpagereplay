@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3615d477_ceb2a1a7",
+        "filename": "PRESUBMIT.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1339017
+      },
+      "writtenOn": "2026-05-14T15:13:02Z",
+      "side": 1,
+      "message": "I will wait until next week to land this in case there are breakages, but I\u0027m hoping I did a good job of verifying everything works:\n- I ran \"Mega-CQ\" in the chromium change (runs ~every bot in existence)\n- I launched a pinpoint job with the change",
+      "revId": "d09d562c9f85072c39a6989e48e92678f237f0f3",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
