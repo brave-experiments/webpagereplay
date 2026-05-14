@@ -200,4 +200,3 @@ are run with the --use-local-wpr flag.
 
 You can file bugs [here](https://g-issues.chromium.org/issues/new?component=1456169).
 Patches welcome!
-Please run scripts/upload_new_binaries.py after making changes to go code.
