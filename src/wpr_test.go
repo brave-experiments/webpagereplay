@@ -285,8 +285,8 @@ func TestProcessInjectedScriptsForReplay_DiskOverride(t *testing.T) {
 		injectScripts: scriptPath,
 	}
 	flagSet := flag.NewFlagSet("test", flag.ContinueOnError)
-	flagSet.String("inject-scripts", scriptPath, "")
-	if err := flagSet.Set("inject-scripts", scriptPath); err != nil {
+	flagSet.String("inject-foo-scripts", scriptPath, "")
+	if err := flagSet.Set("inject-foo-scripts", scriptPath); err != nil {
 		t.Fatalf("failed to set flag: %v", err)
 	}
 	flagSet.String("inject-archive-scripts", "false", "")
@@ -321,8 +321,8 @@ func TestProcessInjectedScriptsForReplay_ArchiveAndDisk(t *testing.T) {
 		injectScripts: scriptPath,
 	}
 	flagSet := flag.NewFlagSet("test", flag.ContinueOnError)
-	flagSet.String("inject-scripts", scriptPath, "")
-	if err := flagSet.Set("inject-scripts", scriptPath); err != nil {
+	flagSet.String("inject-foo-scripts", scriptPath, "")
+	if err := flagSet.Set("inject-foo-scripts", scriptPath); err != nil {
 		t.Fatalf("Failed to set flag: %v", err)
 	}
 	flagSet.String("inject-archive-scripts", "true", "")
@@ -356,8 +356,8 @@ func verifyScriptNameCollision(t *testing.T, injectArchiveScripts string, expect
 		injectScripts: scriptPath,
 	}
 	flagSet := flag.NewFlagSet("test", flag.ContinueOnError)
-	flagSet.String("inject-scripts", scriptPath, "")
-	if err := flagSet.Set("inject-scripts", scriptPath); err != nil {
+	flagSet.String("inject-foo-scripts", scriptPath, "")
+	if err := flagSet.Set("inject-foo-scripts", scriptPath); err != nil {
 		t.Fatalf("Failed to set flag: %v", err)
 	}
 
@@ -760,7 +760,7 @@ func TestProcessInjectedScriptsForReplay_SkipDiskDefaultWhenInArchive(t *testing
 		},
 	}
 
-	// Simulate the default state where 'inject-scripts' flag is not explicitly
+	// Simulate the default state where 'inject-foo-scripts' flag is not explicitly
 	// set but defaults to "deterministic.js".
 	common := &CommonConfig{
 		injectScripts: "deterministic.js",
@@ -800,11 +800,11 @@ func TestProcessInjectedScriptsForReplay_ExplicitFlagCollidesWithArchive(t *test
 		injectScripts: scriptPath,
 	}
 
-	// Simulate the user explicitly setting the 'inject-scripts' flag.
+	// Simulate the user explicitly setting the 'inject-foo-scripts' flag.
 	// We must register the flag with the FlagSet before we can set its value.
 	flagSet := flag.NewFlagSet("test", flag.ContinueOnError)
-	flagSet.String("inject-scripts", "", "")
-	flagSet.Set("inject-scripts", scriptPath)
+	flagSet.String("inject-foo-scripts", "", "")
+	flagSet.Set("inject-foo-scripts", scriptPath)
 	flagSet.String("inject-archive-scripts", "true", "")
 	flagSet.Set("inject-archive-scripts", "true")
 

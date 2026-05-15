@@ -159,7 +159,7 @@ func (common *CommonConfig) Flags() []cli.Flag {
 			Destination: &common.relativeTimestamps,
 		},
 		&cli.StringFlag{
-			Name:  "inject-scripts",
+			Name:  "inject-foo-scripts",
 			Value: "deterministic.js",
 			Usage: "A comma separated list of JavaScript sources to inject in all pages. " +
 				"By default a script is injected that eliminates sources of entropy " +
@@ -325,7 +325,7 @@ func (common *CommonConfig) ProcessInjectedScriptsForReplay(c *cli.Context,
 	// contains 'deterministic.js', we skip loading the default 'deterministic.js'
 	// from the file system. This avoids duplicate script errors and ensures we
 	// use the version stored in the archive, preserving replay fidelity.
-	if !isSet(c, "inject-scripts") && common.injectScripts == "deterministic.js" {
+	if !isSet(c, "inject-foo-scripts") && common.injectScripts == "deterministic.js" {
 		if _, ok := archive.InjectedScripts["deterministic.js"]; ok {
 			Log().Info("Archive contains deterministic.js, skipping default injection")
 			common.injectScripts = ""
@@ -345,7 +345,7 @@ func (common *CommonConfig) ProcessInjectedScriptsForReplay(c *cli.Context,
 	}
 
 	// Process scripts that were added from the archive and/or from the command line using
-	// the --inject-scripts flag.
+	// the --inject-foo-scripts flag.
 	if err := common.processScripts(scriptsMap, timeSeedMs, constantMathRandomResult); err != nil {
 		return err
 	}
