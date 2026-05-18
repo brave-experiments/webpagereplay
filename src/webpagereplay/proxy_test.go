@@ -39,7 +39,7 @@ func TestMain(m *testing.M) {
 	os.Exit(ret)
 }
 
-// Tests that when --inject_scripts is provided during recording, the scripts
+// Tests that when --inject_foo_scripts is provided during recording, the scripts
 // are not saved as part of the response body (they are saved as separate
 // special field in the archive instead).
 func TestDoNotSaveInjectedScriptInResponseBody(t *testing.T) {
