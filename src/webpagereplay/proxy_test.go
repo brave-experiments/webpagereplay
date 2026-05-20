@@ -213,7 +213,7 @@ func TestEndToEnd(t *testing.T) {
 	if err != nil {
 		t.Fatalf("OpenArchive: %v", err)
 	}
-	replayServer := httptest.NewServer(NewReplayingProxy(replayArchive, "http", false, ""))
+	replayServer := httptest.NewServer(NewReplayingProxy(replayArchive, "http", false, "", nil))
 	replayTransport := &http.Transport{
 		Proxy: func(*http.Request) (*url.URL, error) {
 			return url.Parse(replayServer.URL)
