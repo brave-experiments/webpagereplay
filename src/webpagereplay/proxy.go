@@ -93,8 +93,8 @@ func updateDates(h http.Header, now time.Time) {
 
 // NewReplayingProxy constructs an HTTP proxy that replays responses from an archive.
 // The proxy is listening for requests on a port that uses the given scheme (e.g., http, https).
-func NewReplayingProxy(a *Archive, scheme string, quietMode bool, paramToIgnoreInURLPath string) http.Handler {
-	return &replayingProxy{a, scheme, quietMode, paramToIgnoreInURLPath}
+func NewReplayingProxy(a *Archive, scheme string, quietMode bool, paramToIgnoreInURLPath string, shapingCfg ShapingConfig) http.Handler {
+	return &replayingProxy{a, scheme, quietMode, paramToIgnoreInURLPath, shapingCfg}
 }
 
 type replayingProxy struct {
@@ -102,6 +102,7 @@ type replayingProxy struct {
 	scheme                 string
 	quietMode              bool
 	paramToIgnoreInURLPath string
+	shapingCfg             ShapingConfig
 }
 
 func (proxy *replayingProxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
@@ -181,9 +182,26 @@ func (proxy *replayingProxy) ServeHTTP(w http.ResponseWriter, req *http.Request)
 	for k, v := range storedResp.Header {
 		w.Header()[k] = append([]string{}, v...)
 	}
-	w.WriteHeader(storedResp.StatusCode)
-	if _, err := io.Copy(w, storedResp.Body); err != nil {
-		logger.Error("Client response truncated", "error", err)
+
+	if proxy.shapingCfg.Enabled() {
+		cfg := proxy.shapingCfg
+		cfg.ApplyPreset()
+		initDelay := cfg.InitialDelay()
+		if initDelay > 0 {
+			time.Sleep(initDelay)
+		}
+		w.WriteHeader(storedResp.StatusCode)
+		ctx := req.Context()
+		body := storedResp.Body
+		if _, err := StreamShapedResponse(ctx, w, body, &cfg); err != nil {
+			logger.Error("Client response truncated during shaped stream",
+				"error", err)
+		}
+	} else {
+		w.WriteHeader(storedResp.StatusCode)
+		if _, err := io.Copy(w, storedResp.Body); err != nil {
+			logger.Error("Client response truncated", "error", err)
+		}
 	}
 }
 

@@ -96,6 +96,7 @@ type ReplayCommand struct {
 	serveResponseInChronologicalSequence bool
 	quietMode                            bool
 	disableFuzzyURLMatching              bool
+	shapingConfig                        webpagereplay.ShapingConfig
 }
 
 type RootCACommand struct {
@@ -540,6 +541,41 @@ func (r *ReplayCommand) Flags() []cli.Flag {
 				"ServeHTTP url call and responses",
 			Destination: &r.quietMode,
 		},
+		&cli.StringFlag{
+			Name:        "ts-preset",
+			Usage:       "Preset network profile for traffic shaping (3g, 4g, 5g, dsl, cable, satellite).",
+			Destination: &r.shapingConfig.Preset,
+		},
+		&cli.Int64Flag{
+			Name:        "ts-min-initial-delay-ms",
+			Usage:       "Minimum initial request delay (TTFB) in milliseconds.",
+			Destination: &r.shapingConfig.MinInitialDelayMs,
+		},
+		&cli.Int64Flag{
+			Name:        "ts-max-initial-delay-ms",
+			Usage:       "Maximum initial request delay (TTFB) in milliseconds.",
+			Destination: &r.shapingConfig.MaxInitialDelayMs,
+		},
+		&cli.IntFlag{
+			Name:        "ts-min-chunk-size-bytes",
+			Usage:       "Minimum chunk size in bytes for streaming response body.",
+			Destination: &r.shapingConfig.MinChunkSizeBytes,
+		},
+		&cli.IntFlag{
+			Name:        "ts-max-chunk-size-bytes",
+			Usage:       "Maximum chunk size in bytes for streaming response body.",
+			Destination: &r.shapingConfig.MaxChunkSizeBytes,
+		},
+		&cli.Int64Flag{
+			Name:        "ts-min-chunk-delay-ms",
+			Usage:       "Minimum delay between body chunk transmissions in milliseconds.",
+			Destination: &r.shapingConfig.MinChunkDelayMs,
+		},
+		&cli.Int64Flag{
+			Name:        "ts-max-chunk-delay-ms",
+			Usage:       "Maximum delay between body chunk transmissions in milliseconds.",
+			Destination: &r.shapingConfig.MaxChunkDelayMs,
+		},
 	)
 }
 
@@ -769,8 +805,8 @@ func (r *ReplayCommand) Run(c *cli.Context) error {
 		archive = &transformedArchive
 	}
 
-	httpHandler := webpagereplay.NewReplayingProxy(archive, "http", r.quietMode, r.common.paramToIgnoreInURLPath)
-	httpsHandler := webpagereplay.NewReplayingProxy(archive, "https", r.quietMode, r.common.paramToIgnoreInURLPath)
+	httpHandler := webpagereplay.NewReplayingProxy(archive, "http", r.quietMode, r.common.paramToIgnoreInURLPath, r.shapingConfig)
+	httpsHandler := webpagereplay.NewReplayingProxy(archive, "https", r.quietMode, r.common.paramToIgnoreInURLPath, r.shapingConfig)
 	tlsconfig, err := webpagereplay.ReplayTLSConfig(r.common.rootCerts, archive, !r.common.noArchiveCertificates)
 	if err != nil {
 		Log().Error("Error creating TLSConfig", "error", err)
