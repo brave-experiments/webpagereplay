@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"net/url"
 	"os"
@@ -93,8 +94,8 @@ func updateDates(h http.Header, now time.Time) {
 
 // NewReplayingProxy constructs an HTTP proxy that replays responses from an archive.
 // The proxy is listening for requests on a port that uses the given scheme (e.g., http, https).
-func NewReplayingProxy(a *Archive, scheme string, quietMode bool, paramToIgnoreInURLPath string) http.Handler {
-	return &replayingProxy{a, scheme, quietMode, paramToIgnoreInURLPath}
+func NewReplayingProxy(a *Archive, scheme string, quietMode bool, paramToIgnoreInURLPath string, shapingCfg *ShapingConfig) http.Handler {
+	return &replayingProxy{a, scheme, quietMode, paramToIgnoreInURLPath, shapingCfg}
 }
 
 type replayingProxy struct {
@@ -102,6 +103,7 @@ type replayingProxy struct {
 	scheme                 string
 	quietMode              bool
 	paramToIgnoreInURLPath string
+	shapingCfg             *ShapingConfig
 }
 
 func (proxy *replayingProxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
@@ -181,9 +183,31 @@ func (proxy *replayingProxy) ServeHTTP(w http.ResponseWriter, req *http.Request)
 	for k, v := range storedResp.Header {
 		w.Header()[k] = append([]string{}, v...)
 	}
+
+	if proxy.shapingCfg != nil {
+		proxy.streamShaped(w, req, storedResp, logger)
+	} else {
+		w.WriteHeader(storedResp.StatusCode)
+		if _, err := io.Copy(w, storedResp.Body); err != nil {
+			logger.Error("Client response truncated", "error", err)
+		}
+	}
+}
+
+func (proxy *replayingProxy) streamShaped(w http.ResponseWriter, req *http.Request, storedResp *http.Response, logger Logger) {
+	cfg := proxy.shapingCfg
+	seed := CalculateSeed(req.URL.String())
+	rnd := rand.New(rand.NewSource(seed))
+	initDelay := cfg.InitialDelay(rnd)
+	if initDelay > 0 {
+		time.Sleep(initDelay)
+	}
 	w.WriteHeader(storedResp.StatusCode)
-	if _, err := io.Copy(w, storedResp.Body); err != nil {
-		logger.Error("Client response truncated", "error", err)
+	ctx := req.Context()
+	body := storedResp.Body
+	if _, err := StreamShapedResponse(ctx, w, body, cfg, rnd); err != nil {
+		logger.Error("Client response truncated during shaped stream",
+			"error", err)
 	}
 }
 
