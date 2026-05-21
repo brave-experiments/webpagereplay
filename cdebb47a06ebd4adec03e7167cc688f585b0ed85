@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ec86e220_93873879",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1542233
+      },
+      "writtenOn": "2026-05-21T09:52:16Z",
+      "side": 1,
+      "message": "Conceptually LGTM. For testing - let\u0027s just record some traces (if not already) and check that they look like we expected them to.",
+      "revId": "cdebb47a06ebd4adec03e7167cc688f585b0ed85",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "859539f7_01825db9",
@@ -14,6 +31,29 @@
       "writtenOn": "2026-05-21T09:18:33Z",
       "side": 1,
       "message": "Maybe we should delegate the shaping to a pre-existing tool like `tc` rather than roll our own? (Or possibly there\u0027s a Go library for that.)",
+      "revId": "cdebb47a06ebd4adec03e7167cc688f585b0ed85",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "90ee67ed_f5bdfffb",
+        "filename": "src/webpagereplay/shaping.go",
+        "patchSetId": 6
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 1542233
+      },
+      "writtenOn": "2026-05-21T09:52:16Z",
+      "side": 1,
+      "message": "Do we want to log this for every packet?",
+      "range": {
+        "startLine": 390,
+        "startChar": 1,
+        "endLine": 390,
+        "endChar": 27
+      },
       "revId": "cdebb47a06ebd4adec03e7167cc688f585b0ed85",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
