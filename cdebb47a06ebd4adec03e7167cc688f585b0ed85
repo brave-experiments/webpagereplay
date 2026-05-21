@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "859539f7_01825db9",
+        "filename": "src/webpagereplay/shaping.go",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-05-21T09:18:33Z",
+      "side": 1,
+      "message": "Maybe we should delegate the shaping to a pre-existing tool like `tc` rather than roll our own? (Or possibly there\u0027s a Go library for that.)",
+      "revId": "cdebb47a06ebd4adec03e7167cc688f585b0ed85",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
