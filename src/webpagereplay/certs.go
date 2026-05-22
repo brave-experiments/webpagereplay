@@ -42,6 +42,55 @@ func RecordTLSConfig(roots []tls.Certificate, w *WritableArchive, useArchiveCert
 	}, nil
 }
 
+// Returns a TLS configuration for serving local static files.
+func ServeTLSConfig(roots []tls.Certificate) (*tls.Config, error) {
+	rootCerts, err := getRootCerts(roots)
+	if err != nil {
+		return nil, fmt.Errorf("bad local certs: %v", err)
+	}
+	tp := &tlsProxy{roots, rootCerts, nil, nil, sync.Mutex{}, make(map[string][]byte), false}
+	return &tls.Config{
+		GetConfigForClient: tp.getServeConfigForClient,
+	}, nil
+}
+
+func (tp *tlsProxy) getServeConfigForClient(clientHello *tls.ClientHelloInfo) (*tls.Config, error) {
+	h := clientHello.ServerName
+	if h == "" {
+		return &tls.Config{
+			Certificates: tp.roots,
+		}, nil
+	}
+
+	tp.mu.Lock()
+	defer tp.mu.Unlock()
+	if _, ok := tp.dummyCertsMap[h]; !ok {
+		for i := 0; i < len(tp.rootCerts); i++ {
+			derBytes, err := MintCertificate(h, tp.rootCerts[i], tp.roots[i].PrivateKey)
+			if err != nil {
+				return nil, err
+			}
+			tp.dummyCertsMap[h] = append(tp.dummyCertsMap[h], derBytes...)
+		}
+	}
+	derBytes := tp.dummyCertsMap[h]
+
+	certBytes := parseDerBytes(derBytes)
+
+	certificates := []tls.Certificate{}
+	for i := 0; i < len(certBytes); i++ {
+		certificates = append(certificates, tls.Certificate{
+			Certificate: [][]byte{certBytes[i]},
+			PrivateKey:  tp.roots[i].PrivateKey,
+		})
+	}
+	return &tls.Config{
+		Certificates: certificates,
+		NextProtos:   []string{"h2", "http/1.1"},
+	}, nil
+}
+
+
 func getRootCerts(roots []tls.Certificate) ([]*x509.Certificate, error) {
 	rootCerts := []*x509.Certificate{}
 	for _, root := range roots {

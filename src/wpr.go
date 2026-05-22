@@ -87,6 +87,16 @@ type RecordCommand struct {
 	enableExperimentalTimedChunk bool
 }
 
+type TrafficShapingFlags struct {
+	tsPreset             string
+	tsMinInitialDelayMs  int64
+	tsMaxInitialDelayMs  int64
+	tsMinPacketSizeBytes int64
+	tsMaxPacketSizeBytes int64
+	tsMinPacketDelayMs   int64
+	tsMaxPacketDelayMs   int64
+}
+
 type ReplayCommand struct {
 	common CommonConfig
 	cmd    cli.Command
@@ -96,14 +106,15 @@ type ReplayCommand struct {
 	serveResponseInChronologicalSequence bool
 	quietMode                            bool
 	disableFuzzyURLMatching              bool
-	shapingOpts                          webpagereplay.ShapingOptions
-	tsPreset                             string
-	tsMinInitialDelayMs                  int64
-	tsMaxInitialDelayMs                  int64
-	tsMinPacketSizeBytes                 int64
-	tsMaxPacketSizeBytes                 int64
-	tsMinPacketDelayMs                   int64
-	tsMaxPacketDelayMs                   int64
+	shapingFlags                         TrafficShapingFlags
+}
+
+type ServeCommand struct {
+	common CommonConfig
+	cmd    cli.Command
+
+	dir          string
+	shapingFlags TrafficShapingFlags
 }
 
 type RootCACommand struct {
@@ -511,8 +522,85 @@ func (r *RecordCommand) CheckArgsAndSetLogLevel(c *cli.Context) error {
 	return nil
 }
 
+func (ts *TrafficShapingFlags) Flags() []cli.Flag {
+	return []cli.Flag{
+		&cli.StringFlag{
+			Name: "ts-preset",
+			Usage: "Preset network profile for traffic shaping " +
+				"(3g, 4g, 5g, dsl, cable, satellite).",
+			Destination: &ts.tsPreset,
+			Action:      validateTrafficShapingPreset,
+		},
+		&cli.Int64Flag{
+			Name: "ts-min-initial-delay-ms",
+			Usage: "Minimum initial request delay (TTFB) in " +
+				"milliseconds.",
+			Destination: &ts.tsMinInitialDelayMs,
+			Action:      validateTrafficShapingDelay,
+		},
+		&cli.Int64Flag{
+			Name: "ts-max-initial-delay-ms",
+			Usage: "Maximum initial request delay (TTFB) in " +
+				"milliseconds.",
+			Destination: &ts.tsMaxInitialDelayMs,
+			Action:      validateTrafficShapingDelay,
+		},
+		&cli.Int64Flag{
+			Name: "ts-min-chunk-size-bytes",
+			Usage: "Minimum packet size in bytes for streaming " +
+				"response body.",
+			Destination: &ts.tsMinPacketSizeBytes,
+			Action:      validateTrafficShapingChunkSize,
+		},
+		&cli.Int64Flag{
+			Name: "ts-max-chunk-size-bytes",
+			Usage: "Maximum packet size in bytes for streaming " +
+				"response body.",
+			Destination: &ts.tsMaxPacketSizeBytes,
+			Action:      validateTrafficShapingChunkSize,
+		},
+		&cli.Int64Flag{
+			Name: "ts-min-chunk-delay-ms",
+			Usage: "Minimum delay between body packet " +
+				"transmissions in milliseconds.",
+			Destination: &ts.tsMinPacketDelayMs,
+			Action:      validateTrafficShapingDelay,
+		},
+		&cli.Int64Flag{
+			Name: "ts-max-chunk-delay-ms",
+			Usage: "Maximum delay between body packet " +
+				"transmissions in milliseconds.",
+			Destination: &ts.tsMaxPacketDelayMs,
+			Action:      validateTrafficShapingDelay,
+		},
+	}
+}
+
+func (ts *TrafficShapingFlags) ShapingConfig(c *cli.Context) (*webpagereplay.ShapingConfig, error) {
+	opts := webpagereplay.ShapingOptions{Preset: ts.tsPreset}
+	if c.IsSet("ts-min-initial-delay-ms") {
+		opts.MinInitialDelayMs = &ts.tsMinInitialDelayMs
+	}
+	if c.IsSet("ts-max-initial-delay-ms") {
+		opts.MaxInitialDelayMs = &ts.tsMaxInitialDelayMs
+	}
+	if c.IsSet("ts-min-chunk-size-bytes") {
+		opts.MinPacketSizeBytes = &ts.tsMinPacketSizeBytes
+	}
+	if c.IsSet("ts-max-chunk-size-bytes") {
+		opts.MaxPacketSizeBytes = &ts.tsMaxPacketSizeBytes
+	}
+	if c.IsSet("ts-min-chunk-delay-ms") {
+		opts.MinPacketDelayMs = &ts.tsMinPacketDelayMs
+	}
+	if c.IsSet("ts-max-chunk-delay-ms") {
+		opts.MaxPacketDelayMs = &ts.tsMaxPacketDelayMs
+	}
+	return webpagereplay.CreateShapingConfig(opts)
+}
+
 func (r *ReplayCommand) Flags() []cli.Flag {
-	return append(r.common.Flags(),
+	flags := append(r.common.Flags(),
 		&cli.StringFlag{
 			Name:  "inject-archive-scripts",
 			Value: "false",
@@ -548,56 +636,8 @@ func (r *ReplayCommand) Flags() []cli.Flag {
 				"ServeHTTP url call and responses",
 			Destination: &r.quietMode,
 		},
-		&cli.StringFlag{
-			Name: "ts-preset",
-			Usage: "Preset network profile for traffic shaping " +
-				"(3g, 4g, 5g, dsl, cable, satellite).",
-			Destination: &r.tsPreset,
-			Action:      validateTrafficShapingPreset,
-		},
-		&cli.Int64Flag{
-			Name: "ts-min-initial-delay-ms",
-			Usage: "Minimum initial request delay (TTFB) in " +
-				"milliseconds.",
-			Destination: &r.tsMinInitialDelayMs,
-			Action:      validateTrafficShapingDelay,
-		},
-		&cli.Int64Flag{
-			Name: "ts-max-initial-delay-ms",
-			Usage: "Maximum initial request delay (TTFB) in " +
-				"milliseconds.",
-			Destination: &r.tsMaxInitialDelayMs,
-			Action:      validateTrafficShapingDelay,
-		},
-		&cli.Int64Flag{
-			Name: "ts-min-chunk-size-bytes",
-			Usage: "Minimum packet size in bytes for streaming " +
-				"response body.",
-			Destination: &r.tsMinPacketSizeBytes,
-			Action:      validateTrafficShapingChunkSize,
-		},
-		&cli.Int64Flag{
-			Name: "ts-max-chunk-size-bytes",
-			Usage: "Maximum packet size in bytes for streaming " +
-				"response body.",
-			Destination: &r.tsMaxPacketSizeBytes,
-			Action:      validateTrafficShapingChunkSize,
-		},
-		&cli.Int64Flag{
-			Name: "ts-min-chunk-delay-ms",
-			Usage: "Minimum delay between body packet " +
-				"transmissions in milliseconds.",
-			Destination: &r.tsMinPacketDelayMs,
-			Action:      validateTrafficShapingDelay,
-		},
-		&cli.Int64Flag{
-			Name: "ts-max-chunk-delay-ms",
-			Usage: "Maximum delay between body packet " +
-				"transmissions in milliseconds.",
-			Destination: &r.tsMaxPacketDelayMs,
-			Action:      validateTrafficShapingDelay,
-		},
 	)
+	return append(flags, r.shapingFlags.Flags()...)
 }
 
 func validateTrafficShapingPreset(c *cli.Context, v string) error {
@@ -617,6 +657,68 @@ func validateTrafficShapingDelay(c *cli.Context, v int64) error {
 func validateTrafficShapingChunkSize(c *cli.Context, v int64) error {
 	if v < 0 {
 		return fmt.Errorf("invalid flag value: size cannot be negative (%d)", v)
+	}
+	return nil
+}
+
+func (s *ServeCommand) Flags() []cli.Flag {
+	flags := append(s.common.Flags(),
+		&cli.StringFlag{
+			Name:        "dir",
+			Value:       ".",
+			Usage:       "Directory containing static files to serve.",
+			Destination: &s.dir,
+		},
+	)
+	return append(flags, s.shapingFlags.Flags()...)
+}
+
+func (s *ServeCommand) CheckArgsAndSetLogLevel(c *cli.Context) error {
+	if stat, err := os.Stat(s.dir); os.IsNotExist(err) || !stat.IsDir() {
+		return fmt.Errorf("directory specified by --dir does not exist or is not a directory: %s", s.dir)
+	}
+
+	if s.common.httpPort == -1 && s.common.httpsPort == -1 && s.common.httpSecureProxyPort == -1 {
+		selectedPort := 0
+		for _, p := range []int{8080, 8000, 8081, 8888} {
+			if l, err := net.Listen("tcp", fmt.Sprintf("%s:%d", s.common.host, p)); err == nil {
+				l.Close()
+				selectedPort = p
+				break
+			}
+		}
+		Log().Info("No port specified, auto-selecting port", "port", selectedPort)
+		s.common.httpPort = selectedPort
+	}
+
+	if err := webpagereplay.SetLogLevel(s.common.logLevel); err != nil {
+		return fmt.Errorf("Invalid log_level (%s): %v", s.common.logLevel, err)
+	}
+	webpagereplay.SetRelativeTimestamps(s.common.relativeTimestamps)
+
+	err := s.common.certConfig.CheckArgs(c)
+	if err != nil {
+		return err
+	}
+
+	if s.common.skipCertLoadingForTesting {
+		return nil
+	}
+
+	// Load certFiles.
+	certFiles := strings.Split(s.common.certConfig.certFile, ",")
+	keyFiles := strings.Split(s.common.certConfig.keyFile, ",")
+	if len(certFiles) != len(keyFiles) {
+		return fmt.Errorf("list of cert files given should match list of key files")
+	}
+	for i := 0; i < len(certFiles); i++ {
+		Log().Info("Loading cert", "path", certFiles[i])
+		Log().Info("Loading key", "path", keyFiles[i])
+		rootCert, err := tls.LoadX509KeyPair(certFiles[i], keyFiles[i])
+		if err != nil {
+			return fmt.Errorf("error opening cert or key files: %v", err)
+		}
+		s.common.rootCerts = append(s.common.rootCerts, rootCert)
 	}
 	return nil
 }
@@ -757,6 +859,7 @@ func startServers(tlsconfig *tls.Config, httpHandler, httpsHandler http.Handler,
 func logServeStarted(scheme string, ln net.Listener) {
 	// DO NOT CHANGE: this line is parsed by downstream tools like catapult and crossbench.
 	fmt.Printf("Starting server on %s://%s\n", scheme, ln.Addr().String())
+	fmt.Printf("SERVING on %s://%s\n", scheme, ln.Addr().String())
 }
 
 func (r *RecordCommand) Run(c *cli.Context) error {
@@ -803,27 +906,7 @@ func (r *RecordCommand) Run(c *cli.Context) error {
 }
 
 func (r *ReplayCommand) Run(c *cli.Context) error {
-	opts := webpagereplay.ShapingOptions{Preset: r.tsPreset}
-	if c.IsSet("ts-min-initial-delay-ms") {
-		opts.MinInitialDelayMs = &r.tsMinInitialDelayMs
-	}
-	if c.IsSet("ts-max-initial-delay-ms") {
-		opts.MaxInitialDelayMs = &r.tsMaxInitialDelayMs
-	}
-	if c.IsSet("ts-min-chunk-size-bytes") {
-		opts.MinPacketSizeBytes = &r.tsMinPacketSizeBytes
-	}
-	if c.IsSet("ts-max-chunk-size-bytes") {
-		opts.MaxPacketSizeBytes = &r.tsMaxPacketSizeBytes
-	}
-	if c.IsSet("ts-min-chunk-delay-ms") {
-		opts.MinPacketDelayMs = &r.tsMinPacketDelayMs
-	}
-	if c.IsSet("ts-max-chunk-delay-ms") {
-		opts.MaxPacketDelayMs = &r.tsMaxPacketDelayMs
-	}
-
-	shapingCfg, err := webpagereplay.CreateShapingConfig(opts)
+	shapingCfg, err := r.shapingFlags.ShapingConfig(c)
 	if err != nil {
 		Log().Error("Invalid traffic shaping configuration", "err", err)
 		os.Exit(1)
@@ -887,6 +970,23 @@ func (r *ReplayCommand) Run(c *cli.Context) error {
 	return nil
 }
 
+func (s *ServeCommand) Run(c *cli.Context) error {
+	shapingCfg, err := s.shapingFlags.ShapingConfig(c)
+	if err != nil {
+		Log().Error("Invalid traffic shaping configuration", "err", err)
+		os.Exit(1)
+	}
+
+	handler := webpagereplay.NewShapedFileServer(s.dir, shapingCfg)
+	tlsconfig, err := webpagereplay.ServeTLSConfig(s.common.rootCerts)
+	if err != nil {
+		Log().Error("Error creating TLSConfig", "error", err)
+		os.Exit(1)
+	}
+	startServers(tlsconfig, handler, handler, &s.common)
+	return nil
+}
+
 func (r *RootCACommand) Install(c *cli.Context) error {
 	if err := r.installer.InstallRoot(
 		r.certConfig.certFile, r.certConfig.keyFile); err != nil {
@@ -906,6 +1006,7 @@ func main() {
 
 	var record RecordCommand
 	var replay ReplayCommand
+	var serve ServeCommand
 	var installroot RootCACommand
 	var removeroot RootCACommand
 
@@ -925,6 +1026,14 @@ func main() {
 		Action: replay.Run,
 	}
 
+	serve.cmd = cli.Command{
+		Name:   "serve",
+		Usage:  "Serve static files from a local directory with traffic shaping",
+		Flags:  serve.Flags(),
+		Before: serve.CheckArgsAndSetLogLevel,
+		Action: serve.Run,
+	}
+
 	installroot.cmd = cli.Command{
 		Name:   "installroot",
 		Usage:  "Install a test root CA",
@@ -942,7 +1051,7 @@ func main() {
 	}
 
 	app := cli.NewApp()
-	app.Commands = []*cli.Command{&record.cmd, &replay.cmd, &installroot.cmd, &removeroot.cmd}
+	app.Commands = []*cli.Command{&record.cmd, &replay.cmd, &serve.cmd, &installroot.cmd, &removeroot.cmd}
 	for _, cmd := range app.Commands {
 		webpagereplay.AddLegacyAliases(&cmd.Flags)
 	}
