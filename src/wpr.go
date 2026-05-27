@@ -20,6 +20,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/quic-go/quic-go/http3"
 	"github.com/urfave/cli/v2"
 	"go.chromium.org/webpagereplay/src/webpagereplay"
 	"golang.org/x/net/http2"
@@ -73,6 +74,8 @@ type CommonConfig struct {
 	skipCertLoadingForTesting                bool
 	htmlInjection                            bool
 	jsInjection                              bool
+	enableHTTP3                              bool
+	http3Port                                int
 
 	// Computed state.
 	rootCerts    []tls.Certificate
@@ -212,6 +215,17 @@ func (common *CommonConfig) Flags() []cli.Flag {
 			Usage:       "Inject scripts into JavaScript responses. Defaults to false.",
 			Destination: &common.jsInjection,
 		},
+		&cli.BoolFlag{
+			Name:        "enable-http3",
+			Usage:       "Enable serving of recorded pages downstream via HTTP/3 (QUIC) over UDP.",
+			Destination: &common.enableHTTP3,
+		},
+		&cli.IntFlag{
+			Name:        "http3-port",
+			Value:       -1,
+			Usage:       "Port number to listen on for UDP/HTTP3 requests. If -1 and --enable-http3 is active, it defaults to --https-port.",
+			Destination: &common.http3Port,
+		},
 	)
 }
 
@@ -234,8 +248,11 @@ func (common *CommonConfig) CheckArgsAndSetLogLevel(c *cli.Context) error {
 	if c.Args().Len() != 1 {
 		return errors.New("must specify archive_file")
 	}
-	if common.httpPort == -1 && common.httpsPort == -1 && common.httpSecureProxyPort == -1 {
+	if common.httpPort == -1 && common.httpsPort == -1 && common.httpSecureProxyPort == -1 && !(common.enableHTTP3 && common.http3Port > -1) {
 		return errors.New("must specify at least one port flag")
+	}
+	if common.enableHTTP3 && common.http3Port == -1 && common.httpsPort == -1 {
+		return errors.New("must specify a valid UDP port (via --http3-port or --https-port) when --enable-http3 is active")
 	}
 
 	if err := webpagereplay.SetLogLevel(common.logLevel); err != nil {
@@ -595,7 +612,7 @@ func (ln tcpKeepAliveListener) Accept() (c net.Conn, err error) {
 	return tc, nil
 }
 
-func startServers(tlsconfig *tls.Config, httpHandler, httpsHandler http.Handler, common *CommonConfig) {
+func startServers(tlsconfig, http3TlsConfig *tls.Config, httpHandler, httpsHandler http.Handler, common *CommonConfig) {
 	type Server struct {
 		Scheme string
 		Host   string
@@ -643,25 +660,34 @@ func startServers(tlsconfig *tls.Config, httpHandler, httpsHandler http.Handler,
 
 	for _, s := range servers {
 		s := s
-		go func() {
-			var ln net.Listener
+		ln, err := getListener(s.Host, s.Port)
+		if err != nil {
+			Log().Error("Failed to listen", "scheme", s.Scheme, "port", s.Port, "error", err)
+			continue
+		}
+
+		actualPort := ln.Addr().(*net.TCPAddr).Port
+		s.Port = actualPort
+		s.Addr = fmt.Sprintf("%v:%v", s.Host, actualPort)
+
+		if s.Scheme == "https" && s.TLSConfig != nil {
+			common.httpsPort = actualPort
+		} else if s.Scheme == "http" {
+			common.httpPort = actualPort
+		} else if s.Scheme == "https" && s.TLSConfig == nil {
+			common.httpSecureProxyPort = actualPort
+		}
+
+		go func(listener net.Listener) {
 			var err error
 			switch s.Scheme {
 			case "http":
-				ln, err = getListener(s.Host, s.Port)
-				if err != nil {
-					break
-				}
-				logServeStarted(s.Scheme, ln)
-				err = s.Serve(tcpKeepAliveListener{ln.(*net.TCPListener)})
+				logServeStarted(s.Scheme, listener)
+				err = s.Serve(tcpKeepAliveListener{listener.(*net.TCPListener)})
 			case "https":
-				ln, err = getListener(s.Host, s.Port)
-				if err != nil {
-					break
-				}
-				logServeStarted(s.Scheme, ln)
+				logServeStarted(s.Scheme, listener)
 				http2.ConfigureServer(s.Server, &http2.Server{})
-				tlsListener := tls.NewListener(tcpKeepAliveListener{ln.(*net.TCPListener)}, s.TLSConfig)
+				tlsListener := tls.NewListener(tcpKeepAliveListener{listener.(*net.TCPListener)}, s.TLSConfig)
 				err = s.Serve(tlsListener)
 			default:
 				panic(fmt.Sprintf("unknown s.Scheme: %s", s.Scheme))
@@ -669,7 +695,42 @@ func startServers(tlsconfig *tls.Config, httpHandler, httpsHandler http.Handler,
 			if err != nil {
 				Log().Error("Failed to start server", "scheme", s.Scheme, "addr", s.Addr, "error", err)
 			}
-		}()
+		}(ln)
+	}
+
+	if common.enableHTTP3 && http3TlsConfig != nil {
+		udpPort := common.http3Port
+		if udpPort == -1 {
+			udpPort = common.httpsPort
+		}
+		if udpPort > -1 {
+			go func() {
+				addr := fmt.Sprintf("%s:%d", common.host, udpPort)
+				udpAddr, err := net.ResolveUDPAddr("udp", addr)
+				if err != nil {
+					Log().Error("Failed to resolve UDP address", "addr", addr, "error", err)
+					return
+				}
+				conn, err := net.ListenUDP("udp", udpAddr)
+				if err != nil {
+					Log().Error("Failed to open UDP socket", "addr", addr, "error", err)
+					return
+				}
+				defer conn.Close()
+
+				server := &http3.Server{
+					Addr:      addr,
+					TLSConfig: http3TlsConfig,
+					Handler:   httpsHandler,
+				}
+
+				// DO NOT CHANGE: this line is parsed by downstream tools like catapult and crossbench.
+				fmt.Printf("Starting HTTP/3 server on h3://%s\n", conn.LocalAddr().String())
+				if err := server.Serve(conn); err != nil {
+					Log().Error("Failed to run HTTP/3 server", "error", err)
+				}
+			}()
+		}
 	}
 
 	fmt.Printf("Use Ctrl-C to exit\n")
@@ -720,7 +781,15 @@ func (r *RecordCommand) Run(c *cli.Context) error {
 		Log().Error("Error creating TLSConfig", "error", err)
 		os.Exit(1)
 	}
-	startServers(tlsconfig, httpHandler, httpsHandler, &r.common)
+	var http3TlsConfig *tls.Config
+	if r.common.enableHTTP3 {
+		http3TlsConfig, err = webpagereplay.RecordHTTP3TLSConfig(r.common.rootCerts, archive, !r.common.noArchiveCertificates)
+		if err != nil {
+			Log().Error("Error creating HTTP3 TLSConfig", "error", err)
+			os.Exit(1)
+		}
+	}
+	startServers(tlsconfig, http3TlsConfig, httpHandler, httpsHandler, &r.common)
 	return nil
 }
 
@@ -776,7 +845,15 @@ func (r *ReplayCommand) Run(c *cli.Context) error {
 		Log().Error("Error creating TLSConfig", "error", err)
 		os.Exit(1)
 	}
-	startServers(tlsconfig, httpHandler, httpsHandler, &r.common)
+	var http3TlsConfig *tls.Config
+	if r.common.enableHTTP3 {
+		http3TlsConfig, err = webpagereplay.ReplayHTTP3TLSConfig(r.common.rootCerts, archive, !r.common.noArchiveCertificates)
+		if err != nil {
+			Log().Error("Error creating HTTP3 TLSConfig", "error", err)
+			os.Exit(1)
+		}
+	}
+	startServers(tlsconfig, http3TlsConfig, httpHandler, httpsHandler, &r.common)
 	return nil
 }
 

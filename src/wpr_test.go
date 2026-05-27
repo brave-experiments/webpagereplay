@@ -89,6 +89,91 @@ func TestCommonConfig_CheckArgs(t *testing.T) {
 	}
 }
 
+func TestCommonConfig_CheckArgs_HTTP3(t *testing.T) {
+	tests := []struct {
+		name          string
+		enableHTTP3   bool
+		httpsPort     int
+		http3Port     int
+		expectSuccess bool
+	}{
+		{
+			name:          "HTTP/3 disabled, no ports set",
+			enableHTTP3:   false,
+			httpsPort:     -1,
+			http3Port:     -1,
+			expectSuccess: false,
+		},
+		{
+			name:          "HTTP/3 disabled, standard HTTPS port set",
+			enableHTTP3:   false,
+			httpsPort:     8081,
+			http3Port:     -1,
+			expectSuccess: true,
+		},
+		{
+			name:          "HTTP/3 enabled with dynamic UDP port on top of HTTPS",
+			enableHTTP3:   true,
+			httpsPort:     8081,
+			http3Port:     -1,
+			expectSuccess: true,
+		},
+		{
+			name:          "HTTP/3 enabled with custom UDP port, no standard HTTPS port",
+			enableHTTP3:   true,
+			httpsPort:     -1,
+			http3Port:     8082,
+			expectSuccess: true,
+		},
+		{
+			name:          "HTTP/3 enabled but no valid UDP port available",
+			enableHTTP3:   true,
+			httpsPort:     -1,
+			http3Port:     -1,
+			expectSuccess: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			common := &CommonConfig{
+				enableHTTP3:               tt.enableHTTP3,
+				httpsPort:                 tt.httpsPort,
+				http3Port:                 tt.http3Port,
+				httpPort:                  -1,
+				httpSecureProxyPort:       -1,
+				logLevel:                  "INFO",
+				skipCertLoadingForTesting: true,
+			}
+
+			flagSet := flag.NewFlagSet("test", flag.ContinueOnError)
+			flagSet.Bool("enable-http3", tt.enableHTTP3, "")
+			flagSet.Int("https-port", tt.httpsPort, "")
+			flagSet.Int("http3-port", tt.http3Port, "")
+
+			args := []string{}
+			if tt.enableHTTP3 {
+				args = append(args, "--enable-http3")
+			}
+			if tt.httpsPort > -1 {
+				args = append(args, "--https-port", strconv.Itoa(tt.httpsPort))
+			}
+			if tt.http3Port > -1 {
+				args = append(args, "--http3-port", strconv.Itoa(tt.http3Port))
+			}
+			args = append(args, "archive.json")
+			flagSet.Parse(args)
+			c := cli.NewContext(nil, flagSet, nil)
+
+			err := common.CheckArgsAndSetLogLevel(c)
+			if (err == nil) != tt.expectSuccess {
+				t.Errorf("CheckArgsAndSetLogLevel() error = %v, expectSuccess %v",
+					err, tt.expectSuccess)
+			}
+		})
+	}
+}
+
 func TestReplaceConstants(t *testing.T) {
 	ptr := func(f float64) *float64 { return &f }
 	tests := []struct {

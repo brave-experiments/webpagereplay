@@ -23,9 +23,37 @@ func ReplayTLSConfig(roots []tls.Certificate, a *Archive, useArchiveCertificates
 	if err != nil {
 		return nil, fmt.Errorf("bad local certs: %v", err)
 	}
-	tp := &tlsProxy{roots, rootCerts, a, nil, sync.Mutex{}, make(map[string][]byte), useArchiveCertificates}
+	tp := &tlsProxy{
+		roots:                  roots,
+		rootCerts:              rootCerts,
+		archive:                a,
+		dummyCertsMap:          make(map[string][]byte),
+		useArchiveCertificates: useArchiveCertificates,
+		isHTTP3:                false,
+	}
 	return &tls.Config{
 		GetConfigForClient: tp.getReplayConfigForClient,
+	}, nil
+}
+
+// ReplayHTTP3TLSConfig returns a TLS configuration suitable for HTTP/3 replay.
+func ReplayHTTP3TLSConfig(roots []tls.Certificate, a *Archive, useArchiveCertificates bool) (*tls.Config, error) {
+	rootCerts, err := getRootCerts(roots)
+	if err != nil {
+		return nil, fmt.Errorf("bad local certs: %v", err)
+	}
+	tp := &tlsProxy{
+		roots:                  roots,
+		rootCerts:              rootCerts,
+		archive:                a,
+		dummyCertsMap:          make(map[string][]byte),
+		useArchiveCertificates: useArchiveCertificates,
+		isHTTP3:                true,
+	}
+	return &tls.Config{
+		GetConfigForClient: tp.getReplayConfigForClient,
+		MinVersion:         tls.VersionTLS13,
+		NextProtos:         []string{"h3"},
 	}, nil
 }
 
@@ -36,9 +64,35 @@ func RecordTLSConfig(roots []tls.Certificate, w *WritableArchive, useArchiveCert
 	if err != nil {
 		return nil, fmt.Errorf("bad local certs: %v", err)
 	}
-	tp := &tlsProxy{roots, rootCerts, nil, w, sync.Mutex{}, nil, useArchiveCertificates}
+	tp := &tlsProxy{
+		roots:                  roots,
+		rootCerts:              rootCerts,
+		writableArchive:        w,
+		useArchiveCertificates: useArchiveCertificates,
+		isHTTP3:                false,
+	}
 	return &tls.Config{
 		GetConfigForClient: tp.getRecordConfigForClient,
+	}, nil
+}
+
+// RecordHTTP3TLSConfig returns a TLS configuration suitable for HTTP/3 recording.
+func RecordHTTP3TLSConfig(roots []tls.Certificate, w *WritableArchive, useArchiveCertificates bool) (*tls.Config, error) {
+	rootCerts, err := getRootCerts(roots)
+	if err != nil {
+		return nil, fmt.Errorf("bad local certs: %v", err)
+	}
+	tp := &tlsProxy{
+		roots:                  roots,
+		rootCerts:              rootCerts,
+		writableArchive:        w,
+		useArchiveCertificates: useArchiveCertificates,
+		isHTTP3:                true,
+	}
+	return &tls.Config{
+		GetConfigForClient: tp.getRecordConfigForClient,
+		MinVersion:         tls.VersionTLS13,
+		NextProtos:         []string{"h3"},
 	}, nil
 }
 
@@ -112,6 +166,7 @@ type tlsProxy struct {
 	mu                     sync.Mutex
 	dummyCertsMap          map[string][]byte
 	useArchiveCertificates bool
+	isHTTP3                bool
 }
 
 // TODO: For now, this just returns a self-signed cert using the given ServerName.
@@ -161,9 +216,17 @@ func (tp *tlsProxy) getReplayConfigForClient(clientHello *tls.ClientHelloInfo) (
 			PrivateKey:  tp.roots[i].PrivateKey,
 		})
 	}
+	nextProtos := []string{"h3"}
+	var minVersion uint16
+	if !tp.isHTTP3 {
+		nextProtos = buildNextProtos(negotiatedProtocol)
+	} else {
+		minVersion = tls.VersionTLS13
+	}
 	return &tls.Config{
 		Certificates: certificates,
-		NextProtos:   buildNextProtos(negotiatedProtocol),
+		NextProtos:   nextProtos,
+		MinVersion:   minVersion,
 	}, nil
 }
 
@@ -253,8 +316,16 @@ func (tp *tlsProxy) getRecordConfigForClient(clientHello *tls.ClientHelloInfo) (
 		tp.writableArchive.RecordHostNegotiatedProtocol(h, negotiatedProtocol)
 	}
 
+	nextProtos := []string{"h3"}
+	var minVersion uint16
+	if !tp.isHTTP3 {
+		nextProtos = buildNextProtos(negotiatedProtocol)
+	} else {
+		minVersion = tls.VersionTLS13
+	}
 	return &tls.Config{
 		Certificates: certificates,
-		NextProtos:   buildNextProtos(negotiatedProtocol),
+		NextProtos:   nextProtos,
+		MinVersion:   minVersion,
 	}, nil
 }

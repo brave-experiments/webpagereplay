@@ -5,8 +5,16 @@
 package webpagereplay
 
 import (
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
+	"crypto/tls"
+	"crypto/x509"
+	"crypto/x509/pkix"
+	"math/big"
 	"reflect"
 	"testing"
+	"time"
 )
 
 var derBytes1 []byte = []byte{
@@ -88,5 +96,122 @@ func TestParseDerBytesWithSingleCert(t *testing.T) {
 
 	if len(certBytes) != 1 || !reflect.DeepEqual(certBytes[0], derBytes1) {
 		t.Errorf("Failed to parse derBytes with a single certificate!")
+	}
+}
+
+func generateTestRootCA(t *testing.T) tls.Certificate {
+	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		t.Fatalf("failed to generate private key: %v", err)
+	}
+
+	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
+	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
+	if err != nil {
+		t.Fatalf("failed to generate serial number: %v", err)
+	}
+
+	template := x509.Certificate{
+		SerialNumber: serialNumber,
+		Subject: pkix.Name{
+			Organization: []string{"Acme Co"},
+		},
+		NotBefore:             time.Now().Add(-1 * time.Hour),
+		NotAfter:              time.Now().Add(1 * time.Hour),
+		KeyUsage:              x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
+		BasicConstraintsValid: true,
+		IsCA:                  true,
+	}
+
+	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, &priv.PublicKey, priv)
+	if err != nil {
+		t.Fatalf("failed to create certificate: %v", err)
+	}
+
+	return tls.Certificate{
+		Certificate: [][]byte{derBytes},
+		PrivateKey:  priv,
+	}
+}
+
+func TestHTTP3TLSConfig_Replay(t *testing.T) {
+	rootCert := generateTestRootCA(t)
+	archive := &Archive{
+		Certs:              make(map[string][]byte),
+		NegotiatedProtocol: map[string]string{"example.com": "h2"},
+	}
+
+	cfg, err := ReplayHTTP3TLSConfig([]tls.Certificate{rootCert}, archive, true)
+	if err != nil {
+		t.Fatalf("ReplayHTTP3TLSConfig failed: %v", err)
+	}
+
+	if cfg.MinVersion != tls.VersionTLS13 {
+		t.Errorf("Expected MinVersion to be tls.VersionTLS13, got %x", cfg.MinVersion)
+	}
+	if len(cfg.NextProtos) != 1 || cfg.NextProtos[0] != "h3" {
+		t.Errorf("Expected NextProtos to be ['h3'], got %v", cfg.NextProtos)
+	}
+
+	if cfg.GetConfigForClient == nil {
+		t.Fatal("Expected GetConfigForClient to be defined")
+	}
+
+	clientHello := &tls.ClientHelloInfo{
+		ServerName: "example.com",
+	}
+
+	clientCfg, err := cfg.GetConfigForClient(clientHello)
+	if err != nil {
+		t.Fatalf("GetConfigForClient failed: %v", err)
+	}
+
+	if clientCfg.MinVersion != tls.VersionTLS13 {
+		t.Errorf("Expected inner MinVersion to be tls.VersionTLS13, got %x", clientCfg.MinVersion)
+	}
+	if len(clientCfg.NextProtos) != 1 || clientCfg.NextProtos[0] != "h3" {
+		t.Errorf("Expected inner NextProtos to be ['h3'], got %v", clientCfg.NextProtos)
+	}
+}
+
+func TestHTTP3TLSConfig_Record(t *testing.T) {
+	rootCert := generateTestRootCA(t)
+	writableArchive := &WritableArchive{
+		Archive: Archive{
+			Certs:              make(map[string][]byte),
+			NegotiatedProtocol: map[string]string{"example.com": "h2"},
+		},
+	}
+
+	cfg, err := RecordHTTP3TLSConfig([]tls.Certificate{rootCert}, writableArchive, true)
+	if err != nil {
+		t.Fatalf("RecordHTTP3TLSConfig failed: %v", err)
+	}
+
+	if cfg.MinVersion != tls.VersionTLS13 {
+		t.Errorf("Expected MinVersion to be tls.VersionTLS13, got %x", cfg.MinVersion)
+	}
+	if len(cfg.NextProtos) != 1 || cfg.NextProtos[0] != "h3" {
+		t.Errorf("Expected NextProtos to be ['h3'], got %v", cfg.NextProtos)
+	}
+
+	if cfg.GetConfigForClient == nil {
+		t.Fatal("Expected GetConfigForClient to be defined")
+	}
+
+	clientHello := &tls.ClientHelloInfo{
+		ServerName: "example.com",
+	}
+
+	clientCfg, err := cfg.GetConfigForClient(clientHello)
+	if err != nil {
+		t.Fatalf("GetConfigForClient failed: %v", err)
+	}
+
+	if clientCfg.MinVersion != tls.VersionTLS13 {
+		t.Errorf("Expected inner MinVersion to be tls.VersionTLS13, got %x", clientCfg.MinVersion)
+	}
+	if len(clientCfg.NextProtos) != 1 || clientCfg.NextProtos[0] != "h3" {
+		t.Errorf("Expected inner NextProtos to be ['h3'], got %v", clientCfg.NextProtos)
 	}
 }
