@@ -39,79 +39,179 @@ func TestMain(m *testing.M) {
 	os.Exit(ret)
 }
 
-// Tests that when --inject_scripts is provided during recording, the scripts
-// are not saved as part of the response body (they are saved as separate
-// special field in the archive instead).
-func TestDoNotSaveInjectedScriptInResponseBody(t *testing.T) {
-	archiveFile := filepath.Join(tmpdir, "TestDoNotSaveInjected.json")
-	originalBody := "<html><head></head><p>hello!</p></html>"
-	origin := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		switch req.URL.Path {
-		case "/":
-			w.Header().Set("Cache-Control", "public, max-age=3600")
-			w.Header().Set("Content-Type", "text/html")
-			w.WriteHeader(http.StatusOK)
-			fmt.Fprint(w, originalBody)
-		default:
-			w.WriteHeader(http.StatusOK)
-			fmt.Fprint(w, "default response")
-		}
-	}))
-	defer origin.Close()
+type wprTestEnv struct {
+	t               *testing.T
+	archivePath     string
+	originServer    *httptest.Server
+	recordServer    *httptest.Server
+	recordArchive   *WritableArchive
+	recordTransport *http.Transport
 
-	// Start a proxy for the origin server that will construct an archive file.
-	recordArchive, err := OpenWritableArchive(archiveFile)
+	replayServer    *httptest.Server
+	replayArchive   *Archive
+	replayTransport *http.Transport
+}
+
+func newWprTestEnv(
+	t *testing.T,
+	archiveName string,
+	originHandler http.HandlerFunc,
+	transformers []ResponseTransformer,
+) *wprTestEnv {
+	archivePath := filepath.Join(tmpdir, archiveName)
+	origin := httptest.NewServer(http.HandlerFunc(originHandler))
+
+	recordArchive, err := OpenWritableArchive(archivePath)
 	if err != nil {
 		t.Fatalf("OpenWritableArchive: %v", err)
 	}
-
-	si, err := NewScriptInjector([]byte("let x = 1;"), DefaultScriptInjectorConfig())
-	if err != nil {
-		t.Fatalf("failed to create script injector: %v", err)
-	}
-	transformers := []ResponseTransformer{si}
-	recordServer := httptest.NewServer(NewRecordingProxy(recordArchive, "http", transformers, ""))
+	recordProxy := NewRecordingProxy(
+		recordArchive, "http", transformers, "")
+	recordServer := httptest.NewServer(recordProxy)
 	recordTransport := &http.Transport{
 		Proxy: func(*http.Request) (*url.URL, error) {
 			return url.Parse(recordServer.URL)
 		},
 	}
 
-	u := origin.URL + "/"
-	req := httptest.NewRequest("GET", u, nil)
-	resp, err := recordTransport.RoundTrip(req)
+	return &wprTestEnv{
+		t:               t,
+		archivePath:     archivePath,
+		originServer:    origin,
+		recordServer:    recordServer,
+		recordArchive:   recordArchive,
+		recordTransport: recordTransport,
+	}
+}
+
+func (c *wprTestEnv) RecordRequest(
+	method string, path string, body string,
+) (*http.Response, string) {
+	var req *http.Request
+	var err error
+	u := c.originServer.URL + path
+	if body != "" {
+		req, err = http.NewRequest(method, u, strings.NewReader(body))
+	} else {
+		req, err = http.NewRequest(method, u, nil)
+	}
 	if err != nil {
-		t.Fatalf("unexpected error : %v", err)
+		c.t.Fatalf("Record NewRequest(%s): %v", u, err)
+	}
+	resp, err := c.recordTransport.RoundTrip(req)
+	if err != nil {
+		c.t.Fatalf("Record RoundTrip(%s): %v", u, err)
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	fmt.Printf("body: %s", string(body))
+	b, err := io.ReadAll(resp.Body)
 	if err != nil {
-		t.Fatalf("unexpected error : %v", err)
+		c.t.Fatalf("Record ReadAll(%s): %v", u, err)
 	}
-	// Shutdown and flush the archive.
-	recordServer.Close()
-	if err := recordArchive.Close(); err != nil {
-		t.Fatalf("CloseArchive: %v", err)
+	return resp, string(b)
+}
+
+func (c *wprTestEnv) CloseRecord() {
+	c.recordServer.Close()
+	if err := c.recordArchive.Close(); err != nil {
+		c.t.Fatalf("CloseArchive: %v", err)
 	}
-	// Open a replay server using the saved archive.
-	replayArchive, err := OpenArchive(archiveFile)
+}
+
+func (c *wprTestEnv) StartReplay(
+	quietMode bool, paramToIgnore string, cfg *ShapingConfig,
+) {
+	replayArchive, err := OpenArchive(c.archivePath)
+	if err != nil {
+		c.t.Fatalf("OpenArchive: %v", err)
+	}
+	replayProxy := NewReplayingProxy(
+		replayArchive, "http", quietMode, paramToIgnore, cfg)
+	replayServer := httptest.NewServer(replayProxy)
+	replayTransport := &http.Transport{
+		Proxy: func(*http.Request) (*url.URL, error) {
+			return url.Parse(replayServer.URL)
+		},
+	}
+	c.replayArchive = replayArchive
+	c.replayServer = replayServer
+	c.replayTransport = replayTransport
+}
+
+func (c *wprTestEnv) ReplayRequest(
+	method string, path string, body string,
+) (*http.Response, string) {
+	var req *http.Request
+	var err error
+	u := c.originServer.URL + path
+	if body != "" {
+		req, err = http.NewRequest(method, u, strings.NewReader(body))
+	} else {
+		req, err = http.NewRequest(method, u, nil)
+	}
+	if err != nil {
+		c.t.Fatalf("Replay NewRequest(%s): %v", u, err)
+	}
+	resp, err := c.replayTransport.RoundTrip(req)
+	if err != nil {
+		c.t.Fatalf("Replay RoundTrip(%s): %v", u, err)
+	}
+	defer resp.Body.Close()
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		c.t.Fatalf("Replay ReadAll(%s): %v", u, err)
+	}
+	return resp, string(b)
+}
+
+// Close terminates all remaining active origin and replaying HTTP servers.
+func (c *wprTestEnv) Close() {
+	c.originServer.Close()
+	if c.replayServer != nil {
+		c.replayServer.Close()
+	}
+}
+
+// Tests that when --inject_scripts is provided during recording, the scripts
+// are not saved as part of the response body (they are saved as separate
+// special field in the archive instead).
+func TestDoNotSaveInjectedScriptInResponseBody(t *testing.T) {
+	originalBody := "<html><head></head><p>hello!</p></html>"
+	si, err := NewScriptInjector([]byte("let x = 1;"), DefaultScriptInjectorConfig())
+	if err != nil {
+		t.Fatalf("failed to create script injector: %v", err)
+	}
+
+	c := newWprTestEnv(t, "TestDoNotSaveInjected.json", func(w http.ResponseWriter, req *http.Request) {
+		w.Header().Set("Cache-Control", "public, max-age=3600")
+		w.Header().Set("Content-Type", "text/html")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, originalBody)
+	}, []ResponseTransformer{si})
+	defer c.Close()
+
+	_, body := c.RecordRequest("GET", "/", "")
+	fmt.Printf("body: %s", body)
+	c.CloseRecord()
+
+	replayArchive, err := OpenArchive(c.archivePath)
 	if err != nil {
 		t.Fatalf("OpenArchive: %v", err)
 	}
+	u := c.originServer.URL + "/"
+	req := httptest.NewRequest("GET", u, nil)
 	_, recordedResp, err := replayArchive.FindRequest(req)
 	if err != nil {
 		t.Fatalf("unexpected error : %v", err)
 	}
 	defer recordedResp.Body.Close()
-	recordedBody, err := ioutil.ReadAll(recordedResp.Body)
+	recordedBody, err := io.ReadAll(recordedResp.Body)
 	if err != nil {
 		t.Fatalf("unexpected error : %v", err)
 	}
 	if got, want := string(recordedBody), originalBody; got != want {
 		t.Errorf("response doesn't match:\n%q\n%q", got, want)
 	}
-	if reflect.DeepEqual(body, recordedBody) {
+	if string(recordedBody) == body {
 		t.Fatal("served response body and recorded response body should not be equal")
 	}
 }
@@ -213,7 +313,7 @@ func TestEndToEnd(t *testing.T) {
 	if err != nil {
 		t.Fatalf("OpenArchive: %v", err)
 	}
-	replayServer := httptest.NewServer(NewReplayingProxy(replayArchive, "http", false, ""))
+	replayServer := httptest.NewServer(NewReplayingProxy(replayArchive, "http", false, "", nil))
 	replayTransport := &http.Transport{
 		Proxy: func(*http.Request) (*url.URL, error) {
 			return url.Parse(replayServer.URL)
@@ -306,5 +406,66 @@ func TestProcessRequestURLParams(t *testing.T) {
 		if err := validate(test[0], test[1], test[2]); err != nil {
 			t.Fatal(err)
 		}
+	}
+}
+
+func TestReplayingProxy_ShapingPOST(t *testing.T) {
+	c := newWprTestEnv(t, "TestShapingPOST.json", func(w http.ResponseWriter, req *http.Request) {
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusOK)
+		io.Copy(w, req.Body)
+	}, nil)
+	defer c.Close()
+
+	c.RecordRequest("POST", "/post", "Shaped POST upload test body")
+	c.CloseRecord()
+
+	cfg, err := CreateShapingConfig(ShapingOptions{
+		Preset:            "3g",
+		MinInitialDelayMs: i64(1),
+		MaxInitialDelayMs: i64(2),
+		MinPacketDelayMs:  i64(1),
+		MaxPacketDelayMs:  i64(2),
+	})
+	if err != nil || cfg == nil {
+		t.Fatalf("CreateShapingConfig failed: %v", err)
+	}
+
+	c.StartReplay(false, "", cfg)
+
+	_, body := c.ReplayRequest("POST", "/post", "Shaped POST upload test body")
+	if body != "Shaped POST upload test body" {
+		t.Errorf("got %q want %q", body, "Shaped POST upload test body")
+	}
+}
+
+func TestReplayingProxy_ShapingGET(t *testing.T) {
+	targetBody := "Traffic shaped GET download content test body"
+	c := newWprTestEnv(t, "TestShapingGET.json", func(w http.ResponseWriter, req *http.Request) {
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, targetBody)
+	}, nil)
+	defer c.Close()
+
+	c.RecordRequest("GET", "/get", "")
+	c.CloseRecord()
+
+	cfg, err := CreateShapingConfig(ShapingOptions{
+		Preset:            "4g",
+		MinInitialDelayMs: i64(1),
+		MaxInitialDelayMs: i64(2),
+		MinPacketDelayMs:  i64(1),
+		MaxPacketDelayMs:  i64(2),
+	})
+	if err != nil || cfg == nil {
+		t.Fatalf("CreateShapingConfig failed: %v", err)
+	}
+
+	c.StartReplay(false, "", cfg)
+
+	_, body := c.ReplayRequest("GET", "/get", "")
+	if body != targetBody {
+		t.Errorf("got %q want %q", body, targetBody)
 	}
 }
