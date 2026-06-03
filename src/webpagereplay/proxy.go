@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"net/url"
 	"os"
@@ -93,8 +94,11 @@ func updateDates(h http.Header, now time.Time) {
 
 // NewReplayingProxy constructs an HTTP proxy that replays responses from an archive.
 // The proxy is listening for requests on a port that uses the given scheme (e.g., http, https).
-func NewReplayingProxy(a *Archive, scheme string, quietMode bool, paramToIgnoreInURLPath string) http.Handler {
-	return &replayingProxy{a, scheme, quietMode, paramToIgnoreInURLPath}
+// If shapingCfg is provided, both upstream request body uploads and
+// downstream response streaming will simulate custom network latency and
+// traffic pacing profiles.
+func NewReplayingProxy(a *Archive, scheme string, quietMode bool, paramToIgnoreInURLPath string, shapingCfg *ShapingConfig) http.Handler {
+	return &replayingProxy{a, scheme, quietMode, paramToIgnoreInURLPath, shapingCfg}
 }
 
 type replayingProxy struct {
@@ -102,6 +106,7 @@ type replayingProxy struct {
 	scheme                 string
 	quietMode              bool
 	paramToIgnoreInURLPath string
+	shapingCfg             *ShapingConfig
 }
 
 func (proxy *replayingProxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
@@ -131,6 +136,16 @@ func (proxy *replayingProxy) ServeHTTP(w http.ResponseWriter, req *http.Request)
 
 	logger := makeLogger(req, proxy.quietMode)
 
+	var rnd *rand.Rand
+	if proxy.shapingCfg != nil {
+		seed := CalculateSeed(req.URL.String())
+		rnd = rand.New(rand.NewSource(seed))
+		if req.Body != nil {
+			req.Body = WrapShapedReadCloser(
+				req.Context(), req.Body, proxy.shapingCfg, rnd)
+		}
+	}
+
 	// Lookup the response in the archive.
 	_, storedResp, err := proxy.a.FindRequest(req)
 	if err != nil {
@@ -139,6 +154,12 @@ func (proxy *replayingProxy) ServeHTTP(w http.ResponseWriter, req *http.Request)
 		return
 	}
 	defer storedResp.Body.Close()
+
+	if proxy.shapingCfg != nil && req.Body != nil {
+		// Explicitly drain req.Body to enforce upstream upload pacing before
+		// serving the response.
+		io.Copy(io.Discard, req.Body)
+	}
 
 	// Check if the stored Content-Encoding matches an encoding allowed by the client.
 	// If not, transform the response body to match the client's Accept-Encoding.
@@ -181,9 +202,35 @@ func (proxy *replayingProxy) ServeHTTP(w http.ResponseWriter, req *http.Request)
 	for k, v := range storedResp.Header {
 		w.Header()[k] = append([]string{}, v...)
 	}
+
+	if proxy.shapingCfg != nil {
+		proxy.streamShaped(w, req, storedResp, logger, rnd)
+	} else {
+		w.WriteHeader(storedResp.StatusCode)
+		if _, err := io.Copy(w, storedResp.Body); err != nil {
+			logger.Error("Client response truncated", "error", err)
+		}
+	}
+}
+
+func (proxy *replayingProxy) streamShaped(w http.ResponseWriter, req *http.Request, storedResp *http.Response, logger Logger, rnd *rand.Rand) {
+	cfg := proxy.shapingCfg
+	initDelay := cfg.GetInitialDelay(rnd)
+	if initDelay > 0 {
+		timer := time.NewTimer(initDelay)
+		select {
+		case <-timer.C:
+		case <-req.Context().Done():
+			timer.Stop()
+			return
+		}
+	}
 	w.WriteHeader(storedResp.StatusCode)
-	if _, err := io.Copy(w, storedResp.Body); err != nil {
-		logger.Error("Client response truncated", "error", err)
+	ctx := req.Context()
+	body := storedResp.Body
+	if _, err := StreamShapedResponse(ctx, w, body, cfg, rnd); err != nil {
+		logger.Error("Client response truncated during shaped stream",
+			"error", err)
 	}
 }
 
