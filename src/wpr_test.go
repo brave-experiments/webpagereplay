@@ -820,3 +820,40 @@ func TestProcessInjectedScriptsForReplay_ExplicitFlagCollidesWithArchive(t *test
 		t.Errorf("Expected error %v, got %v", ErrDuplicateScriptName, err)
 	}
 }
+
+func TestReplayCommand_TrafficShapingFlags(t *testing.T) {
+	var replay ReplayCommand
+	app := cli.NewApp()
+	app.Commands = []*cli.Command{{
+		Name:  "replay",
+		Flags: replay.Flags(),
+		Action: func(c *cli.Context) error {
+			return nil
+		},
+	}}
+
+	tests := []struct {
+		flag       string
+		invalidVal string
+		validVal   string
+	}{
+		{"--ts-preset", "invalid_preset", "3g"},
+		{"--ts-min-initial-delay-ms", "-50", "100"},
+		{"--ts-max-initial-delay-ms", "-50", "100"},
+		{"--ts-min-chunk-size-bytes", "-50", "1024"},
+		{"--ts-max-chunk-size-bytes", "-50", "1024"},
+		{"--ts-min-chunk-delay-ms", "-50", "10"},
+		{"--ts-max-chunk-delay-ms", "-50", "10"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.flag, func(t *testing.T) {
+			if err := app.Run([]string{"wpr", "replay", tt.flag, tt.invalidVal, "archive.json"}); err == nil {
+				t.Errorf("Expected error when running with invalid value for %s=%s, got nil", tt.flag, tt.invalidVal)
+			}
+			if err := app.Run([]string{"wpr", "replay", tt.flag, tt.validVal, "archive.json"}); err != nil {
+				t.Errorf("Expected success for %s=%s, got %v", tt.flag, tt.validVal, err)
+			}
+		})
+	}
+}
