@@ -96,6 +96,14 @@ type ReplayCommand struct {
 	serveResponseInChronologicalSequence bool
 	quietMode                            bool
 	disableFuzzyURLMatching              bool
+	shapingOpts                          webpagereplay.ShapingOptions
+	tsPreset                             string
+	tsMinInitialDelayMs                  int64
+	tsMaxInitialDelayMs                  int64
+	tsMinPacketSizeBytes                 int64
+	tsMaxPacketSizeBytes                 int64
+	tsMinPacketDelayMs                   int64
+	tsMaxPacketDelayMs                   int64
 }
 
 type RootCACommand struct {
@@ -540,7 +548,77 @@ func (r *ReplayCommand) Flags() []cli.Flag {
 				"ServeHTTP url call and responses",
 			Destination: &r.quietMode,
 		},
+		&cli.StringFlag{
+			Name: "ts-preset",
+			Usage: "Preset network profile for traffic shaping " +
+				"(3g, 4g, 5g, dsl, cable, satellite).",
+			Destination: &r.tsPreset,
+			Action:      validateTrafficShapingPreset,
+		},
+		&cli.Int64Flag{
+			Name: "ts-min-initial-delay-ms",
+			Usage: "Minimum initial request delay (TTFB) in " +
+				"milliseconds.",
+			Destination: &r.tsMinInitialDelayMs,
+			Action:      validateTrafficShapingDelay,
+		},
+		&cli.Int64Flag{
+			Name: "ts-max-initial-delay-ms",
+			Usage: "Maximum initial request delay (TTFB) in " +
+				"milliseconds.",
+			Destination: &r.tsMaxInitialDelayMs,
+			Action:      validateTrafficShapingDelay,
+		},
+		&cli.Int64Flag{
+			Name: "ts-min-chunk-size-bytes",
+			Usage: "Minimum chunk size in bytes for streaming " +
+				"response body.",
+			Destination: &r.tsMinPacketSizeBytes,
+			Action:      validateTrafficShapingChunkSize,
+		},
+		&cli.Int64Flag{
+			Name: "ts-max-chunk-size-bytes",
+			Usage: "Maximum chunk size in bytes for streaming " +
+				"response body.",
+			Destination: &r.tsMaxPacketSizeBytes,
+			Action:      validateTrafficShapingChunkSize,
+		},
+		&cli.Int64Flag{
+			Name: "ts-min-chunk-delay-ms",
+			Usage: "Minimum delay between body chunk " +
+				"transmissions in milliseconds.",
+			Destination: &r.tsMinPacketDelayMs,
+			Action:      validateTrafficShapingDelay,
+		},
+		&cli.Int64Flag{
+			Name: "ts-max-chunk-delay-ms",
+			Usage: "Maximum delay between body chunk " +
+				"transmissions in milliseconds.",
+			Destination: &r.tsMaxPacketDelayMs,
+			Action:      validateTrafficShapingDelay,
+		},
 	)
+}
+
+func validateTrafficShapingPreset(c *cli.Context, v string) error {
+	if !webpagereplay.ValidatePreset(v) {
+		return fmt.Errorf("invalid flag value: unknown preset '%s' (available: 3g, 4g, 5g, dsl, cable, satellite)", v)
+	}
+	return nil
+}
+
+func validateTrafficShapingDelay(c *cli.Context, v int64) error {
+	if v < 0 {
+		return fmt.Errorf("invalid flag value: delay cannot be negative (%d)", v)
+	}
+	return nil
+}
+
+func validateTrafficShapingChunkSize(c *cli.Context, v int64) error {
+	if v < 0 {
+		return fmt.Errorf("invalid flag value: size cannot be negative (%d)", v)
+	}
+	return nil
 }
 
 func (r *RootCACommand) Flags() []cli.Flag {
@@ -725,6 +803,31 @@ func (r *RecordCommand) Run(c *cli.Context) error {
 }
 
 func (r *ReplayCommand) Run(c *cli.Context) error {
+	opts := webpagereplay.ShapingOptions{Preset: r.tsPreset}
+	if isSet(c, "ts-min-initial-delay-ms") {
+		opts.MinInitialDelayMs = &r.tsMinInitialDelayMs
+	}
+	if isSet(c, "ts-max-initial-delay-ms") {
+		opts.MaxInitialDelayMs = &r.tsMaxInitialDelayMs
+	}
+	if isSet(c, "ts-min-chunk-size-bytes") {
+		opts.MinPacketSizeBytes = &r.tsMinPacketSizeBytes
+	}
+	if isSet(c, "ts-max-chunk-size-bytes") {
+		opts.MaxPacketSizeBytes = &r.tsMaxPacketSizeBytes
+	}
+	if isSet(c, "ts-min-chunk-delay-ms") {
+		opts.MinPacketDelayMs = &r.tsMinPacketDelayMs
+	}
+	if isSet(c, "ts-max-chunk-delay-ms") {
+		opts.MaxPacketDelayMs = &r.tsMaxPacketDelayMs
+	}
+
+	shapingCfg, err := webpagereplay.CreateShapingConfig(opts)
+	if err != nil {
+		Log().Error("Invalid traffic shaping configuration", "err", err)
+		os.Exit(1)
+	}
 	archiveFileName := c.Args().First()
 	Log().Info("Loading archive", "path", archiveFileName)
 	archive, err := webpagereplay.OpenArchive(archiveFileName)
@@ -769,8 +872,12 @@ func (r *ReplayCommand) Run(c *cli.Context) error {
 		archive = &transformedArchive
 	}
 
-	httpHandler := webpagereplay.NewReplayingProxy(archive, "http", r.quietMode, r.common.paramToIgnoreInURLPath)
-	httpsHandler := webpagereplay.NewReplayingProxy(archive, "https", r.quietMode, r.common.paramToIgnoreInURLPath)
+	httpHandler := webpagereplay.NewReplayingProxy(
+		archive, "http", r.quietMode,
+		r.common.paramToIgnoreInURLPath, shapingCfg)
+	httpsHandler := webpagereplay.NewReplayingProxy(
+		archive, "https", r.quietMode,
+		r.common.paramToIgnoreInURLPath, shapingCfg)
 	tlsconfig, err := webpagereplay.ReplayTLSConfig(r.common.rootCerts, archive, !r.common.noArchiveCertificates)
 	if err != nil {
 		Log().Error("Error creating TLSConfig", "error", err)
