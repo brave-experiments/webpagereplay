@@ -16,6 +16,24 @@
       "message": "PTAL again... maybe let\u0027s only do a first high-level overview round to see whether this is okayish? I\u0027ve done a few passes to clean up the code and make it more coherent.",
       "revId": "3f62fac8ccd5c9cbd5b01b60445f11ab2d052b48",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "47552997_9332fd19",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-06-04T10:04:06Z",
+      "side": 1,
+      "message": "My high-level question would be whether some of the core functionality could be offloaded to an industry-standard library like https://pkg.go.dev/golang.org/x/time/rate. Search that page for the link to the Wikipedia page for `Token bucket`.",
+      "parentUuid": "3d145667_fd433e47",
+      "revId": "3f62fac8ccd5c9cbd5b01b60445f11ab2d052b48",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
