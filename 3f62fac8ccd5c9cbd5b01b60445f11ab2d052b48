@@ -34,6 +34,75 @@
       "parentUuid": "3d145667_fd433e47",
       "revId": "3f62fac8ccd5c9cbd5b01b60445f11ab2d052b48",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b8a82ef3_efa91520",
+        "filename": "src/webpagereplay/distribution.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1328067
+      },
+      "writtenOn": "2026-06-04T11:21:31Z",
+      "side": 1,
+      "message": "The empirical distribution is bimodal because there are two types of packets: control packets and load-carrying ones. But we use this distribution to shape only the load-carrying packets. I don\u0027t think it\u0027s realistic to create load-carrying packets of the size of a control packet?",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 9
+      },
+      "revId": "3f62fac8ccd5c9cbd5b01b60445f11ab2d052b48",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "07931795_73576728",
+        "filename": "src/webpagereplay/shaping.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1328067
+      },
+      "writtenOn": "2026-06-04T11:21:31Z",
+      "side": 1,
+      "message": "Slow should not be less than Mid (ditto in other presets).\n\nMaybe also add a validation check for this in HeavyTailedLatencyConfig?",
+      "range": {
+        "startLine": 50,
+        "startChar": 26,
+        "endLine": 50,
+        "endChar": 29
+      },
+      "revId": "3f62fac8ccd5c9cbd5b01b60445f11ab2d052b48",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e13cc08e_767111cf",
+        "filename": "src/webpagereplay/shaping.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1328067
+      },
+      "writtenOn": "2026-06-04T11:21:31Z",
+      "side": 1,
+      "message": "This is higher that InitialDelay. Is this correct?",
+      "range": {
+        "startLine": 75,
+        "startChar": 8,
+        "endLine": 75,
+        "endChar": 10
+      },
+      "revId": "3f62fac8ccd5c9cbd5b01b60445f11ab2d052b48",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
