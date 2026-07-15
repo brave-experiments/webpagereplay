@@ -5,6 +5,7 @@
 package webpagereplay
 
 import (
+	"bytes"
 	"crypto"
 	"crypto/rand"
 	"crypto/tls"
@@ -139,7 +140,21 @@ func (tp *tlsProxy) getReplayConfigForClient(clientHello *tls.ClientHelloInfo) (
 	derBytes, err := tp.archive.FindHostCertificate(h)
 	tp.mu.Lock()
 	defer tp.mu.Unlock()
-	if err != nil || derBytes == nil || !tp.useArchiveCertificates {
+
+	certificates := []tls.Certificate{}
+	if err == nil && derBytes != nil && tp.useArchiveCertificates {
+		certBytes := parseDerBytes(derBytes)
+		for i := 0; i < len(certBytes); i++ {
+			if key := findMatchingKey(certBytes[i], tp.roots); key != nil {
+				certificates = append(certificates, tls.Certificate{
+					Certificate: [][]byte{certBytes[i]},
+					PrivateKey:  key,
+				})
+			}
+		}
+	}
+
+	if len(certificates) == 0 {
 		if _, ok := tp.dummyCertsMap[h]; !ok {
 			for i := 0; i < len(tp.rootCerts); i++ {
 				derBytes, err = MintCertificate(h, tp.rootCerts[i], tp.roots[i].PrivateKey)
@@ -150,17 +165,15 @@ func (tp *tlsProxy) getReplayConfigForClient(clientHello *tls.ClientHelloInfo) (
 			}
 		}
 		derBytes = tp.dummyCertsMap[h]
+		certBytes := parseDerBytes(derBytes)
+		for i := 0; i < len(certBytes); i++ {
+			certificates = append(certificates, tls.Certificate{
+				Certificate: [][]byte{certBytes[i]},
+				PrivateKey:  tp.roots[i].PrivateKey,
+			})
+		}
 	}
 
-	certBytes := parseDerBytes(derBytes)
-
-	certificates := []tls.Certificate{}
-	for i := 0; i < len(certBytes); i++ {
-		certificates = append(certificates, tls.Certificate{
-			Certificate: [][]byte{certBytes[i]},
-			PrivateKey:  tp.roots[i].PrivateKey,
-		})
-	}
 	return &tls.Config{
 		Certificates: certificates,
 		NextProtos:   buildNextProtos(negotiatedProtocol),
@@ -224,31 +237,32 @@ func (tp *tlsProxy) getRecordConfigForClient(clientHello *tls.ClientHelloInfo) (
 	if err == nil && derBytes != nil && tp.useArchiveCertificates {
 		certBytes := parseDerBytes(derBytes)
 		for i := 0; i < len(certBytes); i++ {
-			certificates = append(certificates, tls.Certificate{
-				Certificate: [][]byte{certBytes[i]},
-				PrivateKey:  tp.roots[i].PrivateKey,
-			})
+			if key := findMatchingKey(certBytes[i], tp.roots); key != nil {
+				certificates = append(certificates, tls.Certificate{
+					Certificate: [][]byte{certBytes[i]},
+					PrivateKey:  key,
+				})
+			}
 		}
-		return &tls.Config{
-			Certificates: certificates,
-			NextProtos:   buildNextProtos(negotiatedProtocol),
-		}, nil
 	}
 
-	totalDerBytes := []byte{}
-	for i := 0; i < len(tp.roots); i++ {
-		derBytes, err = MintCertificate(h, tp.rootCerts[i], tp.roots[i].PrivateKey)
-		if err != nil {
-			return nil, fmt.Errorf("create cert failed: %v", err)
+	if len(certificates) == 0 {
+		totalDerBytes := []byte{}
+		for i := 0; i < len(tp.roots); i++ {
+			derBytes, err = MintCertificate(h, tp.rootCerts[i], tp.roots[i].PrivateKey)
+			if err != nil {
+				return nil, fmt.Errorf("create cert failed: %v", err)
+			}
+			certificates = append(certificates, tls.Certificate{
+				Certificate: [][]byte{derBytes},
+				PrivateKey:  tp.roots[i].PrivateKey})
+			totalDerBytes = append(totalDerBytes, derBytes...)
 		}
-		certificates = append(certificates, tls.Certificate{
-			Certificate: [][]byte{derBytes},
-			PrivateKey:  tp.roots[i].PrivateKey})
-		totalDerBytes = append(totalDerBytes, derBytes...)
+		if tp.useArchiveCertificates && !hasArchiveCertificate {
+			tp.writableArchive.RecordHostCertificate(h, totalDerBytes)
+		}
 	}
-	if tp.useArchiveCertificates && !hasArchiveCertificate {
-		tp.writableArchive.RecordHostCertificate(h, totalDerBytes)
-	}
+
 	if !hasArchiveNegotiatedProtocol {
 		tp.writableArchive.RecordHostNegotiatedProtocol(h, negotiatedProtocol)
 	}
@@ -257,4 +271,24 @@ func (tp *tlsProxy) getRecordConfigForClient(clientHello *tls.ClientHelloInfo) (
 		Certificates: certificates,
 		NextProtos:   buildNextProtos(negotiatedProtocol),
 	}, nil
+}
+
+func findMatchingKey(certBytes []byte, roots []tls.Certificate) crypto.PrivateKey {
+	cert, err := x509.ParseCertificate(certBytes)
+	if err != nil {
+		return nil
+	}
+	certPubBytes, err := x509.MarshalPKIXPublicKey(cert.PublicKey)
+	if err != nil {
+		return nil
+	}
+	for _, root := range roots {
+		if signer, ok := root.PrivateKey.(crypto.Signer); ok {
+			rootPubBytes, err := x509.MarshalPKIXPublicKey(signer.Public())
+			if err == nil && bytes.Equal(certPubBytes, rootPubBytes) {
+				return root.PrivateKey
+			}
+		}
+	}
+	return nil
 }
