@@ -16,6 +16,24 @@
       "message": "Are you able to add a test demonstrating what is fixed?",
       "revId": "25308ec9da1591a935db995ffb653338d154e430",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "663b2ad5_a9d00c83",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 4959333
+      },
+      "writtenOn": "2026-07-15T22:42:09Z",
+      "side": 1,
+      "message": "I added TestGetReplayConfigForClientMoreArchiveCertsThanRoots and TestFindMatchingKey. \n\nThis is a test run on AJNews before adding the certs.go changes http://sponge/3761789c-f68a-4472-b971-6103ef6c1358. In the network.wpr.log, you can search for \"http: panic serving 127.0.0.1:48959: runtime error: index out of range [1] with length 1\" to see the panic messages.\n\nAfter adding the certs.go changes, the network.wpr.log doesn\u0027t show the panic messages anymore. http://sponge/dc7eae60-0886-4729-90eb-00d6cc0a722a",
+      "parentUuid": "af8aa836_10a92dfd",
+      "revId": "25308ec9da1591a935db995ffb653338d154e430",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
