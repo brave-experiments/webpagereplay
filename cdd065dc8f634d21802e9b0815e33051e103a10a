@@ -1,0 +1,124 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ff42a7a8_2285f9f3",
+        "filename": "src/webpagereplay/certs.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-07-17T14:09:29Z",
+      "side": 1,
+      "message": "Could you please explain why this code, which previously executed unconditionally, was not actually necessary?",
+      "revId": "cdd065dc8f634d21802e9b0815e33051e103a10a",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "36d18ddc_82392ec0",
+        "filename": "src/webpagereplay/certs.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-07-17T14:09:29Z",
+      "side": 1,
+      "message": "This suppresses the error. Should we not be a bit more vocal about it? Similarly below.",
+      "revId": "cdd065dc8f634d21802e9b0815e33051e103a10a",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14b1dc85_480b0879",
+        "filename": "src/webpagereplay/certs_test.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-07-17T14:09:29Z",
+      "side": 1,
+      "message": "Please observe a 100 chars per line limit in this repo (for new code).",
+      "revId": "cdd065dc8f634d21802e9b0815e33051e103a10a",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fdfd1b29_87481016",
+        "filename": "src/webpagereplay/certs_test.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-07-17T14:09:29Z",
+      "side": 1,
+      "message": "Given that this is a test, should we not just fail/crash the test on such an unexpected turn of events? Likewise below. You\u0027re doing it anyway, just outside of this function.",
+      "range": {
+        "startLine": 104,
+        "startChar": 0,
+        "endLine": 106,
+        "endChar": 2
+      },
+      "revId": "cdd065dc8f634d21802e9b0815e33051e103a10a",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "37c5fcb3_b20c0359",
+        "filename": "src/webpagereplay/certs_test.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-07-17T14:09:29Z",
+      "side": 1,
+      "message": "Comparisons to previous states or affairs are more appropriate in the CL description than in the code. (As a thought experiment, imagine how many references to \"previously\" an active codebase would otherwise have after 20 years. Imagine the main Chromium repo.)",
+      "range": {
+        "startLine": 131,
+        "startChar": 53,
+        "endLine": 132,
+        "endChar": 10
+      },
+      "revId": "cdd065dc8f634d21802e9b0815e33051e103a10a",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b22231da_559120ba",
+        "filename": "src/webpagereplay/certs_test.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-07-17T14:09:29Z",
+      "side": 1,
+      "message": "See my previous comment on this topic. You have so many calls to `t.Fatalf()` from within the test that it\u0027s distracting from the test purpose; but if you had this validation within the helper, that\u0027d be much better.",
+      "range": {
+        "startLine": 135,
+        "startChar": 0,
+        "endLine": 137,
+        "endChar": 2
+      },
+      "revId": "cdd065dc8f634d21802e9b0815e33051e103a10a",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
