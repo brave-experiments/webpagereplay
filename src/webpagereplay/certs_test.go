@@ -1,12 +1,19 @@
 // Copyright 2023 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-
 package webpagereplay
 
 import (
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
+	"crypto/tls"
+	"crypto/x509"
+	"crypto/x509/pkix"
+	"math/big"
 	"reflect"
 	"testing"
+	"time"
 )
 
 var derBytes1 []byte = []byte{
@@ -44,7 +51,6 @@ var derBytes1 []byte = []byte{
 	0xbc, 0xc4, 0x2a, 0xe4, 0xd6, 0x59, 0xc3, 0x9a, 0xee, 0x95, 0xa3, 0x31, 0xf5, 0xa6, 0x35, 0x46,
 	0x44, 0x33, 0x03, 0x2a, 0x75, 0x9e, 0xbe, 0x13, 0x6c, 0x53, 0x9f, 0xa6, 0x68, 0x15, 0x24, 0x79,
 }
-
 var derBytes2 []byte = []byte{
 	0x30, 0x82, 0x01, 0x6d, 0x30, 0x82, 0x01, 0x14, 0xa0, 0x03, 0x02, 0x01, 0x02, 0x02, 0x11, 0x00,
 	0xc4, 0x14, 0xab, 0xd2, 0x52, 0x38, 0xc4, 0x7f, 0xa3, 0xd6, 0xa4, 0x6e, 0x3e, 0x40, 0x78, 0xc0,
@@ -77,16 +83,116 @@ func TestParseDerBytesWithMultipleCerts(t *testing.T) {
 	totalDerBytes = append(totalDerBytes, derBytes1...)
 	totalDerBytes = append(totalDerBytes, derBytes2...)
 	certBytes := parseDerBytes(totalDerBytes)
-
-	if len(certBytes) != 2 || !reflect.DeepEqual(certBytes[0], derBytes1) || !reflect.DeepEqual(certBytes[1], derBytes2) {
+	if len(certBytes) != 2 || !reflect.DeepEqual(certBytes[0], derBytes1) ||
+		!reflect.DeepEqual(certBytes[1], derBytes2) {
 		t.Errorf("Failed to parse derBytes with two certificates!")
 	}
 }
-
 func TestParseDerBytesWithSingleCert(t *testing.T) {
 	certBytes := parseDerBytes(derBytes1)
-
 	if len(certBytes) != 1 || !reflect.DeepEqual(certBytes[0], derBytes1) {
 		t.Errorf("Failed to parse derBytes with a single certificate!")
+	}
+}
+func generateDummyRootCert(t *testing.T) (tls.Certificate, *x509.Certificate) {
+	t.Helper()
+	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		t.Fatalf("ecdsa.GenerateKey failed: %v", err)
+	}
+	template := &x509.Certificate{
+		SerialNumber:          big.NewInt(1),
+		Subject:               pkix.Name{CommonName: "Dummy Root CA"},
+		NotBefore:             time.Now(),
+		NotAfter:              time.Now().Add(time.Hour),
+		IsCA:                  true,
+		BasicConstraintsValid: true,
+	}
+	derBytes, err := x509.CreateCertificate(
+		rand.Reader, template, template, &key.PublicKey, key,
+	)
+	if err != nil {
+		t.Fatalf("x509.CreateCertificate failed: %v", err)
+	}
+	rootCert, err := x509.ParseCertificate(derBytes)
+	if err != nil {
+		t.Fatalf("x509.ParseCertificate failed: %v", err)
+	}
+	tlsCert := tls.Certificate{
+		Certificate: [][]byte{derBytes},
+		PrivateKey:  key,
+	}
+	return tlsCert, rootCert
+}
+
+// TestGetReplayConfigForClientMoreArchiveCertsThanRoots verifies that when an archive
+// contains more certificates than configured root CA keys, getReplayConfigForClient
+// executes safely without panicking and generates fallback certificates.
+func TestGetReplayConfigForClientMoreArchiveCertsThanRoots(t *testing.T) {
+	rootTlsCert, rootX509Cert := generateDummyRootCert(t)
+	// Two certificates in the archive, but only one root private key in tlsProxy.roots.
+	totalDerBytes := []byte{}
+	totalDerBytes = append(totalDerBytes, derBytes1...)
+	totalDerBytes = append(totalDerBytes, derBytes2...)
+	tp := &tlsProxy{
+		roots:     []tls.Certificate{rootTlsCert},
+		rootCerts: []*x509.Certificate{rootX509Cert},
+		archive: &Archive{
+			Certs: map[string][]byte{
+				"example.com": totalDerBytes,
+			},
+		},
+		dummyCertsMap:          make(map[string][]byte),
+		useArchiveCertificates: true,
+	}
+	config, err := tp.getReplayConfigForClient(&tls.ClientHelloInfo{ServerName: "example.com"})
+	if err != nil {
+		t.Fatalf("getReplayConfigForClient unexpected error: %v", err)
+	}
+	if config == nil || len(config.Certificates) == 0 {
+		t.Errorf("expected getReplayConfigForClient to return a config with at least 1 certificate")
+	}
+}
+
+// TestFindMatchingKey verifies that findMatchingKey connects a certificate to its
+// corresponding private key in roots by public key matching, independently of array order.
+func TestFindMatchingKey(t *testing.T) {
+	rootTlsCert1, rootX509Cert1 := generateDummyRootCert(t)
+	rootTlsCert2, rootX509Cert2 := generateDummyRootCert(t)
+	certBytes, err := MintCertificate("example.com", rootX509Cert2, rootTlsCert2.PrivateKey)
+	if err != nil {
+		t.Fatalf("MintCertificate failed: %v", err)
+	}
+	roots := []tls.Certificate{rootTlsCert1, rootTlsCert2}
+	matchedKey := findMatchingKey(certBytes, roots)
+	if matchedKey == nil {
+		t.Fatalf("findMatchingKey returned nil, expected matching key")
+	}
+	if matchedKey != rootTlsCert2.PrivateKey {
+		t.Errorf(
+			"findMatchingKey matched wrong key: got %v, want %v",
+			matchedKey, rootTlsCert2.PrivateKey,
+		)
+	}
+	tp := &tlsProxy{
+		roots:     roots,
+		rootCerts: []*x509.Certificate{rootX509Cert1, rootX509Cert2},
+		archive: &Archive{
+			Certs: map[string][]byte{
+				"example.com": certBytes,
+			},
+		},
+		dummyCertsMap:          make(map[string][]byte),
+		useArchiveCertificates: true,
+	}
+	config, err := tp.getReplayConfigForClient(&tls.ClientHelloInfo{ServerName: "example.com"})
+	if err != nil {
+		t.Fatalf("getReplayConfigForClient failed: %v", err)
+	}
+	if len(config.Certificates) != 1 {
+		t.Fatalf("expected 1 certificate, got %d", len(config.Certificates))
+	}
+	if config.Certificates[0].PrivateKey != rootTlsCert2.PrivateKey {
+		t.Errorf("getReplayConfigForClient paired incorrect private key")
 	}
 }
