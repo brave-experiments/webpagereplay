@@ -18,6 +18,24 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "30d0b575_92f3582c",
+        "filename": "src/webpagereplay/certs.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 4959333
+      },
+      "writtenOn": "2026-07-20T22:59:22Z",
+      "side": 1,
+      "message": "During recording mode, if an archived certificate for host h already exists and matches an available root key (len(certificates) \u003e 0), minting new certificates on top of it is redundant. Wrapping this block in if len(certificates) \u003d\u003d 0 ensures we only mint fresh certificates when no matching recorded certificate is available",
+      "parentUuid": "ff42a7a8_2285f9f3",
+      "revId": "cdd065dc8f634d21802e9b0815e33051e103a10a",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "36d18ddc_82392ec0",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-07-17T14:09:29Z",
       "side": 1,
       "message": "This suppresses the error. Should we not be a bit more vocal about it? Similarly below.",
+      "revId": "cdd065dc8f634d21802e9b0815e33051e103a10a",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b4f0a620_a33f9208",
+        "filename": "src/webpagereplay/certs.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 4959333
+      },
+      "writtenOn": "2026-07-20T22:59:22Z",
+      "side": 1,
+      "message": "Updated findMatchingKey to log a warning when certificate parsing fails.",
+      "parentUuid": "36d18ddc_82392ec0",
       "revId": "cdd065dc8f634d21802e9b0815e33051e103a10a",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
@@ -52,6 +88,24 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "07aef9ce_d93e5c87",
+        "filename": "src/webpagereplay/certs_test.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 4959333
+      },
+      "writtenOn": "2026-07-20T22:59:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "14b1dc85_480b0879",
+      "revId": "cdd065dc8f634d21802e9b0815e33051e103a10a",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fdfd1b29_87481016",
@@ -65,6 +119,30 @@
       "writtenOn": "2026-07-17T14:09:29Z",
       "side": 1,
       "message": "Given that this is a test, should we not just fail/crash the test on such an unexpected turn of events? Likewise below. You\u0027re doing it anyway, just outside of this function.",
+      "range": {
+        "startLine": 104,
+        "startChar": 0,
+        "endLine": 106,
+        "endChar": 2
+      },
+      "revId": "cdd065dc8f634d21802e9b0815e33051e103a10a",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4086d467_51d959e1",
+        "filename": "src/webpagereplay/certs_test.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 4959333
+      },
+      "writtenOn": "2026-07-20T22:59:22Z",
+      "side": 1,
+      "message": "Updated generateDummyRootCert(t *testing.T) and setup helpers to accept t and call t.Fatalf directly on setup failure",
+      "parentUuid": "fdfd1b29_87481016",
       "range": {
         "startLine": 104,
         "startChar": 0,
@@ -98,6 +176,30 @@
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0e7648f7_46356714",
+        "filename": "src/webpagereplay/certs_test.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 4959333
+      },
+      "writtenOn": "2026-07-20T22:59:22Z",
+      "side": 1,
+      "message": "Done. Reworded the comment to focus on the test behavior being asserted.",
+      "parentUuid": "37c5fcb3_b20c0359",
+      "range": {
+        "startLine": 131,
+        "startChar": 53,
+        "endLine": 132,
+        "endChar": 10
+      },
+      "revId": "cdd065dc8f634d21802e9b0815e33051e103a10a",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b22231da_559120ba",
@@ -111,6 +213,30 @@
       "writtenOn": "2026-07-17T14:09:29Z",
       "side": 1,
       "message": "See my previous comment on this topic. You have so many calls to `t.Fatalf()` from within the test that it\u0027s distracting from the test purpose; but if you had this validation within the helper, that\u0027d be much better.",
+      "range": {
+        "startLine": 135,
+        "startChar": 0,
+        "endLine": 137,
+        "endChar": 2
+      },
+      "revId": "cdd065dc8f634d21802e9b0815e33051e103a10a",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4d7c65a3_cf3434ef",
+        "filename": "src/webpagereplay/certs_test.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 4959333
+      },
+      "writtenOn": "2026-07-20T22:59:22Z",
+      "side": 1,
+      "message": "Refactored the setup helpers (generateDummyRootCert and mintCertificateForTest) to take t *testing.T and call t.Fatalf internally",
+      "parentUuid": "b22231da_559120ba",
       "range": {
         "startLine": 135,
         "startChar": 0,
