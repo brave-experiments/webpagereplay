@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a8d700c5_b555d62f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-07-23T16:37:16Z",
+      "side": 1,
+      "message": "Please clean up the CL before sending it off to review. Namely:\n- Do not remove empty lines in random locations in the file.\n- Do not format lines you are not intending to modify.\n- Do not produce new functions without an empty line separating them from other functions.\n\nThanks.",
+      "revId": "721dadf1f932f3006e4bda85340c5aaafe72c50a",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
