@@ -34,6 +34,24 @@
       "parentUuid": "a8d700c5_b555d62f",
       "revId": "721dadf1f932f3006e4bda85340c5aaafe72c50a",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "43511acf_839b46b1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-07-24T11:28:57Z",
+      "side": 1,
+      "message": "\u003e This seems to have caused the random empty lines being removed\n\nTo test this, I have reintroduced one of the removed empty lines and ran `gofmt` on the file. The line was not re-removed. You can safely fix these issues and resubmit the CL for review.",
+      "parentUuid": "f2163170_351dfd80",
+      "revId": "721dadf1f932f3006e4bda85340c5aaafe72c50a",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
