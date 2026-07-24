@@ -52,6 +52,24 @@
       "parentUuid": "f2163170_351dfd80",
       "revId": "721dadf1f932f3006e4bda85340c5aaafe72c50a",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "85919cdc_82009c25",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 4959333
+      },
+      "writtenOn": "2026-07-24T18:35:22Z",
+      "side": 1,
+      "message": "Thanks for checking. I have re-added the empty lines that were removed.",
+      "parentUuid": "43511acf_839b46b1",
+      "revId": "721dadf1f932f3006e4bda85340c5aaafe72c50a",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
