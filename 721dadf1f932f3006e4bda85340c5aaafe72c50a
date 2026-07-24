@@ -16,6 +16,24 @@
       "message": "Please clean up the CL before sending it off to review. Namely:\n- Do not remove empty lines in random locations in the file.\n- Do not format lines you are not intending to modify.\n- Do not produce new functions without an empty line separating them from other functions.\n\nThanks.",
       "revId": "721dadf1f932f3006e4bda85340c5aaafe72c50a",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f2163170_351dfd80",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 4959333
+      },
+      "writtenOn": "2026-07-24T01:18:54Z",
+      "side": 1,
+      "message": "I had to run gofmt on the files in order for `git cl upload` to run successfully. This seems to have caused the random empty lines being removed and unmodified lines being formatted.\n\n```\nalanwangg@alanwangg:~/work/chromium/webpagereplay$ git cl upload\nFound change with 1 commit...\nRunning presubmit upload checks on branch fix-wpr-tls-proxy-panics ...\n** Presubmit ERRORS: 1 **\nChecking go format\nvpython3 scripts/check_go_format.py (0.10s) failed\nThe following files are not formatted. Run gofmt to fix.\n    src/webpagereplay/certs.go\n    src/webpagereplay/certs_test.go\n```",
+      "parentUuid": "a8d700c5_b555d62f",
+      "revId": "721dadf1f932f3006e4bda85340c5aaafe72c50a",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }
