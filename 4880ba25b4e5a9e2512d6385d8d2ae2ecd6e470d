@@ -83,6 +83,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3b106d61_8f8a7e00",
+        "filename": "src/webpagereplay/certs_test.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-07-27T12:27:41Z",
+      "side": 1,
+      "message": "You\u0027d might need a more invasive change if you also want to handle this usecase:\n```\n// TestGetReplayConfigForClient_SubsetRootsMatchedCorrectly verifies that when an archive\n// contains multiple certificates (e.g., recorded with both RSA and ECDSA roots), but the proxy\n// is currently configured with only one of those roots (e.g., ECDSA), getReplayConfigForClient\n// correctly matches the provided root with its corresponding certificate from the archive\n// without relying on array index matching.\nfunc TestGetReplayConfigForClient_SubsetRootsMatchedCorrectly(t *testing.T) {\n\trootTlsCert1, rootX509Cert1 :\u003d generateDummyRootCert(t)\n\trootTlsCert2, rootX509Cert2 :\u003d generateDummyRootCert(t)\n\n\tleafDer1, err :\u003d MintCertificate(\"example.com\", rootX509Cert1, rootTlsCert1.PrivateKey)\n\tif err !\u003d nil {\n\t\tt.Fatalf(\"MintCertificate 1 failed: %v\", err)\n\t}\n\tleafDer2, err :\u003d MintCertificate(\"example.com\", rootX509Cert2, rootTlsCert2.PrivateKey)\n\tif err !\u003d nil {\n\t\tt.Fatalf(\"MintCertificate 2 failed: %v\", err)\n\t}\n\n\ttotalDerBytes :\u003d append(leafDer1, leafDer2...)\n\n\ttp :\u003d \u0026tlsProxy{\n\t\troots:                  []tls.Certificate{rootTlsCert2},\n\t\trootCerts:              []*x509.Certificate{rootX509Cert2},\n\t\tarchive: \u0026Archive{\n\t\t\tCerts: map[string][]byte{\n\t\t\t\t\"example.com\": totalDerBytes,\n\t\t\t},\n\t\t},\n\t\tdummyCertsMap:          make(map[string][]byte),\n\t\tuseArchiveCertificates: true,\n\t}\n\n\tconfig, err :\u003d tp.getReplayConfigForClient(\u0026tls.ClientHelloInfo{ServerName: \"example.com\"})\n\tif err !\u003d nil {\n\t\tt.Fatalf(\"getReplayConfigForClient unexpected error: %v\", err)\n\t}\n\tif config \u003d\u003d nil || len(config.Certificates) \u003d\u003d 0 {\n\t\tt.Fatalf(\"expected config to have at least 1 certificate\")\n\t}\n\tif len(config.Certificates) !\u003d 1 {\n\t\tt.Fatalf(\"expected exactly 1 certificate, got %d\", len(config.Certificates))\n\t}\n\t\n\tif !bytes.Equal(config.Certificates[0].Certificate[0], leafDer2) {\n\t\tt.Errorf(\"paired the wrong certificate from the archive\")\n\t}\n\t\n\tif !reflect.DeepEqual(config.Certificates[0].PrivateKey, rootTlsCert2.PrivateKey) {\n\t\tt.Errorf(\"paired with the wrong private key\")\n\t}\n}\n```\nBut if you do need this, please make sure to introduce a test along those lines. Otherwise it\u0027s unclear why you\u0027d need to change so much of the file.\n\nPlease note that the above test is for illustration purposes only. An LLM produced it and I have not scrutinized it. If you need to introduce it, please review the LLM\u0027s output and polish it before sending it for review.\n\nNote also that your current code in certs.go does not actually pass this test.",
+      "parentUuid": "f126cfde_854c81ac",
+      "revId": "4880ba25b4e5a9e2512d6385d8d2ae2ecd6e470d",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "61984237_fadfa9dd",
         "filename": "src/webpagereplay/certs_test.go",
         "patchSetId": 8
