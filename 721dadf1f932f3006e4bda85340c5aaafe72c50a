@@ -70,6 +70,24 @@
       "parentUuid": "43511acf_839b46b1",
       "revId": "721dadf1f932f3006e4bda85340c5aaafe72c50a",
       "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9e6be946_fe0ba1e6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-07-27T11:44:54Z",
+      "side": 1,
+      "message": "As of PS6, your CL still touches multiple lines where it\u0027s only applying formatting and not making any actual changes. Normally you\u0027d want to send a separate CL for review to fix a file\u0027s formatting, and you put the substantive CL based on top of it, thereby making the reviewer\u0027s work easier.\n\nIn this particular case, I don\u0027t really see why these changes should be done, because when I run `gofmt` on the file, it does not produce any of these changes. See [here](https://screenshot.googleplex.com/7gwXFjR68EJViRT) for a screenshot of the only changes produced by running `gofmt` on my own machine.\n\nAs a rule, when sending CLs for review, we try to make reviewers\u0027 lives easier by including the minimal set of changes. This is not just a personal courtesy; it is genuinely helpful for ensuring good outcomes for the code review process - the lesser the cognitive load, the better the feedback. (\"Better feedback\" in the sense of \"higher quality\", not in the sense of \"positive\".)",
+      "parentUuid": "85919cdc_82009c25",
+      "revId": "721dadf1f932f3006e4bda85340c5aaafe72c50a",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
     }
   ]
 }

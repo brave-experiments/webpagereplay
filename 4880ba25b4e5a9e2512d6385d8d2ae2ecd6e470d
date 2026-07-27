@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0aeeefe5_06bcf511",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-07-27T11:44:54Z",
+      "side": 1,
+      "message": "I suggest you find the comment starting `\"This is the real test in your CL\"` and read it first. It might invalidate a few of the other discussions. (But please read my comments on the other thread anyway, for future guidance.)",
+      "revId": "4880ba25b4e5a9e2512d6385d8d2ae2ecd6e470d",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "754b6753_01fd71a0",
+        "filename": "src/webpagereplay/certs.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-07-27T11:44:54Z",
+      "side": 1,
+      "message": "Iterating byte by byte is strange, although I see there was pre-existing code that did something similar (line 158 prior to your change). Please explain this with a comment.",
+      "range": {
+        "startLine": 159,
+        "startChar": 0,
+        "endLine": 160,
+        "endChar": 39
+      },
+      "revId": "4880ba25b4e5a9e2512d6385d8d2ae2ecd6e470d",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8a53ce4e_6cacd4f3",
+        "filename": "src/webpagereplay/certs.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-07-27T11:44:54Z",
+      "side": 1,
+      "message": "Move this to a helper function with a clear name and comment explaining what it does.",
+      "range": {
+        "startLine": 157,
+        "startChar": 0,
+        "endLine": 168,
+        "endChar": 2
+      },
+      "revId": "4880ba25b4e5a9e2512d6385d8d2ae2ecd6e470d",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f126cfde_854c81ac",
+        "filename": "src/webpagereplay/certs_test.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-07-27T11:44:54Z",
+      "side": 1,
+      "message": "This is the real test in your CL, as far as I can tell. It looks like [this](https://chromium-review.git.corp.google.com/c/webpagereplay/+/8153320/1/src/webpagereplay/certs.go) two-line change is sufficient to get this test passing. Is it working for your real issue too? If so, we can replace your change, which produced `-43 +94` lines changed in prod-code, with a `-2 +2` change.",
+      "revId": "4880ba25b4e5a9e2512d6385d8d2ae2ecd6e470d",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "61984237_fadfa9dd",
+        "filename": "src/webpagereplay/certs_test.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 1246261
+      },
+      "writtenOn": "2026-07-27T11:44:54Z",
+      "side": 1,
+      "message": "I don\u0027t think we need to test internal configuration here. I don\u0027t think we even need to add `findMatchingKey()`; see other comment.",
+      "revId": "4880ba25b4e5a9e2512d6385d8d2ae2ecd6e470d",
+      "serverId": "3ce6091f-6c88-37e8-8c75-72f92ae8dfba"
+    }
+  ]
+}
