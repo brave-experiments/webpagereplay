@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/klauspost/compress/zstd"
 	"github.com/kylelemons/godebug/pretty"
 )
 
@@ -109,6 +110,50 @@ func TestInjectScriptToGzipResponse(t *testing.T) {
 		t.Fatal(err)
 	}
 	reader.Close()
+	expectedContent := []byte("<html><script>" + injectedScript + "</script></html>")
+	if !bytes.Equal(expectedContent, body) {
+		t.Fatal(
+			fmt.Errorf("expected : %s \n actual: %s \n", expectedContent, body))
+	}
+}
+
+func TestInjectScriptToZstdResponse(t *testing.T) {
+	transformer, minifyErr := NewScriptInjector([]byte(injectedScript), DefaultScriptInjectorConfig())
+	if minifyErr != nil {
+		t.Fatal(minifyErr)
+	}
+	req := http.Request{}
+	responseHeader := http.Header{
+		"Content-Type":     []string{"text/html"},
+		"Content-Encoding": []string{"zstd"}}
+	var zstdBody bytes.Buffer
+	zw, err := zstd.NewWriter(&zstdBody)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := zw.Write([]byte("<html></html>")); err != nil {
+		t.Fatal(err)
+	}
+	if err := zw.Close(); err != nil {
+		t.Fatal(err)
+	}
+	resp := http.Response{
+		StatusCode: 200,
+		Header:     responseHeader,
+		Request:    &req,
+		Body:       ioutil.NopCloser(bytes.NewReader(zstdBody.Bytes()))}
+	transformer.Transform(&req, &resp)
+	// Note: *zstd.Decoder does not implement io.ReadCloser (its Close returns
+	// no error), so it cannot be assigned to an io.ReadCloser variable.
+	reader, err := zstd.NewReader(resp.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer reader.Close()
+	var body []byte
+	if body, err = ioutil.ReadAll(reader); err != nil {
+		t.Fatal(err)
+	}
 	expectedContent := []byte("<html><script>" + injectedScript + "</script></html>")
 	if !bytes.Equal(expectedContent, body) {
 		t.Fatal(
