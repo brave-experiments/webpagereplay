@@ -79,3 +79,8 @@ def CheckRuff(input_api, output_api):
                           kwargs={'cwd': input_api.PresubmitLocalPath()},
                           message=output_api.PresubmitError)
     ])
+
+
+def CheckVPythonSpec(input_api, output_api):
+    return input_api.RunTests(
+        input_api.canned_checks.CheckVPythonSpec(input_api, output_api))
