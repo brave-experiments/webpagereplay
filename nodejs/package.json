@@ -1,0 +1,42 @@
+{
+  "name": "webpagereplay",
+  "version": "1.0.0",
+  "description": "Node.js library bindings for WebPageReplay (WprGo) via native FFI. Record and replay web traffic with an async/await API.",
+  "license": "BSD-3-Clause",
+  "type": "module",
+  "main": "src/index.js",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./src/index.js"
+    }
+  },
+  "files": [
+    "src/",
+    "prebuilds/",
+    "index.d.ts",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node scripts/build-native.js",
+    "test": "node --test"
+  },
+  "keywords": [
+    "wpr",
+    "web-page-replay",
+    "webpagereplay",
+    "proxy",
+    "record",
+    "replay",
+    "network",
+    "performance",
+    "ffi"
+  ],
+  "dependencies": {
+    "koffi": "^3.3.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

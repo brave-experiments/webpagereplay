@@ -72,6 +72,21 @@ cd webpagereplay
 
   load the page
 
+## Node.js library bindings
+
+This tool can also be embedded directly in Node.js programs via first-class
+FFI bindings. The bindings live in [`nodejs/`](nodejs/README.md):
+
+```js
+import { startRecord } from './nodejs/src/index.js';
+const session = await startRecord();          // auto-selects ports
+console.log(session.ports.http);              // kernel-selected port
+const { archive } = await session.stop();     // Buffer of the recorded archive
+```
+
+See [`nodejs/README.md`](nodejs/README.md) for the full API and build
+instructions.
+
 ## Running on Android
 
 You will need a Linux host machine and an android device.
