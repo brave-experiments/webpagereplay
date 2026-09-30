@@ -209,12 +209,18 @@ func (a *Archive) FindHostNegotiatedProtocol(host string) (string, error) {
 	return "", ErrNotFound
 }
 
-func assertCompleteURL(url *url.URL) {
+// ErrIncompleteURL is returned when a request URL lacks a host or scheme.
+var ErrIncompleteURL = errors.New("request URL is incomplete (missing host or scheme)")
+
+// assertCompleteURL returns ErrIncompleteURL if the URL lacks a host or
+// scheme. (It used to call os.Exit, which made embedding hosts impossible to
+// keep alive on malformed URLs; callers now decide how to handle the error.)
+func assertCompleteURL(url *url.URL) error {
 	if url.Host == "" || url.Scheme == "" {
-		// TODO: Handle this more gracefully.
 		Log().Error("Missing host and scheme", "url", url)
-		os.Exit(1)
+		return ErrIncompleteURL
 	}
+	return nil
 }
 
 // Returns a new archive with all fields cloned, apart from requests.
@@ -298,7 +304,9 @@ func (a *Archive) FindRequest(req *http.Request) (*http.Request, *http.Response,
 	}
 
 	// Exact match. Note that req may be relative, but hostMap keys are always absolute.
-	assertCompleteURL(req.URL)
+	if err := assertCompleteURL(req.URL); err != nil {
+		return nil, nil, err
+	}
 	reqUrl := req.URL.String()
 
 	if len(hostMap[reqUrl]) > 0 {
@@ -505,10 +513,14 @@ func (a *Archive) Merge(other *Archive, keepDuplicates bool) error {
 	var numAddedRequests = 0
 	var numSkippedRequests = 0
 	err := other.ForEach(func(req *http.Request, resp *http.Response) error {
-		foundReq, _, notFoundErr := a.FindRequest(req)
-		if keepDuplicates || notFoundErr == ErrNotFound ||
-			req.URL.String() != foundReq.URL.String() ||
-			!reflect.DeepEqual(req.Header, foundReq.Header) {
+		foundReq, _, findErr := a.FindRequest(req)
+		if findErr != nil && !errors.Is(findErr, ErrNotFound) {
+			return findErr
+		}
+		duplicate := findErr == nil &&
+			req.URL.String() == foundReq.URL.String() &&
+			reflect.DeepEqual(req.Header, foundReq.Header)
+		if keepDuplicates || !duplicate {
 			if err := a.AddArchivedRequest(req, resp, AddModeAppend); err != nil {
 				return err
 			}
@@ -536,8 +548,8 @@ func (a *Archive) Trim(trimMatch func(req *http.Request, resp *http.Response) (b
 		}
 		if trimReq {
 			numRemovedRequests++
-		} else {
-			clone.AddArchivedRequest(req, resp, AddModeAppend)
+		} else if err := clone.AddArchivedRequest(req, resp, AddModeAppend); err != nil {
+			return err
 		}
 		return nil
 	})
@@ -559,7 +571,7 @@ func (a *Archive) Add(method string, urlString string, mode AddMode) error {
 	// Print a warning for duplicate requests since the replay server will only
 	// return the first found response.
 	if mode == AddModeAppend || mode == AddModeSkipExisting {
-		if foundReq, _, notFoundErr := a.FindRequest(req); notFoundErr != ErrNotFound {
+		if foundReq, _, findErr := a.FindRequest(req); findErr == nil {
 			if foundReq.URL.String() == url.String() {
 				if mode == AddModeSkipExisting {
 					Log().Warn("Skipping existing request", "method", req.Method,

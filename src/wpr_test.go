@@ -142,7 +142,7 @@ func TestReplaceConstants(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := string(replaceConstants(
+			got := string(webpagereplay.ReplaceConstants(
 				tt.filename, []byte(tt.content), tt.timeSeed, tt.random))
 			if got != tt.want {
 				t.Errorf("replaceConstants(%s) = %s, want %s", tt.content, got, tt.want)

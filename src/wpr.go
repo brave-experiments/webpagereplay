@@ -6,23 +6,19 @@
 package main
 
 import (
-	"bytes"
 	"crypto/tls"
 	"errors"
 	"fmt"
 	"math"
-	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/urfave/cli/v2"
 	"go.chromium.org/webpagereplay/src/webpagereplay"
-	"golang.org/x/net/http2"
 )
 
 var Log = webpagereplay.Log
@@ -336,7 +332,7 @@ func (common *CommonConfig) ProcessInjectedScriptsForReplay(c *cli.Context,
 	if injectArchiveScripts && len(archive.InjectedScripts) > 0 {
 		for name, contents := range archive.InjectedScripts {
 			scriptsMap[name] = contents
-			replacedContents := replaceConstants(
+			replacedContents := webpagereplay.ReplaceConstants(
 				name, []byte(contents), timeSeedMs, constantMathRandomResult)
 			if err := common.addScriptInjector(replacedContents, name); err != nil {
 				return fmt.Errorf("error processing injected script %s: %v", name, err)
@@ -383,7 +379,7 @@ func (common *CommonConfig) processScripts(scripts map[string]string, timeSeedMs
 			}
 			scripts[name] = string(script)
 		}
-		script = replaceConstants(name, script, timeSeedMs, constantMathRandomResult)
+		script = webpagereplay.ReplaceConstants(name, script, timeSeedMs, constantMathRandomResult)
 		if err := common.addScriptInjector(script, name); err != nil {
 			return fmt.Errorf("error processing injected script %s: %v", name, err)
 		}
@@ -442,27 +438,6 @@ func parseInjectScriptsByUrl(byUrl []string) ([]*webpagereplay.TransformerRule, 
 		rules = append(rules, rule)
 	}
 	return rules, nil
-}
-
-func replaceConstants(
-	filename string, script []byte, timeSeedMs int64, constantMathRandomResult *float64) []byte {
-
-	randomResultStr := "null"
-	if constantMathRandomResult != nil {
-		randomResultStr = strconv.FormatFloat(*constantMathRandomResult, 'f', -1, 64)
-	}
-
-	timeSeedTimestamp := strconv.FormatInt(timeSeedMs, 10)
-	// Legacy format, kept for backwards compatibility. These must be applied first,
-	// since the new formats are substrings.
-	script =
-		bytes.Replace(script, []byte("{{WPR_TIME_SEED_TIMESTAMP}}"), []byte(timeSeedTimestamp), -1)
-	script =
-		bytes.Replace(script, []byte("{{WPR_CONSTANT_RANDOM_RESULT}}"), []byte(randomResultStr), -1)
-	// New format.
-	script = bytes.Replace(script, []byte("WPR_TIME_SEED_TIMESTAMP"), []byte(timeSeedTimestamp), -1)
-	script = bytes.Replace(script, []byte("WPR_CONSTANT_RANDOM_RESULT"), []byte(randomResultStr), -1)
-	return script
 }
 
 func (common *CommonConfig) addScriptInjector(script []byte, scriptFile string) error {
@@ -571,114 +546,30 @@ func (r *RootCACommand) Flags() []cli.Flag {
 	)
 }
 
-func getListener(host string, port int) (net.Listener, error) {
-	addr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("%v:%d", host, port))
-	if err != nil {
-		return nil, err
-	}
-	return net.ListenTCP("tcp", addr)
-}
-
-// Copied from https://golang.org/src/net/http/server.go.
-// This is to make dead TCP connections to eventually go away.
-type tcpKeepAliveListener struct {
-	*net.TCPListener
-}
-
-func (ln tcpKeepAliveListener) Accept() (c net.Conn, err error) {
-	tc, err := ln.AcceptTCP()
-	if err != nil {
-		return
-	}
-	tc.SetKeepAlive(true)
-	tc.SetKeepAlivePeriod(3 * time.Minute)
-	return tc, nil
-}
-
 func startServers(tlsconfig *tls.Config, httpHandler, httpsHandler http.Handler, common *CommonConfig) {
-	type Server struct {
-		Scheme string
-		Host   string
-		Port   int
-		*http.Server
+	set, err := webpagereplay.StartServers(webpagereplay.ServerConfig{
+		Host:                common.host,
+		HTTPPort:            common.httpPort,
+		HTTPSPort:           common.httpsPort,
+		HTTPSecureProxyPort: common.httpSecureProxyPort,
+		TLSConfig:           tlsconfig,
+		HTTPHandler:         httpHandler,
+		HTTPSHandler:        httpsHandler,
+	})
+	if err != nil {
+		Log().Error("Failed to start servers", "error", err)
+		os.Exit(1)
 	}
-
-	servers := []*Server{}
-
-	if common.httpPort > -1 {
-		servers = append(servers, &Server{
-			Scheme: "http",
-			Host:   common.host,
-			Port:   common.httpPort,
-			Server: &http.Server{
-				Addr:    fmt.Sprintf("%v:%v", common.host, common.httpPort),
-				Handler: httpHandler,
-			},
-		})
+	for _, li := range set.Listeners() {
+		logServeStarted(li.Scheme, li.Addr.String())
 	}
-	if common.httpsPort > -1 {
-		servers = append(servers, &Server{
-			Scheme: "https",
-			Host:   common.host,
-			Port:   common.httpsPort,
-			Server: &http.Server{
-				Addr:      fmt.Sprintf("%v:%v", common.host, common.httpsPort),
-				Handler:   httpsHandler,
-				TLSConfig: tlsconfig,
-			},
-		})
-	}
-	if common.httpSecureProxyPort > -1 {
-		servers = append(servers, &Server{
-			Scheme: "https",
-			Host:   common.host,
-			Port:   common.httpSecureProxyPort,
-			Server: &http.Server{
-				Addr:      fmt.Sprintf("%v:%v", common.host, common.httpSecureProxyPort),
-				Handler:   httpHandler, // this server proxies HTTP requests over an HTTPS connection
-				TLSConfig: nil,         // use the default since this is as a proxy, not a MITM server
-			},
-		})
-	}
-
-	for _, s := range servers {
-		s := s
-		go func() {
-			var ln net.Listener
-			var err error
-			switch s.Scheme {
-			case "http":
-				ln, err = getListener(s.Host, s.Port)
-				if err != nil {
-					break
-				}
-				logServeStarted(s.Scheme, ln)
-				err = s.Serve(tcpKeepAliveListener{ln.(*net.TCPListener)})
-			case "https":
-				ln, err = getListener(s.Host, s.Port)
-				if err != nil {
-					break
-				}
-				logServeStarted(s.Scheme, ln)
-				http2.ConfigureServer(s.Server, &http2.Server{})
-				tlsListener := tls.NewListener(tcpKeepAliveListener{ln.(*net.TCPListener)}, s.TLSConfig)
-				err = s.Serve(tlsListener)
-			default:
-				panic(fmt.Sprintf("unknown s.Scheme: %s", s.Scheme))
-			}
-			if err != nil {
-				Log().Error("Failed to start server", "scheme", s.Scheme, "addr", s.Addr, "error", err)
-			}
-		}()
-	}
-
 	fmt.Printf("Use Ctrl-C to exit\n")
 	select {}
 }
 
-func logServeStarted(scheme string, ln net.Listener) {
+func logServeStarted(scheme, addr string) {
 	// DO NOT CHANGE: this line is parsed by downstream tools like catapult and crossbench.
-	fmt.Printf("Starting server on %s://%s\n", scheme, ln.Addr().String())
+	fmt.Printf("Starting server on %s://%s\n", scheme, addr)
 }
 
 func (r *RecordCommand) Run(c *cli.Context) error {

@@ -3,6 +3,10 @@
 // found in the LICENSE file.
 
 // Program httparchive prints information about archives saved by record.
+// This is a standalone tool that is built with an explicit file list
+// to avoid redeclaring symbols (Log, main) with wpr.go.
+//go:build ignore
+
 package main
 
 import (

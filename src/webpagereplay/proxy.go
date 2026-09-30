@@ -94,7 +94,17 @@ func updateDates(h http.Header, now time.Time) {
 // NewReplayingProxy constructs an HTTP proxy that replays responses from an archive.
 // The proxy is listening for requests on a port that uses the given scheme (e.g., http, https).
 func NewReplayingProxy(a *Archive, scheme string, quietMode bool, paramToIgnoreInURLPath string) http.Handler {
-	return &replayingProxy{a, scheme, quietMode, paramToIgnoreInURLPath}
+	return NewReplayingProxyWithExit(a, scheme, quietMode, paramToIgnoreInURLPath, nil)
+}
+
+// NewReplayingProxyWithExit behaves like NewReplayingProxy but installs an
+// injectable exit handler. If onExit is non-nil, then instead of the process
+// exiting on /web-page-replay-command-exit (or on a request URL params
+// failure), onExit is invoked with the same exit code and the request is
+// answered normally. If onExit is nil, the historical os.Exit behavior is
+// preserved. This allows embedding hosts to intercept process exit.
+func NewReplayingProxyWithExit(a *Archive, scheme string, quietMode bool, paramToIgnoreInURLPath string, onExit func(exitCode int)) http.Handler {
+	return &replayingProxy{a, scheme, quietMode, paramToIgnoreInURLPath, onExit}
 }
 
 type replayingProxy struct {
@@ -102,6 +112,7 @@ type replayingProxy struct {
 	scheme                 string
 	quietMode              bool
 	paramToIgnoreInURLPath string
+	onExit                 func(exitCode int)
 }
 
 func (proxy *replayingProxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
@@ -113,6 +124,11 @@ func (proxy *replayingProxy) ServeHTTP(w http.ResponseWriter, req *http.Request)
 	if req.URL.Path == "/web-page-replay-command-exit" {
 		Log().Info("Received /web-page-replay-command-exit")
 		Log().Info("Shutting down")
+		if proxy.onExit != nil {
+			w.WriteHeader(http.StatusOK)
+			proxy.onExit(0)
+			return
+		}
 		os.Exit(0)
 		return
 	}
@@ -125,6 +141,11 @@ func (proxy *replayingProxy) ServeHTTP(w http.ResponseWriter, req *http.Request)
 	fixupRequestURL(req, proxy.scheme)
 	if err := processRequestURLParams(req, proxy.paramToIgnoreInURLPath); err != nil {
 		Log().Error("Error processing request URL", "error", err)
+		if proxy.onExit != nil {
+			w.WriteHeader(errStatus)
+			proxy.onExit(-1)
+			return
+		}
 		os.Exit(-1)
 		return
 	}
@@ -191,7 +212,19 @@ func (proxy *replayingProxy) ServeHTTP(w http.ResponseWriter, req *http.Request)
 // The proxy is listening for requests on a port that uses the given scheme (e.g., http, https).
 func NewRecordingProxy(a *WritableArchive, scheme string, transformers []ResponseTransformer, paramToIgnoreInURLPath string) http.Handler {
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-	return &recordingProxy{http.DefaultTransport.(*http.Transport), a, scheme, transformers, paramToIgnoreInURLPath}
+	return NewRecordingProxyWithExit(a, scheme, transformers, paramToIgnoreInURLPath, nil)
+}
+
+// NewRecordingProxyWithExit behaves like NewRecordingProxy but installs an
+// injectable exit handler. If onExit is non-nil, then instead of the process
+// exiting on /web-page-replay-command-exit (or on a request URL params
+// failure), onExit is invoked with the same exit code and the request is
+// answered normally. If onExit is nil, the historical os.Exit behavior is
+// preserved (including flushing and closing the archive before exit). When
+// onExit is set, the caller is responsible for closing the archive.
+func NewRecordingProxyWithExit(a *WritableArchive, scheme string, transformers []ResponseTransformer, paramToIgnoreInURLPath string, onExit func(exitCode int)) http.Handler {
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	return &recordingProxy{http.DefaultTransport.(*http.Transport), a, scheme, transformers, paramToIgnoreInURLPath, onExit}
 }
 
 type recordingProxy struct {
@@ -200,6 +233,7 @@ type recordingProxy struct {
 	scheme                 string
 	transformers           []ResponseTransformer
 	paramToIgnoreInURLPath string
+	onExit                 func(exitCode int)
 }
 
 func (proxy *recordingProxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
@@ -211,6 +245,13 @@ func (proxy *recordingProxy) ServeHTTP(w http.ResponseWriter, req *http.Request)
 	if req.URL.Path == "/web-page-replay-command-exit" {
 		Log().Info("Received /web-page-replay-command-exit")
 		Log().Info("Shutting down")
+		if proxy.onExit != nil {
+			// The embedding host owns process lifetime (and the archive is
+			// closed by the host's stop logic), so just notify it.
+			w.WriteHeader(http.StatusOK)
+			proxy.onExit(0)
+			return
+		}
 		if err := proxy.a.Close(); err != nil {
 			Log().Error("Error flushing archive", "error", err)
 		}
@@ -220,6 +261,11 @@ func (proxy *recordingProxy) ServeHTTP(w http.ResponseWriter, req *http.Request)
 	fixupRequestURL(req, proxy.scheme)
 	if err := processRequestURLParams(req, proxy.paramToIgnoreInURLPath); err != nil {
 		Log().Error("Error processing request URL", "error", err)
+		if proxy.onExit != nil {
+			w.WriteHeader(errStatus)
+			proxy.onExit(-1)
+			return
+		}
 		os.Exit(-1)
 		return
 	}
