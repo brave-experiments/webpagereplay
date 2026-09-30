@@ -72,6 +72,35 @@ cd webpagereplay
 
   load the page
 
+### WebSocket support (experimental)
+
+WebSocket connections (`ws://` and `wss://` over HTTP/1.1) are recorded and
+replayed:
+
+* **Record mode**: the handshake is relayed to the origin server and recorded,
+  and all messages exchanged on the connection (in both directions, including
+  ping/pong/close frames) are captured in the archive.
+* **Replay mode**: the recorded handshake is served (with
+  `Sec-WebSocket-Accept` recomputed for the client's key), the recorded
+  server-to-client messages are served in order, client pings are answered
+  with synthesized pongs, and client close frames are echoed. If the recorded
+  session did not end with a close, the connection is kept open until the
+  client disconnects.
+
+Known limitations:
+
+* Client-to-server messages are recorded but not replayed (they are
+  consumed and discarded); server responses are served from the recorded
+  script in order, regardless of what the client sends.
+* Message timings are recorded but not honored during replay; messages are
+  served as soon as possible.
+* WebSocket extensions (e.g. `permessage-deflate`) are not replayed; they are
+  dropped from the handshake so that both sides speak uncompressed frames.
+* WebSocket-over-HTTP/2 (RFC 8441 extended CONNECT) is not supported; only
+  RFC 6455 over HTTP/1.1 is handled.
+* `httparchive list` shows recorded WebSocket sessions with their message
+  counts.
+
 ## Running on Android
 
 You will need a Linux host machine and an android device.

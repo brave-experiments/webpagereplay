@@ -24,12 +24,34 @@ import (
 
 var ErrNotFound = errors.New("not found")
 
+// ArchivedWebSocketMessage is a single message recorded on a WebSocket
+// connection.
+type ArchivedWebSocketMessage struct {
+	// TimestampMs is the time, in milliseconds, between the completion of the
+	// WebSocket handshake and this message. It is recorded but not used for
+	// replay (messages are served in order, as soon as possible).
+	TimestampMs int64 `json:"timestamp_ms"`
+	// Direction is WsServerToClient or WsClientToServer.
+	Direction int `json:"direction"`
+	// Opcode is the WebSocket opcode of the message
+	// (e.g. 0x1 text, 0x2 binary, 0x8 close, 0x9 ping, 0xA pong).
+	Opcode int `json:"opcode"`
+	// Payload is the unmasked message payload. For close messages it contains
+	// the status code.
+	Payload []byte `json:"payload,omitempty"`
+}
+
 // ArchivedRequest contains a single request and its response.
-// Immutable after creation.
+// The request/response fields are immutable after creation.
 type ArchivedRequest struct {
 	SerializedRequest   []byte
 	SerializedResponse  []byte // if empty, the request failed
 	LastServedSessionId uint32
+	// WebSocketMessages contains the messages relayed on a WebSocket
+	// connection established by this request, in chronological order.
+	// It is non-nil if and only if this entry is a recorded WebSocket
+	// handshake.
+	WebSocketMessages []ArchivedWebSocketMessage
 }
 
 // RequestMatch represents a match when querying the archive for responses to a request
@@ -170,11 +192,13 @@ func OpenArchive(path string) (*Archive, error) {
 	return &a, nil
 }
 
-// ForEach applies f to all requests in the archive.
+// ForEach applies f to all requests in the archive. The ArchivedRequest is
+// passed as well so that callers can access archive-specific metadata such as
+// recorded WebSocket messages.
 // Although `req` and `resp` are pointers, mutating them won't actually change
 // the contents of the archive. If you need to mutate, create a new archive and
 // add to it.
-func (a *Archive) ForEach(f func(req *http.Request, resp *http.Response) error) error {
+func (a *Archive) ForEach(f func(ar *ArchivedRequest, req *http.Request, resp *http.Response) error) error {
 	for _, urlmap := range a.Requests {
 		for urlString, requests := range urlmap {
 			fullURL, _ := url.Parse(urlString)
@@ -185,7 +209,7 @@ func (a *Archive) ForEach(f func(req *http.Request, resp *http.Response) error) 
 						"url", urlString, "error", err)
 					continue
 				}
-				if err := f(req, resp); err != nil {
+				if err := f(archivedRequest, req, resp); err != nil {
 					return err
 				}
 			}
@@ -266,14 +290,15 @@ func (a *Archive) cloneFieldsExceptRequests() Archive {
 
 // FindRequest searches for the given request in the archive.
 // Returns ErrNotFound if the request could not be found.
-//
-// Does not use the request body, but reads the request body to
-// prevent WPR from issuing a Connection Reset error when
-// handling large upload requests.
-// (https://bugs.chromium.org/p/chromium/issues/detail?id=1215668)
-//
-// TODO: conditional requests
 func (a *Archive) FindRequest(req *http.Request) (*http.Request, *http.Response, error) {
+	_, req, resp, err := a.FindArchivedRequest(req)
+	return req, resp, err
+}
+
+// FindArchivedRequest is FindRequest, but also returns the underlying
+// ArchivedRequest, which carries archive-specific metadata such as recorded
+// WebSocket messages.
+func (a *Archive) FindArchivedRequest(req *http.Request) (*ArchivedRequest, *http.Request, *http.Response, error) {
 	// Clear the input channel on large uploads to prevent WPR
 	// from resetting the connection, and causing the upload
 	// to fail.
@@ -294,7 +319,7 @@ func (a *Archive) FindRequest(req *http.Request) (*http.Request, *http.Response,
 
 	hostMap := a.Requests[req.Host]
 	if len(hostMap) == 0 {
-		return nil, nil, ErrNotFound
+		return nil, nil, nil, ErrNotFound
 	}
 
 	// Exact match. Note that req may be relative, but hostMap keys are always absolute.
@@ -355,26 +380,27 @@ func (a *Archive) FindRequest(req *http.Request) (*http.Request, *http.Response,
 			"num_matches", len(bestURLs), "matches", strings.Join(bestURLs, ","))
 	}
 
-	return nil, nil, ErrNotFound
+	return nil, nil, nil, ErrNotFound
 }
 
 // Given an incoming request and a set of matches in the archive, identify the best match,
 // based on request headers.
+// Returns a match if there is one, or ErrNotFound.
 func (a *Archive) findBestMatchInArchivedRequestSet(
 	incomingReq *http.Request,
 	archivedReqs []*ArchivedRequest) (
-	*http.Request, *http.Response, error) {
+	*ArchivedRequest, *http.Request, *http.Response, error) {
 	scheme := incomingReq.URL.Scheme
 
 	if len(archivedReqs) == 0 {
-		return nil, nil, ErrNotFound
+		return nil, nil, nil, ErrNotFound
 	} else if len(archivedReqs) == 1 {
 		archivedReq, archivedResp, err := archivedReqs[0].unmarshal(scheme)
 		if err != nil {
 			Log().Error("Error unmarshaling request", "error", err)
-			return nil, nil, err
+			return nil, nil, nil, err
 		}
-		return archivedReq, archivedResp, err
+		return archivedReqs[0], archivedReq, archivedResp, err
 	}
 
 	// There can be multiple requests with the same URL string. If that's the
@@ -420,13 +446,13 @@ func (a *Archive) findBestMatchInArchivedRequestSet(
 	if a.ServeResponseInChronologicalSequence &&
 		bestInSequenceMatch.Match != nil {
 		bestInSequenceMatch.Match.LastServedSessionId = a.CurrentSessionId
-		return bestInSequenceMatch.Request, bestInSequenceMatch.Response, nil
+		return bestInSequenceMatch.Match, bestInSequenceMatch.Request, bestInSequenceMatch.Response, nil
 	} else if bestMatch.Match != nil {
 		bestMatch.Match.LastServedSessionId = a.CurrentSessionId
-		return bestMatch.Request, bestMatch.Response, nil
+		return bestMatch.Match, bestMatch.Request, bestMatch.Response, nil
 	}
 
-	return nil, nil, ErrNotFound
+	return nil, nil, nil, ErrNotFound
 }
 
 type AddMode int
@@ -467,6 +493,33 @@ func (a *Archive) AddArchivedRequest(req *http.Request, resp *http.Response, mod
 	return nil
 }
 
+// AddArchivedRequestEntry adds a pre-built ArchivedRequest (e.g. one carrying
+// recorded WebSocket messages) without re-serializing it. The request is used
+// only to determine the archive keys (host and URL).
+func (a *Archive) AddArchivedRequestEntry(ar *ArchivedRequest, req *http.Request, mode AddMode) error {
+	// Always use the absolute URL in this mapping.
+	assertCompleteURL(req.URL)
+	if a.Requests[req.Host] == nil {
+		a.Requests[req.Host] = make(map[string][]*ArchivedRequest)
+	}
+	urlStr := req.URL.String()
+	requests := a.Requests[req.Host][urlStr]
+	if mode == AddModeAppend {
+		requests = append(requests, ar)
+	} else if mode == AddModeOverwriteExisting {
+		Log().Warn("Overwriting existing request")
+		requests = []*ArchivedRequest{ar}
+	} else if mode == AddModeSkipExisting {
+		if requests != nil {
+			Log().Warn("Skipping existing request", "url", urlStr)
+			return nil
+		}
+		requests = append(requests, ar)
+	}
+	a.Requests[req.Host][urlStr] = requests
+	return nil
+}
+
 // Start a new replay session so that the archive serves responses from the start.
 // If an archive contains multiple identical requests with different responses, the archive
 // can serve the responses in chronological order. This function resets the archive serving
@@ -480,7 +533,7 @@ func (a *Archive) StartNewReplaySession() {
 // The edited archive is returned, leaving the current archive is unchanged.
 func (a *Archive) Edit(edit func(req *http.Request, resp *http.Response) (*http.Request, *http.Response, error)) (*Archive, error) {
 	clone := a.cloneFieldsExceptRequests()
-	err := a.ForEach(func(oldReq *http.Request, oldResp *http.Response) error {
+	err := a.ForEach(func(ar *ArchivedRequest, oldReq *http.Request, oldResp *http.Response) error {
 		newReq, newResp, err := edit(oldReq, oldResp)
 		if err != nil {
 			return err
@@ -490,6 +543,10 @@ func (a *Archive) Edit(edit func(req *http.Request, resp *http.Response) (*http.
 				panic("programming error: newReq/newResp must both be nil or non-nil")
 			}
 			return nil
+		}
+		if len(ar.WebSocketMessages) > 0 {
+			// Recorded WebSocket sessions are not edited; keep them as-is.
+			return clone.AddArchivedRequestEntry(ar, oldReq, AddModeAppend)
 		}
 		// TODO: allow changing scheme or protocol?
 		return clone.AddArchivedRequest(newReq, newResp, AddModeAppend)
@@ -504,11 +561,19 @@ func (a *Archive) Edit(edit func(req *http.Request, resp *http.Response) (*http.
 func (a *Archive) Merge(other *Archive, keepDuplicates bool) error {
 	var numAddedRequests = 0
 	var numSkippedRequests = 0
-	err := other.ForEach(func(req *http.Request, resp *http.Response) error {
+	err := other.ForEach(func(ar *ArchivedRequest, req *http.Request, resp *http.Response) error {
 		foundReq, _, notFoundErr := a.FindRequest(req)
 		if keepDuplicates || notFoundErr == ErrNotFound ||
 			req.URL.String() != foundReq.URL.String() ||
 			!reflect.DeepEqual(req.Header, foundReq.Header) {
+			if len(ar.WebSocketMessages) > 0 {
+				// Keep WebSocket sessions intact.
+				if err := a.AddArchivedRequestEntry(ar, req, AddModeAppend); err != nil {
+					return err
+				}
+				numAddedRequests++
+				return nil
+			}
 			if err := a.AddArchivedRequest(req, resp, AddModeAppend); err != nil {
 				return err
 			}
@@ -529,15 +594,22 @@ func (a *Archive) Merge(other *Archive, keepDuplicates bool) error {
 func (a *Archive) Trim(trimMatch func(req *http.Request, resp *http.Response) (bool, error)) (*Archive, error) {
 	var numRemovedRequests = 0
 	clone := a.cloneFieldsExceptRequests()
-	err := a.ForEach(func(req *http.Request, resp *http.Response) error {
+	err := a.ForEach(func(ar *ArchivedRequest, req *http.Request, resp *http.Response) error {
 		trimReq, err := trimMatch(req, resp)
 		if err != nil {
 			return err
 		}
 		if trimReq {
 			numRemovedRequests++
+		} else if len(ar.WebSocketMessages) > 0 {
+			// Keep WebSocket sessions intact.
+			if err := clone.AddArchivedRequestEntry(ar, req, AddModeAppend); err != nil {
+				return err
+			}
 		} else {
-			clone.AddArchivedRequest(req, resp, AddModeAppend)
+			if err := clone.AddArchivedRequest(req, resp, AddModeAppend); err != nil {
+				return err
+			}
 		}
 		return nil
 	})
@@ -618,6 +690,34 @@ func (a *WritableArchive) RecordRequest(req *http.Request, resp *http.Response) 
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	return a.AddArchivedRequest(req, resp, AddModeAppend)
+}
+
+// RecordWebSocketHandshake records a WebSocket handshake request and its 101
+// response, and returns the archived request so that the messages recorded
+// during the session can be attached to it later via SetWebSocketMessages.
+func (a *WritableArchive) RecordWebSocketHandshake(req *http.Request, resp *http.Response) (*ArchivedRequest, error) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	assertCompleteURL(req.URL)
+	ar, err := serializeRequest(req, resp)
+	if err != nil {
+		return nil, err
+	}
+	ar.WebSocketMessages = []ArchivedWebSocketMessage{}
+	if a.Requests[req.Host] == nil {
+		a.Requests[req.Host] = make(map[string][]*ArchivedRequest)
+	}
+	urlStr := req.URL.String()
+	a.Requests[req.Host][urlStr] = append(a.Requests[req.Host][urlStr], ar)
+	return ar, nil
+}
+
+// SetWebSocketMessages attaches the messages recorded during a WebSocket
+// session to the handshake previously recorded by RecordWebSocketHandshake.
+func (a *WritableArchive) SetWebSocketMessages(ar *ArchivedRequest, msgs []ArchivedWebSocketMessage) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	ar.WebSocketMessages = msgs
 }
 
 // Must only be called if FindHostCertificate() returned ErrNotFound.

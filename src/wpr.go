@@ -757,7 +757,12 @@ func (r *ReplayCommand) Run(c *cli.Context) error {
 		CurrentSessionId:                     archive.CurrentSessionId,
 		DisableFuzzyURLMatching:              archive.DisableFuzzyURLMatching,
 	}
-	err = archive.ForEach(func(req *http.Request, resp *http.Response) error {
+	err = archive.ForEach(func(ar *webpagereplay.ArchivedRequest, req *http.Request, resp *http.Response) error {
+		if len(ar.WebSocketMessages) > 0 {
+			// Recorded WebSocket sessions bypass the HTTP response transformers;
+			// keep them as they were recorded.
+			return transformedArchive.AddArchivedRequestEntry(ar, req, webpagereplay.AddModeAppend)
+		}
 		for _, t := range r.common.transformers {
 			t.Transform(req, resp)
 		}

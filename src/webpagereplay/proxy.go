@@ -5,6 +5,7 @@
 package webpagereplay
 
 import (
+	"bufio"
 	"bytes"
 	"crypto/tls"
 	"fmt"
@@ -129,6 +130,12 @@ func (proxy *replayingProxy) ServeHTTP(w http.ResponseWriter, req *http.Request)
 		return
 	}
 
+	// WebSocket connections bypass the regular HTTP machinery entirely.
+	if isWebSocketHandshake(req) {
+		proxy.handleWebSocketHandshake(w, req)
+		return
+	}
+
 	logger := makeLogger(req, proxy.quietMode)
 
 	// Lookup the response in the archive.
@@ -187,6 +194,61 @@ func (proxy *replayingProxy) ServeHTTP(w http.ResponseWriter, req *http.Request)
 	}
 }
 
+// handleWebSocketHandshake replays a recorded WebSocket session: it serves
+// the recorded 101 handshake (recomputing Sec-WebSocket-Accept, which is
+// derived from the client's key) and then serves the recorded server-to-client
+// messages in order. Client control frames are handled live.
+func (proxy *replayingProxy) handleWebSocketHandshake(w http.ResponseWriter, req *http.Request) {
+	logger := makeLogger(req, proxy.quietMode)
+	hj, ok := w.(http.Hijacker)
+	if !ok {
+		logger.Error("WebSocket: ResponseWriter does not support hijacking")
+		w.WriteHeader(errStatus)
+		return
+	}
+	archivedReq, _, storedResp, err := proxy.a.FindArchivedRequest(req)
+	if err != nil || storedResp == nil || storedResp.StatusCode != http.StatusSwitchingProtocols {
+		logger.Warn("WebSocket: FAILED to find handshake in archive", "error", err)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	clientConn, clientBrw, err := hj.Hijack()
+	if err != nil {
+		logger.Error("WebSocket: failed to hijack client connection", "error", err)
+		return
+	}
+
+	// Serve the recorded handshake, but recompute Sec-WebSocket-Accept (it
+	// is derived from the client's Sec-WebSocket-Key, which differs from the
+	// recorded one) and drop negotiated extensions, which are not replayed
+	// (without the extension the client sends uncompressed frames).
+	resp := *storedResp
+	resp.Header = storedResp.Header.Clone()
+	resp.Header.Set("Sec-WebSocket-Accept", computeSecWebSocketAccept(req.Header.Get("Sec-WebSocket-Key")))
+	resp.Header.Del("Sec-WebSocket-Extensions")
+	resp.Body = http.NoBody
+	resp.ContentLength = 0
+	var respBuf bytes.Buffer
+	if err := resp.Write(&respBuf); err != nil {
+		logger.Error("WebSocket: failed to serialize handshake response", "error", err)
+		clientConn.Close()
+		return
+	}
+	if _, err := clientConn.Write(respBuf.Bytes()); err != nil {
+		logger.Error("WebSocket: failed to send handshake response to client", "error", err)
+		clientConn.Close()
+		return
+	}
+
+	var msgs []ArchivedWebSocketMessage
+	if archivedReq != nil {
+		msgs = archivedReq.WebSocketMessages
+	}
+	logger.Info("WebSocket: replaying session", "url", req.URL.String(), "messages", len(msgs))
+	replayWsSession(clientConn, clientBrw.Reader, msgs, logger)
+}
+
 // NewRecordingProxy constructs an HTTP proxy that records responses into an archive.
 // The proxy is listening for requests on a port that uses the given scheme (e.g., http, https).
 func NewRecordingProxy(a *WritableArchive, scheme string, transformers []ResponseTransformer, paramToIgnoreInURLPath string) http.Handler {
@@ -221,6 +283,12 @@ func (proxy *recordingProxy) ServeHTTP(w http.ResponseWriter, req *http.Request)
 	if err := processRequestURLParams(req, proxy.paramToIgnoreInURLPath); err != nil {
 		Log().Error("Error processing request URL", "error", err)
 		os.Exit(-1)
+		return
+	}
+
+	// WebSocket connections bypass the regular HTTP machinery entirely.
+	if isWebSocketHandshake(req) {
+		proxy.handleWebSocketHandshake(w, req)
 		return
 	}
 
@@ -308,4 +376,106 @@ func (proxy *recordingProxy) ServeHTTP(w http.ResponseWriter, req *http.Request)
 		logger.Warn("Client response truncated", "written", n, "total",
 			len(responseBodyAfterTransform), "error", err)
 	}
+}
+
+// handleWebSocketHandshake relays a WebSocket connection between the client
+// and the origin server, recording the handshake and all messages relayed on
+// the connection into the archive.
+func (proxy *recordingProxy) handleWebSocketHandshake(w http.ResponseWriter, req *http.Request) {
+	logger := makeLogger(req, false)
+	hj, ok := w.(http.Hijacker)
+	if !ok {
+		logger.Error("WebSocket: ResponseWriter does not support hijacking")
+		w.WriteHeader(errStatus)
+		return
+	}
+
+	originConn, err := dialWsOrigin(req)
+	if err != nil {
+		logger.Error("WebSocket: failed to connect to origin", "error", err)
+		w.WriteHeader(http.StatusBadGateway)
+		return
+	}
+
+	// Forward the handshake request to the origin unchanged.
+	// (Server requests always have a non-nil body, even for GET. Nil it out
+	// to prevent req.Write from emitting a chunked body; see ServeHTTP above.)
+	if req.ContentLength == 0 {
+		req.Body = nil
+	}
+	var reqBuf bytes.Buffer
+	if err := req.Write(&reqBuf); err != nil {
+		logger.Error("WebSocket: failed to serialize handshake request", "error", err)
+		originConn.Close()
+		w.WriteHeader(errStatus)
+		return
+	}
+	if _, err := originConn.Write(reqBuf.Bytes()); err != nil {
+		logger.Error("WebSocket: failed to send handshake to origin", "error", err)
+		originConn.Close()
+		w.WriteHeader(http.StatusBadGateway)
+		return
+	}
+
+	// Read the origin's handshake response.
+	originReader := bufio.NewReader(originConn)
+	resp, err := http.ReadResponse(originReader, req)
+	if err != nil {
+		logger.Error("WebSocket: failed to read origin handshake response", "error", err)
+		originConn.Close()
+		w.WriteHeader(http.StatusBadGateway)
+		return
+	}
+	if resp.StatusCode != http.StatusSwitchingProtocols {
+		// The origin refused the upgrade; relay its response as-is.
+		logger.Warn("WebSocket: origin refused upgrade", "status", resp.StatusCode)
+		for k, v := range resp.Header {
+			w.Header()[k] = append([]string{}, v...)
+		}
+		w.WriteHeader(resp.StatusCode)
+		io.Copy(w, resp.Body)
+		resp.Body.Close()
+		originConn.Close()
+		return
+	}
+	// A 101 response has no body; make its serialization unambiguous.
+	resp.Body = http.NoBody
+	resp.ContentLength = 0
+
+	// Record the handshake immediately, so that it survives an abrupt
+	// shutdown even if the session never finishes.
+	archivedReq, err := proxy.a.RecordWebSocketHandshake(req, resp)
+	if err != nil {
+		logger.Error("WebSocket: failed to record handshake", "error", err)
+	}
+
+	clientConn, clientBrw, err := hj.Hijack()
+	if err != nil {
+		logger.Error("WebSocket: failed to hijack client connection", "error", err)
+		originConn.Close()
+		return
+	}
+
+	// Forward the origin's 101 response to the client verbatim.
+	var respBuf bytes.Buffer
+	if err := resp.Write(&respBuf); err != nil {
+		logger.Error("WebSocket: failed to serialize handshake response", "error", err)
+		clientConn.Close()
+		originConn.Close()
+		return
+	}
+	if _, err := clientConn.Write(respBuf.Bytes()); err != nil {
+		logger.Error("WebSocket: failed to send handshake response to client", "error", err)
+		clientConn.Close()
+		originConn.Close()
+		return
+	}
+
+	// Relay and record frames until the connection is torn down.
+	logger.Info("WebSocket: recording session", "url", req.URL.String())
+	msgs := relayWebSocketSession(clientConn, clientBrw.Reader, originConn, originReader, time.Now())
+	if archivedReq != nil {
+		proxy.a.SetWebSocketMessages(archivedReq, msgs)
+	}
+	logger.Info("WebSocket: recorded session", "url", req.URL.String(), "messages", len(msgs))
 }

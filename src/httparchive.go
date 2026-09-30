@@ -45,7 +45,7 @@ func requestEnabled(cfg *webpagereplay.HttpArchiveConfig, req *http.Request, res
 }
 
 func list(cfg *webpagereplay.HttpArchiveConfig, a *webpagereplay.Archive, printFull bool) error {
-	return a.ForEach(func(req *http.Request, resp *http.Response) error {
+	return a.ForEach(func(ar *webpagereplay.ArchivedRequest, req *http.Request, resp *http.Response) error {
 		if !requestEnabled(cfg, req, resp) {
 			return nil
 		}
@@ -59,8 +59,15 @@ func list(cfg *webpagereplay.HttpArchiveConfig, a *webpagereplay.Archive, printF
 			}
 			resp.Write(os.Stdout)
 			fmt.Printf("\n")
+			if len(ar.WebSocketMessages) > 0 {
+				fmt.Printf("websocket: %d recorded messages\n", len(ar.WebSocketMessages))
+			}
 		} else {
-			fmt.Printf("%s %s %s %s\n", req.Method, req.Host, req.URL, resp.Status)
+			suffix := ""
+			if len(ar.WebSocketMessages) > 0 {
+				suffix = fmt.Sprintf(" (websocket, %d messages)", len(ar.WebSocketMessages))
+			}
+			fmt.Printf("%s %s %s %s%s\n", req.Method, req.Host, req.URL, resp.Status, suffix)
 		}
 		return nil
 	})
@@ -363,7 +370,15 @@ func inject(cfg *webpagereplay.HttpArchiveConfig, a *webpagereplay.Archive, outf
 		return fmt.Errorf("Error opening script %s: %v", scriptFile, err)
 	}
 
-	err = a.ForEach(func(req *http.Request, resp *http.Response) error {
+	err = a.ForEach(func(ar *webpagereplay.ArchivedRequest, req *http.Request, resp *http.Response) error {
+		if len(ar.WebSocketMessages) > 0 {
+			// Recorded WebSocket sessions bypass HTTP script injection; keep
+			// them as they were recorded.
+			if err := a.AddArchivedRequestEntry(ar, req, webpagereplay.AddModeOverwriteExisting); err != nil {
+				return err
+			}
+			return nil
+		}
 		if requestEnabled(cfg, req, resp) {
 			si.Transform(req, resp)
 		}
