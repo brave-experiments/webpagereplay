@@ -23,6 +23,7 @@ import (
 	"strings"
 
 	"github.com/andybalholm/brotli"
+	"github.com/klauspost/compress/zstd"
 	"github.com/tdewolff/minify/v2"
 	"github.com/tdewolff/minify/v2/js"
 )
@@ -171,6 +172,15 @@ func decompressBody(ce string, compressed []byte) ([]byte, error) {
 		r = flate.NewReader(bytes.NewReader(compressed))
 	case "br":
 		return ioutil.ReadAll(brotli.NewReader(bytes.NewReader(compressed)))
+	case "zstd":
+		// Note: *zstd.Decoder does not implement io.ReadCloser (its Close
+		// returns no error), so it cannot be assigned to r; handle it inline.
+		zr, err := zstd.NewReader(bytes.NewReader(compressed))
+		if err != nil {
+			return nil, err
+		}
+		defer zr.Close()
+		return ioutil.ReadAll(zr)
 	default:
 		// Unknown compression type or uncompressed.
 		return compressed, errors.New("unknown compression: " + ce)
@@ -197,6 +207,9 @@ func CompressBody(ae string, uncompressed []byte) ([]byte, string, error) {
 	case strings.Contains(ae, "br"):
 		w = brotli.NewWriter(&buf)
 		outCE = "br"
+	case strings.Contains(ae, "zstd"):
+		w, _ = zstd.NewWriter(&buf) // never fails without custom options
+		outCE = "zstd"
 	default:
 		// Unknown compression type or compression not allowed.
 		return uncompressed, "identity", errors.New("unknown compression: " + ae)
