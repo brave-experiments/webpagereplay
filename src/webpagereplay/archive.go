@@ -696,6 +696,10 @@ func (a *WritableArchive) RecordHostNegotiatedProtocol(host string, negotiatedPr
 }
 
 // Close flushes the the archive and closes the output file.
+//
+// Close serializes the archive from the current in-memory state, fsyncs it to
+// disk, and closes the file, so callers always receive a fully flushed file.
+// It must be called exactly once; subsequent calls return an error.
 func (a *WritableArchive) Close() error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -705,6 +709,11 @@ func (a *WritableArchive) Close() error {
 	}
 
 	if err := a.Serialize(a.f); err != nil {
+		return err
+	}
+	// Ensure the serialized bytes are durable on disk before closing.
+	if err := a.f.Sync(); err != nil {
+		a.f.Close()
 		return err
 	}
 	return a.f.Close()
