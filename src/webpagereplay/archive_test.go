@@ -5,12 +5,19 @@
 package webpagereplay
 
 import (
+	"bytes"
+	"compress/gzip"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"reflect"
+	"strings"
 	"testing"
+
+	"github.com/klauspost/compress/zstd"
 )
 
 func createArchivedRequest(t *testing.T, ustr string, header http.Header) *ArchivedRequest {
@@ -724,4 +731,93 @@ func TestTrim(t *testing.T) {
 	validateTrim(t, func(req *http.Request, resp *http.Response) (bool, error) { return req.Host == host2, nil }, a, 1)
 
 	validateTrim(t, func(req *http.Request, resp *http.Response) (bool, error) { return req.Host == host3, nil }, a, 2)
+}
+
+// writeCompressedArchiveFile writes a one-request archive compressed with the
+// given writer factory to a temp file, and returns the file path.
+func writeCompressedArchiveFile(t *testing.T, newWriter func(io.Writer) io.WriteCloser) string {
+	t.Helper()
+	a := newArchive()
+	const url = "https://example.com/index.html"
+	a.Requests["example.com"] = map[string][]*ArchivedRequest{
+		url: {createArchivedRequest(t, url, nil)},
+	}
+
+	var uncompressed bytes.Buffer
+	if err := json.NewEncoder(&uncompressed).Encode(&a); err != nil {
+		t.Fatalf("json encode failed: %v", err)
+	}
+
+	f, err := os.CreateTemp(t.TempDir(), "archive")
+	if err != nil {
+		t.Fatalf("os.CreateTemp: %v", err)
+	}
+	w := newWriter(f)
+	if _, err := w.Write(uncompressed.Bytes()); err != nil {
+		t.Fatalf("write failed: %v", err)
+	}
+	if err := w.Close(); err != nil {
+		t.Fatalf("compressor close failed: %v", err)
+	}
+	if err := f.Close(); err != nil {
+		t.Fatalf("file close failed: %v", err)
+	}
+	return f.Name()
+}
+
+func verifyOpenedArchive(t *testing.T, path string) *Archive {
+	t.Helper()
+	a, err := OpenArchive(path)
+	if err != nil {
+		t.Fatalf("OpenArchive(%s): %v", path, err)
+	}
+	if a.CurrentSessionId != 1 {
+		t.Errorf("CurrentSessionId = %d, want 1", a.CurrentSessionId)
+	}
+	requests := a.Requests["example.com"]["https://example.com/index.html"]
+	if len(requests) != 1 {
+		t.Errorf("len(requests) = %d, want 1", len(requests))
+	}
+	return a
+}
+
+func TestOpenArchiveGzip(t *testing.T) {
+	path := writeCompressedArchiveFile(t, func(w io.Writer) io.WriteCloser {
+		return gzip.NewWriter(w)
+	})
+	verifyOpenedArchive(t, path)
+}
+
+func TestOpenArchiveZstd(t *testing.T) {
+	path := writeCompressedArchiveFile(t, func(w io.Writer) io.WriteCloser {
+		zw, err := zstd.NewWriter(w)
+		if err != nil {
+			t.Fatalf("zstd.NewWriter: %v", err)
+		}
+		return zw
+	})
+	verifyOpenedArchive(t, path)
+}
+
+func TestOpenArchiveInvalidFormat(t *testing.T) {
+	for name, data := range map[string][]byte{
+		"not compressed": []byte("plainly uncompressed data"),
+		"too short":      []byte{0x28},
+		"empty":          nil,
+	} {
+		f, err := os.CreateTemp(t.TempDir(), "archive")
+		if err != nil {
+			t.Fatalf("os.CreateTemp: %v", err)
+		}
+		if _, err := f.Write(data); err != nil {
+			t.Fatalf("write failed: %v", err)
+		}
+		if err := f.Close(); err != nil {
+			t.Fatalf("file close failed: %v", err)
+		}
+		if _, err := OpenArchive(f.Name()); err == nil ||
+			!strings.Contains(err.Error(), "unknown archive format") {
+			t.Errorf("OpenArchive(%s) error = %v, want unknown archive format error", name, err)
+		}
+	}
 }
