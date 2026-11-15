@@ -13,13 +13,14 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
 	"reflect"
 	"strings"
 	"sync"
+
+	"github.com/klauspost/compress/zstd"
 )
 
 var ErrNotFound = errors.New("not found")
@@ -145,7 +146,16 @@ func prepareArchiveForReplay(a *Archive) {
 	a.CurrentSessionId = 1
 }
 
+// gzipMagic and zstdMagic are the leading bytes of files compressed in the
+// gzip and zstd formats, respectively. They are used to detect the compression
+// format of an archive file on open.
+var (
+	gzipMagic = []byte{0x1f, 0x8b}
+	zstdMagic = []byte{0x28, 0xb5, 0x2f, 0xfd}
+)
+
 // OpenArchive opens an archive file previously written by OpenWritableArchive.
+// Both gzip and zstd compressed archives are supported.
 func OpenArchive(path string) (*Archive, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -153,17 +163,43 @@ func OpenArchive(path string) (*Archive, error) {
 	}
 	defer f.Close()
 
-	gz, err := gzip.NewReader(f)
-	if err != nil {
-		return nil, fmt.Errorf("gunzip failed: %v", err)
+	buf := bufio.NewReader(f)
+	head, err := buf.Peek(len(zstdMagic))
+	if err != nil && err != io.EOF {
+		return nil, fmt.Errorf("reading %s failed: %v", path, err)
 	}
-	defer gz.Close()
-	buf, err := ioutil.ReadAll(gz)
+
+	var (
+		r       io.ReadCloser
+		closeFn func() error
+	)
+	switch {
+	case bytes.HasPrefix(head, gzipMagic):
+		gz, err := gzip.NewReader(buf)
+		if err != nil {
+			return nil, fmt.Errorf("gunzip failed: %v", err)
+		}
+		r, closeFn = gz, gz.Close
+	case bytes.HasPrefix(head, zstdMagic):
+		zr, err := zstd.NewReader(buf)
+		if err != nil {
+			return nil, fmt.Errorf("zstd decode failed: %v", err)
+		}
+		// Note: *zstd.Decoder does not implement io.ReadCloser (its Close
+		// returns no error), but IOReadCloser does.
+		rc := zr.IOReadCloser()
+		r, closeFn = rc, rc.Close
+	default:
+		return nil, fmt.Errorf("unknown archive format (expected gzip or zstd)")
+	}
+	defer closeFn()
+
+	uncompressed, err := io.ReadAll(r)
 	if err != nil {
 		return nil, fmt.Errorf("read failed: %v", err)
 	}
 	a := newArchive()
-	if err := json.Unmarshal(buf, &a); err != nil {
+	if err := json.Unmarshal(uncompressed, &a); err != nil {
 		return nil, fmt.Errorf("json unmarshal failed: %v", err)
 	}
 	prepareArchiveForReplay(&a)
