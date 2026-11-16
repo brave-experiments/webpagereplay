@@ -3,7 +3,7 @@ module go.chromium.org/webpagereplay
 go 1.26.0
 
 require (
-	github.com/andybalholm/brotli v1.2.8
+	github.com/andybalholm/brotli v1.3.0
 	github.com/klauspost/compress v1.20.3
 	github.com/kylelemons/godebug v1.1.0
 	github.com/tdewolff/minify/v2 v2.24.25
