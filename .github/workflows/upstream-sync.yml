@@ -1,0 +1,128 @@
+name: Upstream Sync
+
+on:
+  schedule:
+    - cron: "10 2 * * *" # daily at 02:10 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: upstream-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out fork
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: cookiecrumbler
+          fetch-depth: 0
+
+      - name: Fetch upstream main
+        run: |
+          git remote add upstream https://chromium.googlesource.com/webpagereplay
+          git fetch upstream main
+
+      - name: Check for new upstream commits
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          count=$(git rev-list --count cookiecrumbler..upstream/main)
+          if [ "$count" = "0" ]; then
+            echo "Upstream has no new commits."
+          else
+            branch_exists=$(git show-ref --verify --quiet refs/remotes/origin/upstream-sync && echo yes || echo no)
+            if [ "$branch_exists" = "yes" ]; then
+              # Skip when the open sync PR's head already contains the exact
+              # merge result, so reruns never rewrite the head of the PR.
+              open_pr=$(gh pr list --head upstream-sync --state open --json number --jq '.[0].number // empty')
+              if [ -n "$open_pr" ]; then
+                expected_tree=$(git merge-tree --write-tree cookiecrumbler upstream/main | head -n 1)
+                actual_tree=$(git rev-parse 'origin/upstream-sync^{tree}')
+                if [ "$expected_tree" = "$actual_tree" ]; then
+                  echo "Open sync PR already covers upstream; nothing to do."
+                  count=0
+                fi
+              fi
+              # Refuse to force-push over manual work: only a single bot-authored
+              # merge commit (or nothing) may be unique to the branch.
+              extra=$(git rev-list --count origin/upstream-sync ^cookiecrumbler ^upstream/main)
+              if [ "$extra" -gt 1 ]; then
+                echo "::error title=Manual changes on upstream-sync::Branch contains non-bot commits; update the sync PR manually or delete the branch."
+                exit 1
+              elif [ "$extra" = "1" ]; then
+                parents=$(git log -1 --format=%P origin/upstream-sync)
+                if [ "$(echo "$parents" | wc -w)" != "2" ] || \
+                   [ "$(git log -1 --format=%ae origin/upstream-sync)" != "41898282+github-actions[bot]@users.noreply.github.com" ]; then
+                  echo "::error title=Manual changes on upstream-sync::Branch tip is not the expected bot merge; update the sync PR manually or delete the branch."
+                  exit 1
+                fi
+              fi
+            fi
+          fi
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+
+      - name: Merge upstream main
+        if: steps.check.outputs.count != '0'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b upstream-sync
+          if ! out=$(git merge upstream/main -m "Merge upstream main" 2>&1); then
+            {
+              echo "## Upstream merge conflict"
+              echo
+              echo '```'
+              git diff --name-only --diff-filter=U
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::error title=Upstream merge conflict::$(echo "$out" | tail -n 1)"
+            git merge --abort 2>/dev/null || true
+            exit 1
+          fi
+
+      - name: Push sync branch
+        if: steps.check.outputs.count != '0'
+        run: |
+          if git show-ref --verify --quiet refs/remotes/origin/upstream-sync; then
+            git push --force-with-lease=upstream-sync:refs/remotes/origin/upstream-sync origin upstream-sync
+          else
+            git push origin upstream-sync
+          fi
+
+      - name: Create or update sync PR
+        if: steps.check.outputs.count != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          title="Sync with upstream webpagereplay"
+          total=$(git rev-list --count cookiecrumbler..upstream/main)
+          {
+            echo "Merges $total new commit(s) from https://chromium.googlesource.com/webpagereplay"
+            echo
+            git log --format='%h %s' --max-count=200 cookiecrumbler..upstream/main \
+              | sed "s/\`/'/g" \
+              | sed "s/^/- \`/; s/\$/\`/"
+            if [ "$total" -gt 200 ]; then
+              echo
+              echo "...and $((total - 200)) more."
+            fi
+            echo
+            echo "Note: PRs created with GITHUB_TOKEN do not trigger other workflows (e.g. Tests)."
+            echo "Note: merge with a merge commit (not squash/rebase) so upstream commits become ancestors of cookiecrumbler."
+          } > pr-body.md
+          pr_num=$(gh pr list --head upstream-sync --state open --json number --jq '.[0].number // empty')
+          if [ -n "$pr_num" ]; then
+            gh pr edit "$pr_num" --title "$title" --body-file pr-body.md
+          else
+            gh pr create --base cookiecrumbler --head upstream-sync --title "$title" --body-file pr-body.md
+          fi
