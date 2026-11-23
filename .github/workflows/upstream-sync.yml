@@ -41,10 +41,12 @@ jobs:
           else
             branch_exists=$(git show-ref --verify --quiet refs/remotes/origin/upstream-sync && echo yes || echo no)
             if [ "$branch_exists" = "yes" ]; then
-              # Skip when the open sync PR's head already contains the exact
-              # merge result, so reruns never rewrite the head of the PR.
+              # Skip only when the open sync PR's head contains all upstream
+              # history and matches the exact merge result, so reruns never
+              # rewrite the head of the PR.
               open_pr=$(gh pr list --head upstream-sync --state open --json number --jq '.[0].number // empty')
-              if [ -n "$open_pr" ]; then
+              if [ -n "$open_pr" ] && \
+                 git merge-base --is-ancestor upstream/main origin/upstream-sync; then
                 expected_tree=$(git merge-tree --write-tree cookiecrumbler upstream/main | head -n 1)
                 actual_tree=$(git rev-parse 'origin/upstream-sync^{tree}')
                 if [ "$expected_tree" = "$actual_tree" ]; then
@@ -64,6 +66,21 @@ jobs:
                    [ "$(git log -1 --format=%ae origin/upstream-sync)" != "41898282+github-actions[bot]@users.noreply.github.com" ]; then
                   echo "::error title=Manual changes on upstream-sync::Branch tip is not the expected bot merge; update the sync PR manually or delete the branch."
                   exit 1
+                fi
+                # An amended bot merge can carry manual edits: verify the tip
+                # tree is exactly the automatic merge of its own parents before
+                # replacing it.
+                if [ "$count" != "0" ]; then
+                  tip_tree=$(git rev-parse 'origin/upstream-sync^{tree}')
+                  if mt=$(git merge-tree --write-tree "${parents% *}" "${parents#* }" 2>/dev/null); then
+                    if [ "$(echo "$mt" | head -n 1)" != "$tip_tree" ]; then
+                      echo "::error title=Manual changes on upstream-sync::Branch tip contains manual edits; update the sync PR manually or delete the branch."
+                      exit 1
+                    fi
+                  else
+                    echo "::error title=Manual changes on upstream-sync::Branch tip resolves merge conflicts manually; update the sync PR manually or delete the branch."
+                    exit 1
+                  fi
                 fi
               fi
             fi
@@ -88,6 +105,24 @@ jobs:
             git merge --abort 2>/dev/null || true
             exit 1
           fi
+
+      - name: Set up Go
+        if: steps.check.outputs.count != '0'
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: true
+          cache-dependency-path: go.sum
+
+      # The src/ directory contains two `package main` targets (wpr and
+      # httparchive) whose files cannot be compiled together, so their tests
+      # are run file-by-file, mirroring .github/workflows/tests.yml.
+      - name: Run tests on merged tree
+        if: steps.check.outputs.count != '0'
+        run: |
+          go test ./src/webpagereplay/
+          go test -C src wpr.go wpr_test.go
+          go test -C src httparchive.go httparchive_test.go
 
       - name: Push sync branch
         if: steps.check.outputs.count != '0'
@@ -117,7 +152,7 @@ jobs:
               echo "...and $((total - 200)) more."
             fi
             echo
-            echo "Note: PRs created with GITHUB_TOKEN do not trigger other workflows (e.g. Tests)."
+            echo "Note: the merged tree is tested in this workflow; PRs created with GITHUB_TOKEN do not themselves trigger the Tests workflow."
             echo "Note: merge with a merge commit (not squash/rebase) so upstream commits become ancestors of cookiecrumbler."
           } > pr-body.md
           pr_num=$(gh pr list --head upstream-sync --state open --json number --jq '.[0].number // empty')
